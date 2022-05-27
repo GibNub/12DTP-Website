@@ -1,0 +1,40 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="create">
+    <h3>
+        Create Post
+    </h3>
+    <form method="POST" action="/create_post">
+        <div>
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title"><br>
+        </div>
+        <p>Type of post</p>
+        <div>
+            <input type="radio" id="type" name="type" value="general">
+            <label for="type">General</label><br>
+            <input type="radio" id="type" name="type" value="help">
+            <label for="type">Help</label><br>
+            <input type="radio" id="type" name="type" value="lore">
+            <label for="type">Lore</label><br>
+            <input type="radio" id="type" name="type" value="humor">
+            <label for="type">Humor</label><br>
+            <input type="radio" id="type" name="type" value="discussion">
+            <label for="type">Discussion</label><br>
+            <input type="radio" id="type" name="type" value="news">
+            <label for="type">News</label><br>
+        </div>
+        <div>
+            <label for="content">Content</label><br>
+            <textarea id="content" name="content" row="10" column="50"></textarea>
+        </div>
+        <input type="submit">
+    </form>
+</div>
+<p>
+    Hello
+</p>
+<ul>
+    {{ value }}
+</ul>
+{% endblock %}

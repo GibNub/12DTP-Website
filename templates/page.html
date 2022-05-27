@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="page_head">
+    <h1>
+        {{ title }}
+    </h1>
+    <h2>
+        {{ type }}
+    </h2>
+    <p>
+        {{ date }}
+    </p>
+    <p>
+        {{ user_id }}
+    </p>
+</div>
+<div class="page_body">
+    <p>
+        {{ content }}
+    </p>
+</div>
+<p>
+    {{ like }}
+</p>
+<p>
+    {{ dislike }}
+</p>
+<div class="page_foot"
+{% endblock %}
