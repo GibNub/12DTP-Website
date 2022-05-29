@@ -65,11 +65,6 @@ def update_post(type, title, content):
     conn.commit()
     conn.close()
 
-num = 0
-while num < 20:
-    print(call_page_database(num))
-    num += 1
-
 
 # Templates the html forum index with information from the database.
 # Then joins them in one string to then be passed to the actual html file.
@@ -106,8 +101,6 @@ def create_post():
         type = request.form["type"]
         content = request.form["content"]
         update_post(type, title, content)
-        print(type)
-        print(title)
         return redirect(url_for("home"), code=302)
 
 
@@ -119,9 +112,14 @@ def about():
 @app.route("/pages/<int:id>")
 def page(id):
     return render_template("page.html",
-                           title=call_page_database(id)[2],
-                           type=call_page_database(id)[1],
-                           content=call_page_database(id)[3], )
+                           title=call_page_database(id)[2], # title
+                           type=call_page_database(id)[1], # type
+                           content=call_page_database(id)[3], # content
+                           date=call_page_database(id)[7], # date
+                           user_id=call_comment_database(id)[6], # user id
+                           like=call_comment_database(id)[4], # like
+                           dislike=call_comment_database(id)[5], # dislike
+                           )
 
 
 @app.route("/search")
@@ -130,7 +128,7 @@ def search():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port='8080', debug=True)
+    app.run(debug=True, host="0.0.0.0", port="8000")
 
 
 # advanced search
