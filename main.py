@@ -1,5 +1,6 @@
 import sqlite3
 
+from time import time
 from flask import Flask, render_template, request, redirect, url_for
 from markupsafe import Markup
 
@@ -8,7 +9,7 @@ app = Flask(__name__)
 
 
 # This is the html template for indivdual forum posts
-# this code will need to be replaced with a javascript method
+# this code may need to be replaced with a javascript method
 def forum_post(title, type, date, content, like, dislike, id):
     html_template = """
     <li class="thread">
@@ -38,6 +39,30 @@ def forum_post(title, type, date, content, like, dislike, id):
     """.format(title, type, date, content, like, dislike, id)
     return html_template
 
+def comment_and_reply(user_id, content, like, dislike, date):
+    comment_template = """
+    <li class="comment">
+        <div class="comment>
+            <h6>
+                {0}
+            </h6>
+            <p>
+                {1}
+            </p>
+            <p>
+                {2}
+            </p>
+            <p>
+                {3}
+            </p>
+            <p>
+                {4}
+            </p>
+    """.format(user_id, content, like, dislike, date)
+
+
+
+
 
 # Gather the information for forum posts from the database
 def call_page_database(i):
@@ -46,7 +71,6 @@ def call_page_database(i):
     cur.execute("SELECT * FROM Post WHERE id = ?", (str(i),))
     return cur.fetchone()
     conn.close()
-
 
 def call_comment_database(i):
     conn = sqlite3.connect("forum_database.db")
@@ -116,9 +140,9 @@ def page(id):
                            type=call_page_database(id)[1], # type
                            content=call_page_database(id)[3], # content
                            date=call_page_database(id)[7], # date
-                           user_id=call_comment_database(id)[6], # user id
-                           like=call_comment_database(id)[4], # like
-                           dislike=call_comment_database(id)[5], # dislike
+                           user_id=call_page_database(id)[6], # user id
+                           like=call_page_database(id)[4], # like
+                           dislike=call_page_database(id)[5], # dislike
                            )
 
 
