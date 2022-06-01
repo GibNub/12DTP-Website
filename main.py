@@ -9,24 +9,25 @@ app = Flask(__name__)
 
 
 # This is the html template for indivdual forum posts.
-def forum_post(title, type, date, content, like, dislike, id):
+def forum(forum_info):
+    id, type, title, content, like, dislike, user_id, date = forum_info
     html_template = """
-    <li class="thread">
-        <div class="head">
-            <h4 class="title">
+    <li>
+        <div class="post_head">
+            <h4 class="post_title">
                 <a href="/pages/{6}">{0}</a>
             </h4>
-            <h5 class="type">
+            <h5 class="post_type">
                 {1}
             </h5>
             <p>
                 {2}
             </p>
         </div>
-        <div class="body">
+        <div class="post_body">
             <p>{3}</p>
         </div>
-        <div class="foot">
+        <div class="post_foot">
             <p>
                 {4}
             </p>
@@ -40,13 +41,44 @@ def forum_post(title, type, date, content, like, dislike, id):
 
 
 # Same as above.
-def comment_and_reply(user_id, content, like, dislike, date):
+def comment(user_id, content, like, dislike, date):
     comment_template = """
-    <li class="comment">
-        <div class="comment>
-            <h6>
+    <li>
+        <div class="comment_op">
+            <p>
                 {0}
-            </h6>
+            </p>
+        </div>
+        <div class="comment_content">
+            <p>
+                {1}
+            </p>
+        </div>
+        <div class="comment_info">
+            <p>
+                {2}
+            </p>
+            <p>
+                {3}
+            </p>
+            <p>
+                {4}
+            </p>
+        </div>
+        <div class="replies">
+            <ul>
+                {{ reply }}
+            </ul>
+        </div>
+    """.format(user_id, content, like, dislike, date)
+
+
+def reply(user_id, content, like, dislike, date):
+    reply_template = """
+        <div class="reply">
+            <p>
+                {0}
+            </p>
             <p>
                 {1}
             </p>
@@ -59,19 +91,18 @@ def comment_and_reply(user_id, content, like, dislike, date):
             <p>
                 {4}
             </p>
-            <div class="replies">
-                {{ reply }}
-            </div>
+        </div>
     """.format(user_id, content, like, dislike, date)
 
 
 # Gather the information for forum posts from the database.
-def call_page_database(i):
+def call_database(query, i):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
-    cur.execute("SELECT * FROM Post WHERE id = ?", (str(i),))
-    return cur.fetchone()
+    cur.execute(query, (str(i),))
+    result = cur.fetchone()
     conn.close()
+    return result
 
 
 def call_comment_database(i):
@@ -80,6 +111,10 @@ def call_comment_database(i):
     cur.execute("SELECT * FROM Comment WHERE post_id = ?", (str(i),))
     return cur.fetchall()
     conn.close()
+
+
+def call_reply_database(i):
+    conn = sqlite3.connect("forum")
 
 
 def update_post(type, title, content):
@@ -101,17 +136,9 @@ def home():
     forum_html = []
     i = 1
     while True:
-        if call_page_database(i) is None:
+        if call_database(i) is None:
             break
-        forum_html.append(forum_post(
-            call_page_database(i)[2],  # title.
-            call_page_database(i)[1],  # type.
-            call_page_database(i)[3],  # content.
-            call_page_database(i)[4],  # like.
-            call_page_database(i)[5],  # dislike.
-            call_page_database(i)[7],  # date.
-            call_page_database(i)[0],  # id.
-        ))
+        forum_html.append = forum(call_database("SELECT * FROM Post WHERE id = ?", i))
         i += 1
     forum_html = "".join(forum_html)
     forum_html.replace("\n", "")
