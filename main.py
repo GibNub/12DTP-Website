@@ -1,9 +1,11 @@
 import sqlite3
+import re
 
 from time import time
 from flask import Flask, render_template, request, redirect, url_for
 from markupsafe import Markup
 
+import templates
 
 app = Flask(__name__)
 
@@ -96,11 +98,15 @@ def reply(user_id, content, like, dislike, date):
 
 
 # Gather the information for forum posts from the database.
-def call_database(query, i):
+def call_database(query, i=None):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
-    cur.execute(query, (str(i),))
-    result = cur.fetchone()
+    if i is None:
+        cur.execute(query)
+        result = cur.fetchall()
+    else:
+        cur.execute(query, (str(i),))
+        result = cur.fetchone()
     conn.close()
     return result
 
@@ -136,9 +142,10 @@ def home():
     forum_html = []
     i = 1
     while True:
-        if call_database(i) is None:
+        data = call_database("SELECT * FROM Post WHERE id = ?", i)
+        if data is None:
             break
-        forum_html.append = forum(call_database("SELECT * FROM Post WHERE id = ?", i))
+        forum_html.append(forum(data))
         i += 1
     forum_html = "".join(forum_html)
     forum_html.replace("\n", "")
@@ -147,7 +154,7 @@ def home():
     return render_template("home.html", value=forum_html)
 
 
-# This gets the form values from the home page,
+# This gsets the form values from the home page,
 # The variables get updated to the database.
 # Then the home page then gets refreshed.
 @app.route("/create_post", methods=["GET", "POST"])
@@ -168,16 +175,16 @@ def about():
 
 # The route creates pages automatically for each pages.
 # The id variable passed into the call database function.
-@app.route("/pages/<int:id>")
+@app.route("/page/<int:id>")
 def page(id):
     return render_template("page.html",
-                           title=call_page_database(id)[2],  # title.
-                           type=call_page_database(id)[1],  # type.
-                           content=call_page_database(id)[3],  # content.
-                           date=call_page_database(id)[7],  # date.
-                           user_id=call_page_database(id)[6],  # user id.
-                           like=call_page_database(id)[4],  # like.
-                           dislike=call_page_database(id)[5],  # dislike.
+                           title = call_database("SELECT title FROM Post WHERE id = ?", id)[0],
+                           content = call_database("SELECT content FROM Post WHERE id = ?", id)[0],
+                           type = call_database("SELECT type FROM Post WHERE id = ?", id)[0],
+                           date = call_database("SELECT date FROM Post WHERE id = ?", id)[0],
+                           user_id = call_database("SELECT user_id FROM Post WHERE id = ?", id)[0],
+                           like = call_database("SELECT like FROM Post WHERE id = ?", id)[0],
+                           dislike = call_database("SELECT dislike FROM Post WHERE id = ?", id)[0],
                            )
 
 
@@ -185,6 +192,11 @@ def page(id):
 @app.route("/search")
 def search():
     return render_template()
+
+
+test_post = call_database("SELECT * FROM Post")
+for post in test_post:
+    print(post)
 
 
 if __name__ == "__main__":

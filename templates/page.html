@@ -2,30 +2,30 @@
 {% block content %}
 <div class="page_head">
     <h1>
-        {{ title }}
+        title : {{ title }}
     </h1>
     <h2>
-        {{ type }}
+        type : {{ type }}
     </h2>
     <p>
-        {{ date }}
+        date : {{ date }}
     </p>
     <p>
-        {{ user_id }}
+        user_id : {{ user_id }}
     </p>
 </div>
 <div class="page_body">
     <p>
-        {{ content }}
+       content:  {{ content }}
     </p>
 </div>
 <p>
-    {{ like }}
+    likes: {{ like }}
 </p>
 <p>
-    {{ dislike }}
+    dislikes: {{ dislike }}
 </p>
 <div class="page_foot">
-    
+    comment: {{ comment }}
 </div>
 {% endblock %}
