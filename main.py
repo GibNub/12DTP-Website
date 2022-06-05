@@ -9,39 +9,6 @@ import templates
 
 app = Flask(__name__)
 
-
-# This is the html template for indivdual forum posts.
-def forum(forum_info):
-    id, type, title, content, like, dislike, user_id, date = forum_info
-    html_template = """
-    <li>
-        <div class="post_head">
-            <h4 class="post_title">
-                <a href="/pages/{6}">{0}</a>
-            </h4>
-            <h5 class="post_type">
-                {1}
-            </h5>
-            <p>
-                {2}
-            </p>
-        </div>
-        <div class="post_body">
-            <p>{3}</p>
-        </div>
-        <div class="post_foot">
-            <p>
-                {4}
-            </p>
-            <p>
-                {5}
-            </p>
-        </div>
-    </li>
-    """.format(title, type, date, content, like, dislike, id)
-    return html_template
-
-
 # Same as above.
 def comment(user_id, content, like, dislike, date):
     comment_template = """
@@ -98,29 +65,17 @@ def reply(user_id, content, like, dislike, date):
 
 
 # Gather the information for forum posts from the database.
-def call_database(query, i=None):
+def call_database(query, id=None):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
-    if i is None:
+    if id is None:
         cur.execute(query)
         result = cur.fetchall()
     else:
-        cur.execute(query, (str(i),))
+        cur.execute(query, (str(id),))
         result = cur.fetchone()
     conn.close()
     return result
-
-
-def call_comment_database(i):
-    conn = sqlite3.connect("forum_database.db")
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM Comment WHERE post_id = ?", (str(i),))
-    return cur.fetchall()
-    conn.close()
-
-
-def call_reply_database(i):
-    conn = sqlite3.connect("forum")
 
 
 def update_post(type, title, content):
@@ -133,25 +88,13 @@ def update_post(type, title, content):
     conn.close()
 
 
-# Templates the html forum index with information from the database.
-# Then joins them in one string to then be passed to the actual html file.
-# This creates the expandable forum.
+# The post tables gets passed to the jinja loop in "home.html".
+# This is to create HTML posts for each entry in the post table.
 @app.route("/")
 def home():
-    # Create the posts on the front page by looping through the database.
-    forum_html = []
-    i = 1
-    while True:
-        data = call_database("SELECT * FROM Post WHERE id = ?", i)
-        if data is None:
-            break
-        forum_html.append(forum(data))
-        i += 1
-    forum_html = "".join(forum_html)
-    forum_html.replace("\n", "")
-    forum_html.replace(" ", "")
-    forum_html = Markup(forum_html)
-    return render_template("home.html", value=forum_html)
+    post = call_database("SELECT * FROM Post")
+    return render_template("home.html", post = post)
+
 
 
 # This gsets the form values from the home page,
@@ -192,11 +135,6 @@ def page(id):
 @app.route("/search")
 def search():
     return render_template()
-
-
-test_post = call_database("SELECT * FROM Post")
-for post in test_post:
-    print(post)
 
 
 if __name__ == "__main__":

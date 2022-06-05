@@ -1,6 +1,6 @@
 {% extends "index.html" %}
 {% block content %}
-<div class="create">
+<div class="create_post">
     <h3>
         Create Post
     </h3>
@@ -33,6 +33,50 @@
 </div>
 <br>
 <ul>
-    {{ value }}
+    <!-- 
+        Index : Column Name
+            0 : id
+            1 : type
+            2 : title
+            3 : content
+            4 : like
+            5 : dislike
+            6 : user_id
+            7 : date
+     -->
+    {% for post in post %}
+    <li>
+        <div class="post_head">
+            <h4 class="post_title">
+                <a href="{{ '/page/%s'%post[0] }}">{{ post[2] }}</a>
+            </h4>
+            <div class="post_head">
+                <h5>
+                    {{ post[1] }}
+                </h5>
+                <p>
+                    {{ post[6] }}
+                </p>
+                <p>
+                    {{ post[1] }}
+                </p>
+            </div>
+        </div>
+        <div class="post_body">
+            <p>{{ post[3] }}</p>
+        </div>
+        <div class="post_foot">
+            <p>
+                {{ post[4] }}
+            </p>
+            <p>
+                {{ post[5] }}
+            </p>
+            <p>
+                {{ post[7] }}
+            </p>
+        </div>
+    </li>
+    {% endfor %}
 </ul>
 {% endblock %}
