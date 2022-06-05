@@ -1,29 +1,42 @@
 {% extends "index.html" %}
 {% block content %}
+{% set page = page_info %}
+<!-- 
+    Reference
+    Index : Column Name
+        0 : id
+        1 : type
+        2 : title
+        3 : content
+        4 : like
+        5 : dislike
+        6 : user_id
+        7 : date
+    -->
 <div class="page_head">
     <h1>
-        {{ title }}
+        {{ page[2] }}
     </h1>
     <h2>
-        {{ type }}
+        {{ page[1] }}
     </h2>
     <p>
-        {{ date }}
+        {{ page[7] }}
     </p>
     <p>
-        {{ user_id }}
+        {{ page[6] }}
     </p>
 </div>
 <div class="page_body">
     <p>
-        {{ content }}
+        {{ page[3] }}
     </p>
 </div>
 <p>
-    {{ like }}
+    {{ page[4] }}
 </p>
 <p>
-    {{ dislike }}
+    {{ page[5] }}
 </p>
 <div class="page_foot">
     {{ comment }}

@@ -1,13 +1,10 @@
 import sqlite3
 import re
 
-from time import time
 from flask import Flask, render_template, request, redirect, url_for
-from markupsafe import Markup
-
-import templates
 
 app = Flask(__name__)
+
 
 # Same as above.
 def comment(user_id, content, like, dislike, date):
@@ -118,23 +115,17 @@ def about():
 
 # The route creates pages automatically for each pages.
 # The id variable passed into the call database function.
+# Page info is passed into HTML with jinja code
 @app.route("/page/<int:id>")
 def page(id):
-    return render_template("page.html",
-                           title = call_database("SELECT title FROM Post WHERE id = ?", id)[0],
-                           content = call_database("SELECT content FROM Post WHERE id = ?", id)[0],
-                           type = call_database("SELECT type FROM Post WHERE id = ?", id)[0],
-                           date = call_database("SELECT date FROM Post WHERE id = ?", id)[0],
-                           user_id = call_database("SELECT user_id FROM Post WHERE id = ?", id)[0],
-                           like = call_database("SELECT like FROM Post WHERE id = ?", id)[0],
-                           dislike = call_database("SELECT dislike FROM Post WHERE id = ?", id)[0],
-                           )
+    page_info =  call_database("SELECT * FROM Post WHERE id = ?",(id),)
+    return render_template("page.html", page_info = page_info)
 
 
 # A page exclusively to search for specific posts.
 @app.route("/search")
 def search():
-    return render_template()
+    return render_template("search.html")
 
 
 if __name__ == "__main__":
