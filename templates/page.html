@@ -1,6 +1,8 @@
 {% extends "index.html" %}
 {% block content %}
 {% set page = page_info %}
+{% set comment = comment%}
+{% set reply = reply%}
 <!-- 
     Reference
     Index : Column Name
@@ -39,6 +41,51 @@
     {{ page[5] }}
 </p>
 <div class="page_foot">
-    {{ comment }}
+    <ul>
+        <!-- 
+            Comment reference
+            Index : Column
+            0 : id
+            1 : user_id
+            2 : post_id
+            3 : comment_id
+            4 : content
+            5 : like
+            6 : dislike
+            7 : date
+         -->
+        {% for comment in comment %}
+            <li> 
+                <div class="comment">
+                    <p>
+                        {{ comment[1] }}
+                    </p>
+                    <p>
+                        {{ comment[4] }}
+                    </p>
+                    <p>
+                        {{ comment[5] }}
+                    </p>
+                    <p>
+                        {{ comment [6] }}
+                    </p>
+                </div>
+                <br>
+                <div class="reply">
+                    <ul>
+                        <!-- Check if the reply "comment_id" id is the same as the comment "id" -->
+                        <!-- This checks if the reply is with the corresponsing comment -->
+                        {% for reply in reply %}
+                            {% if reply[3] == comment[0] %}
+                                <p>
+                                    {{ reply[4] }}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}

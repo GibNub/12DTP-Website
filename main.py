@@ -3,65 +3,13 @@ import re
 
 from flask import Flask, render_template, request, redirect, url_for
 
+
 app = Flask(__name__)
 
 
-# Same as above.
-def comment(user_id, content, like, dislike, date):
-    comment_template = """
-    <li>
-        <div class="comment_op">
-            <p>
-                {0}
-            </p>
-        </div>
-        <div class="comment_content">
-            <p>
-                {1}
-            </p>
-        </div>
-        <div class="comment_info">
-            <p>
-                {2}
-            </p>
-            <p>
-                {3}
-            </p>
-            <p>
-                {4}
-            </p>
-        </div>
-        <div class="replies">
-            <ul>
-                {{ reply }}
-            </ul>
-        </div>
-    """.format(user_id, content, like, dislike, date)
-
-
-def reply(user_id, content, like, dislike, date):
-    reply_template = """
-        <div class="reply">
-            <p>
-                {0}
-            </p>
-            <p>
-                {1}
-            </p>
-            <p>
-                {2}
-            </p>
-            <p>
-                {3}
-            </p>
-            <p>
-                {4}
-            </p>
-        </div>
-    """.format(user_id, content, like, dislike, date)
-
-
 # Gather the information for forum posts from the database.
+# Non specific queries will likely return multiple rows, so fetchall is required
+# Specific queires will only return one row so using fetchone is fine
 def call_database(query, id=None):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
@@ -119,7 +67,9 @@ def about():
 @app.route("/page/<int:id>")
 def page(id):
     page_info =  call_database("SELECT * FROM Post WHERE id = ?",(id),)
-    return render_template("page.html", page_info = page_info)
+    comment = call_database("SELECT * FROM Comment WHERE comment_id IS NULL")
+    reply = call_database("SELECT * FROM Comment WHERE comment_id IS NOT NULL")
+    return render_template("page.html", page_info = page_info, comment = comment, reply = reply)
 
 
 # A page exclusively to search for specific posts.
