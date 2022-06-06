@@ -1,8 +1,12 @@
 {% extends "index.html" %}
 {% block content %}
+
 {% set page = page_info %}
-{% set comment = comment%}
-{% set reply = reply%}
+{% set comment = comment %}
+{% set reply = reply %}
+
+{% set reply_to = none %}
+{% set comment_label = "post_comment" %}
 <!-- 
     Reference
     Index : Column Name
@@ -40,20 +44,33 @@
 <p>
     {{ page[5] }}
 </p>
-<div class="page_foot">
+<div class="page_foot"></div>
+    <h3>
+        Comments
+    </h3>
+    <!-- 
+    Comment and reply reference
+    Index : Column
+        0 : id
+        1 : user_id
+        2 : post_id
+        3 : comment_id
+        4 : content
+        5 : like
+        6 : dislike
+        7 : date
+    -->
+    <div class="comment_form" id="c_form">
+        <form action="/create_comment" method="POST">
+            <input type="hidden" name="{{ comment_id }}" id="comment_id">
+            <label for="comment_content">
+                {{ comment_label }}
+            </label><br>
+            <textarea name="comment_content" id="comment_content" cols="30" rows="10"></textarea><br>
+            <input type="submit" value="">
+        </form>
+    </div>
     <ul>
-        <!-- 
-            Comment reference
-            Index : Column
-            0 : id
-            1 : user_id
-            2 : post_id
-            3 : comment_id
-            4 : content
-            5 : like
-            6 : dislike
-            7 : date
-         -->
         {% for comment in comment %}
             <li> 
                 <div class="comment">
@@ -67,8 +84,9 @@
                         {{ comment[5] }}
                     </p>
                     <p>
-                        {{ comment [6] }}
+                        {{ comment[6] }}
                     </p>
+                    <a href="#c_form">reply</a>
                 </div>
                 <br>
                 <div class="reply">
