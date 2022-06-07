@@ -1,6 +1,7 @@
 import sqlite3
 import re
 
+
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
 
@@ -11,7 +12,6 @@ app = Flask(__name__)
 def today():
     today = datetime.today().strftime("%Y%m%d")
     return today
-
 
 
 # Gather the information for forum posts from the database.
@@ -40,11 +40,12 @@ def update_post(type, title, content, date, like=0, dislike=0, user_id=1):
     conn.commit()
     conn.close()
 
+
 # Updates comments table once user creates a comment or reply
 def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dislike=0):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
-    cur.execute("""INSERT INTO Post (user_id, post_id, comment_id, content, like, dislike, date)
+    cur.execute("""INSERT INTO Comment (user_id, post_id, comment_id, content, like, dislike, date)
                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (user_id, post_id, comment_id, content, like, dislike, date))
     conn.commit()
@@ -82,16 +83,23 @@ def create_comment():
         comment_id = request.form
         
 
+# The page where posts and comments are created
+@app.route("/post")
+def post():
+    type = "thread"
+    return render_template("post.html", type=type)
+
+
 # Directs user to the about page
 @app.route("/about")
 def about():
     return render_template("about.html")
 
 
-# The route creates pages automatically for each pages.
+# The route creates pages dynamically.
 # The id variable passed into the call database function.
 # Page info is passed into HTML with jinja code
-# Comments to post have no comment_id
+# Comments tied to posts have no comment_id
 # Replies are tied to a comment so theres a comment_id
 @app.route("/page/<int:id>")
 def page(id):

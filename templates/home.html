@@ -1,36 +1,6 @@
 {% extends "index.html" %}
 {% block content %}
-<div class="create_post">
-    <h3>
-        Create Post
-    </h3>
-    <form method="POST" action="/create_post">
-        <div>
-            <label for="title">Title</label>
-            <input type="text" id="title" name="title"><br>
-        </div>
-        <p>Type of post</p>
-        <div>
-            <input type="radio" id="type" name="type" value="general">
-            <label for="type">General</label><br>
-            <input type="radio" id="type" name="type" value="help">
-            <label for="type">Help</label><br>
-            <input type="radio" id="type" name="type" value="lore">
-            <label for="type">Lore</label><br>
-            <input type="radio" id="type" name="type" value="humor">
-            <label for="type">Humor</label><br>
-            <input type="radio" id="type" name="type" value="discussion">
-            <label for="type">Discussion</label><br>
-            <input type="radio" id="type" name="type" value="news">
-            <label for="type">News</label><br>
-        </div>
-        <div>
-            <label for="content">Content</label><br>
-            <textarea id="content" name="content" row="10" column="50"></textarea>
-        </div>
-        <input type="submit">
-    </form>
-</div>
+
 <br>
 <ul>
     <!-- 
@@ -48,37 +18,40 @@
     <!-- Jinja used to add html for each post entry and pass variables to HTML template -->
     {% for post in post %}
         <li>
-            <div class="post_head">
-                <h4 class="post_title">
-                    <a href="{{ '/page/%s'%post[0] }}">{{ post[2] }}</a>
-                </h4>
+            <div class="post">
                 <div class="post_head">
-                    <h5>
-                        {{ post[1] }}
-                    </h5>
+                    <h4 class="post_title">
+                        <a href="{{ '/page/%s'%post[0] }}">{{ post[2] }}</a>
+                    </h4>
+                    <div class="post_head">
+                        <h5>
+                            {{ post[1] }}
+                        </h5>
+                        <p>
+                            {{ post[6] }}
+                        </p>
+                        <p>
+                            {{ post[1] }}
+                        </p>
+                    </div>
+                </div>
+                <div class="post_body">
+                    <p>{{ post[3] }}</p>
+                </div>
+                <div class="post_foot">
                     <p>
-                        {{ post[6] }}
+                        {{ post[4] }}
                     </p>
                     <p>
-                        {{ post[1] }}
+                        {{ post[5] }}
+                    </p>
+                    <p>
+                        {{ post[7] }}
                     </p>
                 </div>
-            </div>
-            <div class="post_body">
-                <p>{{ post[3] }}</p>
-            </div>
-            <div class="post_foot">
-                <p>
-                    {{ post[4] }}
-                </p>
-                <p>
-                    {{ post[5] }}
-                </p>
-                <p>
-                    {{ post[7] }}
-                </p>
             </div>
         </li>
     {% endfor %}
 </ul>
 {% endblock %}
+
