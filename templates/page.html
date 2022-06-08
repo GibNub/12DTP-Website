@@ -60,16 +60,7 @@
         6 : dislike
         7 : date
     -->
-    <div class="comment_form" id="c_form">
-        <form action="/create_comment" method="POST">
-            <input type="hidden" name="{{ comment_id }}" id="comment_id">
-            <label for="comment_content">
-                {{ comment_label }}
-            </label><br>
-            <textarea name="comment_content" id="comment_content" cols="30" rows="10"></textarea><br>
-            <input type="submit" value="">
-        </form>
-    </div>
+    <a href="{{'/post_comment/%s' %page[0]}}">Comment</a>
     <ul>
         {% for comment in comment %}
             <li> 
@@ -86,7 +77,7 @@
                     <p>
                         {{ comment[6] }}
                     </p>
-                    <a href="#c_form">reply</a>
+                    <a href="{{'/post_comment/%s/%s' %(page[0],comment[0])}}">Reply</a>
                 </div>
                 <br>
                 <div class="reply">

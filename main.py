@@ -81,13 +81,12 @@ def create_post():
 def create_comment():
     if request.method == "POST":
         comment_id = request.form
-        
+
 
 # The page where posts and comments are created
-@app.route("/post")
-def post():
-    type = "thread"
-    return render_template("post.html", type=type)
+@app.route("/post_comment/<int:post_id>/<int:comment_id>")
+def post(post_id, comment_id=None):
+    return render_template("post.html", post_id=id)
 
 
 # Directs user to the about page

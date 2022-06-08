@@ -4,6 +4,10 @@
     <h2>
         Create comment
     </h2>
-    
+    <form action="{{'create_comment/%s' %post_id}}" method="POST">
+        <label for="content">Create Comment</label>
+        <textarea id="content" name="content" row="20" column="50"></textarea>
+        <input type="submit">
+    </form>
 </div>
 {% endblock %}
