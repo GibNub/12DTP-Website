@@ -83,10 +83,16 @@ def create_comment():
         comment_id = request.form
 
 
-# The page where posts and comments are created
+# The page where comments are created
+@app.route("/post_comment/<int:post_id>")
+def post(post_id,):
+    return render_template("post.html", post_id=post_id, comment_id=None)
+
+
+# The page where replies are created
 @app.route("/post_comment/<int:post_id>/<int:comment_id>")
-def post(post_id, comment_id=None):
-    return render_template("post.html", post_id=id)
+def post_reply(post_id, comment_id):
+    return render_template("post.html", post_id=post_id, comment_id=comment_id)
 
 
 # Directs user to the about page
@@ -103,8 +109,8 @@ def about():
 @app.route("/page/<int:id>")
 def page(id):
     page_info = call_database("SELECT * FROM Post WHERE id = ?", (id),)
-    comment = call_database("SELECT * FROM Comment WHERE comment_id IS NULL")
-    reply = call_database("SELECT * FROM Comment WHERE comment_id IS NOT NULL")
+    comment = call_database("SELECT * FROM Comment WHERE comment_id IS NULL AND id = ?", (id),)
+    reply = call_database("SELECT * FROM Comment WHERE comment_id IS NOT NULL AND id =?",(id),)
     return render_template("page.html",
                            page_info=page_info,
                            comment=comment,
