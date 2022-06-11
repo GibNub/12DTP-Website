@@ -10,31 +10,34 @@ app = Flask(__name__)
 
 
 def today():
+    # Format is YYYYMMDD with leading zeros for months and days
     today = datetime.today().strftime("%Y%m%d")
     return today
 
 
 # Gather the information for forum posts from the database.
-# Non specific queries will return multiple rows, fetchall is required
-# Specific queires will only return one row so using fetchone is fine
+# String building may be required in a later date
+# All results will be stored as a tuple in a list
+# For single item lists, specify with a index of 0
 def call_database(query, id=None):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
+    # Can't have option arguments in .execute function
+    # May use string building in the future
     if id is None:
         cur.execute(query)
-        result = cur.fetchall()
     else:
-        cur.execute(query, (str(id),))
-        result = cur.fetchone()
-    conn.close()
+        cur.execute(query, (str(id)),)
+    result = cur.fetchall()
     return result
 
 
 # Updates Post table once user submits new post
-def update_post(type, title, content, date, like=0, dislike=0, user_id=1):
+def update_post(type, title, content, date, user_id, like=0, dislike=0):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
-    cur.execute("""INSERT INTO Post (type, title, content, like, dislike, user_id, date)
+    cur.execute("""INSERT INTO Post
+                (type, title, content, like, dislike, user_id, date)
                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (type, title, content, like, dislike, user_id, date))
     conn.commit()
@@ -42,10 +45,12 @@ def update_post(type, title, content, date, like=0, dislike=0, user_id=1):
 
 
 # Updates comments table once user creates a comment or reply
+# like and dislike cannot be null so default value is 0
 def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dislike=0):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
-    cur.execute("""INSERT INTO Comment (user_id, post_id, comment_id, content, like, dislike, date)
+    cur.execute("""INSERT INTO Comment
+                (user_id, post_id, comment_id, content, like, dislike, date)
                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (user_id, post_id, comment_id, content, like, dislike, date))
     conn.commit()
@@ -62,7 +67,6 @@ def home():
 
 # Gets the form values from the home page,
 # The variables get updated to the database.
-# Then the home page then gets refreshed.
 @app.route("/create_post", methods=["GET", "POST"])
 def create_post():
     if request.method == "POST":
@@ -71,6 +75,7 @@ def create_post():
         content = request.form["content"]
         date = today()
         update_post(type, title, content, date)
+        # Go back to home page so users can easily see their new post
         return redirect(url_for("home"), code=302)
 
 
@@ -80,17 +85,17 @@ def create_post():
 @app.route("/create_comment", methods=["GET", "POST"])
 def create_comment():
     if request.method == "POST":
-        comment_id = request.form
+        pass
 
 
 # The page where comments are created
-@app.route("/post_comment/<int:post_id>")
-def post(post_id,):
+@app.route("/comment_to/<int:post_id>")
+def post(post_id):
     return render_template("post.html", post_id=post_id, comment_id=None)
 
 
 # The page where replies are created
-@app.route("/post_comment/<int:post_id>/<int:comment_id>")
+@app.route("/reply_to/<int:post_id>/<int:comment_id>")
 def post_reply(post_id, comment_id):
     return render_template("post.html", post_id=post_id, comment_id=comment_id)
 
@@ -104,13 +109,20 @@ def about():
 # The route creates pages dynamically.
 # The id variable passed into the call database function.
 # Page info is passed into HTML with jinja code
-# Comments tied to posts have no comment_id
-# Replies are tied to a comment so theres a comment_id
 @app.route("/page/<int:id>")
 def page(id):
-    page_info = call_database("SELECT * FROM Post WHERE id = ?", (id),)
-    comment = call_database("SELECT * FROM Comment WHERE comment_id IS NULL AND id = ?", (id),)
-    reply = call_database("SELECT * FROM Comment WHERE comment_id IS NOT NULL AND id =?",(id),)
+    # Page_info needs index of 0 as the result is stored in tuple inside a list
+    page_info = call_database("SELECT * FROM Post WHERE id = ?", (id),)[0]
+    # Comments tied to posts have no comment_id
+    comment = call_database("""SELECT * FROM Comment
+                            WHERE comment_id IS NULL
+                            AND post_id = ?""",
+                            (id),)
+    # Replies are tied to a comment so theres a comment_id
+    reply = call_database("""SELECT * FROM Comment
+                          WHERE comment_id IS NOT NULL
+                          AND post_id = ?""",
+                          (id),)
     return render_template("page.html",
                            page_info=page_info,
                            comment=comment,
