@@ -1,6 +1,7 @@
 import sqlite3
 import re
 
+
 # Connect database and return content of first post
 def search_database():
     conn = sqlite3.connect("forum_database.db")
@@ -11,7 +12,7 @@ def search_database():
     return result[0]
 
 
-help = "crucible knight"
+help = search_database()[0]
 found = re.search(r"%s.knig.t" % "crucible", help)
 
 if found:

@@ -1,7 +1,6 @@
 import sqlite3
 import re
 
-
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
 
@@ -11,6 +10,7 @@ app = Flask(__name__)
 
 def today():
     # Format is YYYYMMDD with leading zeros for months and days
+    # This allows for easy sort by date and string splicing
     today = datetime.today().strftime("%Y%m%d")
     return today
 
@@ -19,15 +19,15 @@ def today():
 # String building may be required in a later date
 # All results will be stored as a tuple in a list
 # For single item lists, specify with a index of 0
-def call_database(query, id=None):
+def call_database(query, parameter=None):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
-    if id is None:
+    if parameter is None:
         cur.execute(query)
     else:
-        cur.execute(query, (str(id)),)
+        cur.execute(query, parameter)
     result = cur.fetchall()
     return result
 
@@ -65,39 +65,37 @@ def home():
     return render_template("home.html", post=post)
 
 
-# Gets the form values from the home page,
-# The variables get updated to the database.
-@app.route("/create_post", methods=["GET", "POST"])
-def create_post():
-    if request.method == "POST":
-        title = request.form["title"]
-        type = request.form["type"]
-        content = request.form["content"]
-        date = today()
-        update_post(type, title, content, date)
-        # Go back to home page so users can easily see their new post
-        return redirect(url_for("home"), code=302)
+# The route creates pages dynamically.
+# The id variable passed into the call database function.
+# Page info is passed into HTML with jinja code
+@app.route("/page/<int:id>")
+def page(id):
+    # Page_info needs index of 0 as the result is stored in tuple inside a list
+    page_info = call_database("SELECT * FROM Post WHERE id = ?", (str(id)),)[0]
+    # Comments tied to posts have no comment_id
+    comment = call_database("""SELECT * FROM Comment
+                            WHERE comment_id IS NULL
+                            AND post_id = ?""",
+                            (str(id)),)
+    # Replies are tied to a comment so theres a comment_id
+    reply = call_database("""SELECT * FROM Comment
+                          WHERE comment_id IS NOT NULL
+                          AND post_id = ?""",
+                          (str(id)),)
+    return render_template("page.html",
+                           page=page_info,
+                           comment=comment,
+                           reply=reply)
 
 
-# Gets values from each created comment
-# Update comment database using given values
-# refresh current page
-@app.route("/create_comment", methods=["GET", "POST"])
-def create_comment():
-    if request.method == "POST":
-        pass
-
-
-# The page where comments are created
-@app.route("/comment_to/<int:post_id>")
-def post(post_id):
-    return render_template("post.html", post_id=post_id, comment_id=None)
-
-
-# The page where replies are created
-@app.route("/reply_to/<int:post_id>/<int:comment_id>")
-def post_reply(post_id, comment_id):
-    return render_template("post.html", post_id=post_id, comment_id=comment_id)
+# Page where user replies to a comment.
+@app.route("/page/reply_to/<int:post_id>/<int:comment_id>")
+def reply_to(post_id, comment_id):
+    reffered_comment = call_database("""SELECT * FROM Comment 
+                                     WHERE id = ? 
+                                     AND post_id = ?""",
+                                     (comment_id, post_id))[0]
+    return render_template("reply.html", comment=reffered_comment)
 
 
 # Directs user to the about page
@@ -106,33 +104,49 @@ def about():
     return render_template("about.html")
 
 
-# The route creates pages dynamically.
-# The id variable passed into the call database function.
-# Page info is passed into HTML with jinja code
-@app.route("/page/<int:id>")
-def page(id):
-    # Page_info needs index of 0 as the result is stored in tuple inside a list
-    page_info = call_database("SELECT * FROM Post WHERE id = ?", (id),)[0]
-    # Comments tied to posts have no comment_id
-    comment = call_database("""SELECT * FROM Comment
-                            WHERE comment_id IS NULL
-                            AND post_id = ?""",
-                            (id),)
-    # Replies are tied to a comment so theres a comment_id
-    reply = call_database("""SELECT * FROM Comment
-                          WHERE comment_id IS NOT NULL
-                          AND post_id = ?""",
-                          (id),)
-    return render_template("page.html",
-                           page_info=page_info,
-                           comment=comment,
-                           reply=reply)
-
-
 # A page exclusively to search for specific posts.
 @app.route("/search")
 def search():
     return render_template("search.html")
+
+
+# Gets the form values from the home page,
+# The variables get updated to the database.
+@app.route("/create_post", methods=["GET", "POST"])
+def create_post():  
+    if request.method == "POST":
+        title = request.form["title"]
+        content = request.form["content"]
+        type = request.form["type"]
+        date = today()
+        update_post(type, title, content, date, 1)
+        # Go back to home page so users can easily see their new post
+        return redirect(request.referrer)
+
+
+# Gets values from each created comment
+# Update comment database using given values
+# refresh current page
+@app.route("/create_comment", methods=["GET", "POST"])
+def create_comment():
+    if request.method == "POST":
+        content = request.form["comment_content"]
+        post_id = request.form["post_id"]
+        date = today()
+        update_comment(1, post_id, content, date)
+        return redirect(request.referrer)
+
+
+# Update database with reply
+@app.route("/reply", methods=["GET", "POST"])
+def reply():
+    if request.method == "POST":
+        content = request.form["content"]
+        post_id = request.form["post_id"]
+        comment_id = request.form["comment_id"]
+        date = today()
+        update_comment(1, post_id, content, date, comment_id)
+        return redirect(url_for("page", id=post_id))
 
 
 if __name__ == "__main__":
