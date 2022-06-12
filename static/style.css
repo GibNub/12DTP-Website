@@ -1,3 +1,7 @@
-.post_head{
-    background-color: aquamarine;
+/* Home page */
+
+/* Forms for posting and commenting */
+
+textarea{
+    resize: none;
 }
