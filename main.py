@@ -1,7 +1,5 @@
 import sqlite3
 import re
-from turtle import update
-
 
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
@@ -21,15 +19,15 @@ def today():
 # String building may be required in a later date
 # All results will be stored as a tuple in a list
 # For single item lists, specify with a index of 0
-def call_database(query, parameters=None):
+def call_database(query, parameter=None):
     conn = sqlite3.connect("forum_database.db")
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
-    if parameters is None:
+    if parameter is None:
         cur.execute(query)
     else:
-        cur.execute(query, parameters)
+        cur.execute(query, parameter)
     result = cur.fetchall()
     return result
 
@@ -94,7 +92,7 @@ def page(id):
 @app.route("/page/reply_to/<int:post_id>/<int:comment_id>")
 def reply_to(post_id, comment_id):
     reffered_comment = call_database("""SELECT * FROM Comment 
-                                     WHERE comment_id = ? 
+                                     WHERE id = ? 
                                      AND post_id = ?""",
                                      (comment_id, post_id))[0]
     return render_template("reply.html", comment=reffered_comment)
