@@ -1,12 +1,5 @@
 {% extends "index.html" %}
 {% block content %}
-
-{% set page = page_info %}
-{% set comment = comment %}
-{% set reply = reply %}
-
-{% set reply_to = none %}
-{% set comment_label = "post_comment" %}
 <!-- 
     Reference
     Index : Column Name
@@ -48,7 +41,14 @@
     <h3>
         Comments
     </h3>
-    <!-- 
+    <div id="comment_form">
+        <form action="/create_comment" method="POST" enctype="application/x-www-form-urlencoded">    
+            <textarea name="comment_content" cols="30" rows="10" placeholder="Your comment" required></textarea><br>
+            <input type="hidden" name="post_id" value="{{ page[0] }}">
+            <input type="submit" value="Post">
+        </form>
+    </div>
+        <!-- 
     Comment and reply reference
     Index : Column
         0 : id
@@ -60,7 +60,6 @@
         6 : dislike
         7 : date
     -->
-    <a href="{{'/comment_to/%s' %page[0]}}">Comment</a>
     <ul>
         {% for comment in comment %}
             <li> 
@@ -77,15 +76,19 @@
                     <p>
                         {{ comment[6] }}
                     </p>
-                    <a href="{{'/reply_to/%s/%s' %(page[0],comment[0])}}">Reply</a>
-                </div>
-                <br>
+                </div><br>
                 <div class="reply">
+                    <form action="{{ url_for('reply_to', post_id=page[0], comment_id=comment[0]) }}">
+                        <input type="submit" value="Reply to comment">
+                    </form>
                     <ul>
                         <!-- Check if the reply "comment_id" id is the same as the comment "id" -->
                         <!-- This checks if the reply is with the corresponsing comment -->
                         {% for reply in reply %}
                             {% if reply[3] == comment[0] %}
+                                <p>
+                                    {{ reply[1] }}
+                                </p>
                                 <p>
                                     {{ reply[4] }}
                                 </p>
