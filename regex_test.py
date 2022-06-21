@@ -13,7 +13,7 @@ def search_database():
 
 
 help = search_database()[0]
-found = re.search(r"%s.knig.t" % "crucible", help)
+found = re.search("%s.knig.t" % "crucible", help)
 
 if found:
     print("Found")

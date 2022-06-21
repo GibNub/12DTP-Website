@@ -57,6 +57,25 @@ def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dis
     conn.close()
 
 
+# Incriment the like or dislike counter by one.
+# Parameters can't be used to pass table names
+def update_grade(table, grade, id):
+    conn = sqlite3.connect("forum_database.db")
+    cur = conn.cursor()
+    conn.set_trace_callback(print)
+
+    if table.lower() == "post":
+        query = "UPDATE Post SET ?   = ? + 1 WHERE id = ?"
+    elif table.lower() == "comment":
+        query = "UPDATE Comment SET ? = ? + 1 WHERE id = ?"
+    cur.execute(query, (grade, id))
+    conn.commit()
+    conn.close()
+
+
+# Flask app starts below
+
+
 # The post tables gets passed to the jinja loop in "home.html".
 # This is to create HTML posts for each entry in the post table.
 @app.route("/")
@@ -91,8 +110,8 @@ def page(id):
 # Page where user replies to a comment.
 @app.route("/page/reply_to/<int:post_id>/<int:comment_id>")
 def reply_to(post_id, comment_id):
-    reffered_comment = call_database("""SELECT * FROM Comment 
-                                     WHERE id = ? 
+    reffered_comment = call_database("""SELECT * FROM Comment
+                                     WHERE id = ?
                                      AND post_id = ?""",
                                      (comment_id, post_id))[0]
     return render_template("reply.html", comment=reffered_comment)
@@ -113,7 +132,7 @@ def search():
 # Gets the form values from the home page,
 # The variables get updated to the database.
 @app.route("/create_post", methods=["GET", "POST"])
-def create_post():  
+def create_post():
     if request.method == "POST":
         title = request.form["title"]
         content = request.form["content"]
@@ -122,7 +141,7 @@ def create_post():
         update_post(type, title, content, date, 1)
         # Go back to home page so users can easily see their new post
         return redirect(request.referrer)
-
+ 
 
 # Gets values from each created comment
 # Update comment database using given values
@@ -147,6 +166,16 @@ def reply():
         date = today()
         update_comment(1, post_id, content, date, comment_id)
         return redirect(url_for("page", id=post_id))
+
+
+# Update post or comment with like or dislike.
+@app.route("/grade/<int:id>/", methods=["GET", "POST"])
+def grade(id):
+    if request.method == "POST":
+        table = request.form["table"]
+        grade = request.form["grade"]
+        update_grade(table, grade, id)
+        return redirect(request.referrer)
 
 
 if __name__ == "__main__":

@@ -37,6 +37,11 @@
 <p>
     {{ page[5] }}
 </p>
+<form action="{{ url_for('grade', id=page[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="table" value="Post">
+    <input type="submit" name="grade" value="like">
+    <input type="submit" name="grade" value="dislike">
+</form>
 <div class="page_foot"></div>
     <h3>
         Comments
@@ -48,8 +53,7 @@
             <input type="submit" value="Post">
         </form>
     </div>
-        <!-- 
-    Comment and reply reference
+    <!-- Comment and reply reference
     Index : Column
         0 : id
         1 : user_id
@@ -58,8 +62,7 @@
         4 : content
         5 : like
         6 : dislike
-        7 : date
-    -->
+        7 : date -->
     <ul>
         {% for comment in comment %}
             <li> 
@@ -76,6 +79,11 @@
                     <p>
                         dislikes {{ comment[6] }}
                     </p>
+                    <form action="{{ url_for('grade', id=comment[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                        <input type="hidden" name="table" value="Comment">
+                        <input type="submit" name="grade" value="like">
+                        <input type="submit" name="grade" value="dislike">
+                    </form>
                 </div><br>
                 <div class="reply">
                     <form action="{{ url_for('reply_to', post_id=page[0], comment_id=comment[0]) }}">
@@ -92,6 +100,11 @@
                                 <p>
                                     {{ reply[4] }}
                                 </p>
+                                <form action="{{ url_for('grade', id=reply[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                    <input type="hidden" name="table" value="Comment">
+                                    <input type="submit" name="grade" value="like">
+                                    <input type="submit" name="grade" value="dislike">
+                                </form>
                             {% endif %}
                         {% endfor %}
                     </ul>

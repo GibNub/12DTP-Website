@@ -65,6 +65,11 @@
                     <p>
                         {{ post[5] }}
                     </p>
+                    <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                        <input type="hidden" name="table" value="Post">
+                        <input type="submit" name="grade" value="like">
+                        <input type="submit" name="grade" value="dislike">
+                    </form>
                     <p>
                         {{ post[7] }}
                     </p>
