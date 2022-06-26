@@ -1,11 +1,16 @@
 import sqlite3
-import re
-
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, g
 from datetime import datetime
 
 
 app = Flask(__name__)
+
+
+# Store database connection in a variable
+def get_db():
+    if "db" not in g:
+        g.db = sqlite3.connect("forum_database.db")
+    return g.db
 
 
 def today():
@@ -20,7 +25,7 @@ def today():
 # All results will be stored as a tuple in a list
 # For single item lists, specify with a index of 0
 def call_database(query, parameter=None):
-    conn = sqlite3.connect("forum_database.db")
+    conn = get_db()
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
@@ -34,43 +39,44 @@ def call_database(query, parameter=None):
 
 # Updates Post table once user submits new post
 def update_post(type, title, content, date, user_id, like=0, dislike=0):
-    conn = sqlite3.connect("forum_database.db")
+    conn = get_db()
     cur = conn.cursor()
     cur.execute("""INSERT INTO Post
                 (type, title, content, like, dislike, user_id, date)
                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (type, title, content, like, dislike, user_id, date))
     conn.commit()
-    conn.close()
 
 
 # Updates comments table once user creates a comment or reply
 # like and dislike cannot be null so default value is 0
 def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dislike=0):
-    conn = sqlite3.connect("forum_database.db")
+    conn = get_db()
     cur = conn.cursor()
     cur.execute("""INSERT INTO Comment
                 (user_id, post_id, comment_id, content, like, dislike, date)
                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (user_id, post_id, comment_id, content, like, dislike, date))
     conn.commit()
-    conn.close()
 
 
 # Incriment the like or dislike counter by one.
-# Parameters can't be used to pass table names
+# Parameters can't be used to pass table or column names
 def update_grade(table, grade, id):
-    conn = sqlite3.connect("forum_database.db")
+    conn = get_db()
     cur = conn.cursor()
     conn.set_trace_callback(print)
-
     if table.lower() == "post":
-        query = "UPDATE Post SET ?   = ? + 1 WHERE id = ?"
+        first = "UPDATE Post SET"
     elif table.lower() == "comment":
-        query = "UPDATE Comment SET ? = ? + 1 WHERE id = ?"
-    cur.execute(query, (grade, id))
+        first = "UPDATE Comment SET"
+
+    if grade == "like":
+        last = "like = like + 1 WHERE id = ?"
+    if grade == "dislike":
+        last = "dislike = dislike + 1 WHERE id = ?"
+    cur.execute(f"{first} {last}", (id,))
     conn.commit()
-    conn.close()
 
 
 # Flask app starts below
@@ -129,6 +135,11 @@ def search():
     return render_template("search.html")
 
 
+@app.route("/login/<action>")
+def login(action):
+    return render_template("login.html", action=action)
+
+
 # Gets the form values from the home page,
 # The variables get updated to the database.
 @app.route("/create_post", methods=["GET", "POST"])
@@ -174,8 +185,15 @@ def grade(id):
     if request.method == "POST":
         table = request.form["table"]
         grade = request.form["grade"]
+        print(grade)
         update_grade(table, grade, id)
         return redirect(request.referrer)
+
+
+# Close database once app is closed.
+@app.teardown_appcontext
+def teardown_db(_):
+    get_db().close()
 
 
 if __name__ == "__main__":
