@@ -1,9 +1,12 @@
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, g
+import os
+from flask import Flask, render_template, request, redirect, url_for, g, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 
 app = Flask(__name__)
+app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 
 
 # Store database connection in a variable
@@ -13,6 +16,7 @@ def get_db():
     return g.db
 
 
+# Easy function to get today's date
 def today():
     # Format is YYYYMMDD with leading zeros for months and days
     # This allows for easy sort by date and string splicing
@@ -62,6 +66,8 @@ def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dis
 
 # Incriment the like or dislike counter by one.
 # Parameters can't be used to pass table or column names
+# So string building must be user to update certain parts of the database depending on the conditions.
+# This query must never be user on other occasions; only on the update grade route
 def update_grade(table, grade, id):
     conn = get_db()
     cur = conn.cursor()
@@ -70,12 +76,23 @@ def update_grade(table, grade, id):
         first = "UPDATE Post SET"
     elif table.lower() == "comment":
         first = "UPDATE Comment SET"
-
-    if grade == "like":
+    if grade.lower() == "like":
         last = "like = like + 1 WHERE id = ?"
-    if grade == "dislike":
+    if grade.lower() == "dislike":
         last = "dislike = dislike + 1 WHERE id = ?"
+    print(f"{first} {last}")
     cur.execute(f"{first} {last}", (id,))
+    conn.commit()
+
+
+# Insert user data into database
+def create_user(username, date, password_hash):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""INSERT INTO User
+                (username, credit, is_admin, join_date, password_hash)
+                VALUES (?, 0, False, ?, ?)""",
+                (username, date, password_hash))
     conn.commit()
 
 
@@ -135,9 +152,10 @@ def search():
     return render_template("search.html")
 
 
-@app.route("/login/<action>")
-def login(action):
-    return render_template("login.html", action=action)
+# Redirect user to either sign in or sign up page.
+@app.route("/sign/<action>")
+def sign(action):
+    return render_template("sign.html", page=action)
 
 
 # Gets the form values from the home page,
@@ -185,9 +203,29 @@ def grade(id):
     if request.method == "POST":
         table = request.form["table"]
         grade = request.form["grade"]
-        print(grade)
         update_grade(table, grade, id)
         return redirect(request.referrer)
+
+
+# Creates user account and adds to the database
+# Password is salted and hashed
+@app.route("/sign_up", methods=["GET","POST"])
+def sign_up():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        date = today()
+        create_user(username, date, (generate_password_hash(password, salt_length=16)))
+        return redirect(request.referrer)
+
+
+# Users are signed in if username and password matches
+@app.route("/sign_in", methods=["GET", "POST"])
+def log_in():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,))[0]
 
 
 # Close database once app is closed.
@@ -196,5 +234,7 @@ def teardown_db(_):
     get_db().close()
 
 
+# Only run if not imported
 if __name__ == "__main__":
+    # It's morbin time
     app.run(debug=True, host="0.0.0.0", port="8000")
