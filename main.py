@@ -4,7 +4,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 
-# 
 app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 
@@ -107,10 +106,12 @@ def home():
     return render_template("home.html", post=post)
 
 
+
+
 # The route creates pages dynamically.
 # The id variable passed into the call database function.
 # Page info is passed into HTML with jinja code
-@app.route("/page/<int:id>")
+@app.route("/page/<int:id>") 
 def page(id):
     # Page_info needs index of 0 as the result is stored in tuple inside a list
     page_info = call_database("SELECT * FROM Post WHERE id = ?", (str(id)),)[0]
