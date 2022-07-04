@@ -1,10 +1,10 @@
 import sqlite3
-import os
 from flask import Flask, render_template, request, redirect, url_for, g, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 
+# 
 app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 
@@ -216,7 +216,8 @@ def sign_up():
         password = request.form["password"]
         date = today()
         create_user(username, date, (generate_password_hash(password, salt_length=16)))
-        return redirect(request.referrer)
+
+        return redirect(url_for("sign", action="sign_in"))
 
 
 # Users are signed in if username and password matches
@@ -226,6 +227,9 @@ def log_in():
         username = request.form["username"]
         password = request.form["password"]
         user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,))[0]
+        if check_password_hash(user_info[2], password):
+            session["user_id"] = user_info[0]       
+        return redirect(url_for("home"))
 
 
 # Close database once app is closed.
@@ -236,5 +240,4 @@ def teardown_db(_):
 
 # Only run if not imported
 if __name__ == "__main__":
-    # It's morbin time
     app.run(debug=True, host="0.0.0.0", port="8000")
