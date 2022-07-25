@@ -1,5 +1,6 @@
 {% extends "index.html" %}
 {% block content %}
+{% if session["user_id"] is defined %}
 <div class="create_post">
     <button onclick="hideForm()" id="create_post">
         Create Post
@@ -18,11 +19,17 @@
                 <option value="News">News</option>
             </select>
             <input type="submit" value="Post">
+            <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
         </form>
     </div>
     <!-- Shows or hide the form when the user clicks the button
     This button is only visible to logged in users -->
 </div><br>
+{% else %}
+<form action="{{ url_for('account', action='sign_in')}}">
+    <input type="submit" value="Log In to create a post">
+</form>
+{% endif %}
 <ul>
     <!--
         Reference
@@ -51,7 +58,7 @@
                             {{ post[6] }}
                         </p>
                         <p>
-                            {{ post[1] }}L
+                            {{ post[1] }}
                         </p>
                     </div>
                 </div>
@@ -65,11 +72,13 @@
                     <p>
                         {{ post[5] }}
                     </p>
-                    <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                        <input type="hidden" name="table" value="Post">
-                        <input type="submit" name="grade" value="Like">
-                        <input type="submit" name="grade" value="Dislike">
-                    </form>
+                    {% if session["user_id"] is defined %}
+                        <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="table" value="Post">
+                            <input type="submit" name="grade" value="Like">
+                            <input type="submit" name="grade" value="Dislike">
+                        </form>
+                    {% endif %}
                     <p>
                         {{ post[7] }}
                     </p>

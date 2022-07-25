@@ -37,11 +37,13 @@
 <p>
     {{ page[5] }}
 </p>
-<form action="{{ url_for('grade', id=page[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-    <input type="hidden" name="table" value="Post">
-    <input type="submit" name="grade" value="like">
-    <input type="submit" name="grade" value="dislike">
-</form>
+{% if session["user_id"] is defined %}
+    <form action="{{ url_for('grade', id=page[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="table" value="Post">
+        <input type="submit" name="grade" value="like">
+        <input type="submit" name="grade" value="dislike">
+    </form>
+{% endif %}
 <div class="page_foot"></div>
     <h3>
         Comments
@@ -79,11 +81,13 @@
                     <p>
                         dislikes {{ comment[6] }}
                     </p>
-                    <form action="{{ url_for('grade', id=comment[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                        <input type="hidden" name="table" value="Comment">
-                        <input type="submit" name="grade" value="like">
-                        <input type="submit" name="grade" value="dislike">
-                    </form>
+                    {% if session["user_id"] is defined %}
+                        <form action="{{ url_for('grade', id=comment[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="table" value="Comment">
+                            <input type="submit" name="grade" value="like">
+                            <input type="submit" name="grade" value="dislike">
+                        </form>
+                    {% endif %}
                 </div><br>
                 <div class="reply">
                     <form action="{{ url_for('reply_to', post_id=page[0], comment_id=comment[0]) }}">
@@ -106,11 +110,13 @@
                                 <p>
                                     Dislikes : {{ reply[6] }}
                                 </p>
-                                <form action="{{ url_for('grade', id=reply[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                                    <input type="hidden" name="table" value="Comment">
-                                    <input type="submit" name="grade" value="like">
-                                    <input type="submit" name="grade" value="dislike">
-                                </form>
+                                {% if session["user_id"] is defined %}
+                                    <form action="{{ url_for('grade', id=reply[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                        <input type="hidden" name="table" value="Comment">
+                                        <input type="submit" name="grade" value="like">
+                                        <input type="submit" name="grade" value="dislike">
+                                    </form>
+                                {% endif %}
                             {% endif %}
                         {% endfor %}
                     </ul>

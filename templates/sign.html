@@ -8,7 +8,7 @@
         <input type="password" name="password" placeholder="Password" required><br>
         <input type="submit" value="Sign In">
     </form>
-    <a href="{{ url_for('sign', action='sign_up') }}">Don't have an account? Sign up</a>    
+    <a href="{{ url_for('account', action='sign_up') }}">Don't have an account? Sign up</a>    
 {% elif page == 'sign_up' %}
     <h2>Create Account</h2>
     <form action="/sign_up" method="POST" enctype="application/x-www-form-urlencoded">
@@ -16,6 +16,6 @@
         <input type="password" name="password" placeholder="Password" required><br>
         <input type="submit" value="Create Account">
     </form>
-    <a href="{{ url_for('sign', action='sign_in') }}">Already have an account? Sign in</a>    
+    <a href="{{ url_for('account', action='sign_in') }}">Already have an account? Sign in</a>    
 {% endif %}
 {% endblock %}  

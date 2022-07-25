@@ -1,0 +1,60 @@
+{% extends "index.html" %}
+{% block content %}
+<div>
+    <h2>
+        {{ user_info[1] }}
+    </h2>
+    <p>
+        Credits : {{ user_info[2] }}
+    </p>
+    <p>
+        Joined : {{ user_info[4] }}
+    </p>
+    {% if id == session["user_id"] %}
+    <p>
+        Delete account
+    </p>
+    {% endif %}
+</div>
+<div>
+    Posts:
+    <div>
+        <ul>
+            {% for post in user_post %}
+            <li>
+                <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
+                {% if id == session["user_id"] %}
+                <p>
+                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                        <input type="hidden" name="id" value="{{ post[0] }}">
+                        <input type="hidden" name="type" value="post">
+                        <input type="submit" value="Delete Post">
+                    </form>
+                </p>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    Comments:
+    <div>
+        <ul>
+            {% for comment in comment %}
+            <p>
+                <!-- Get post content from comments post_id -->
+                Replying to {{ post[comment[2]][3] }}
+            </p>
+            <a href="{{ url_for('page', id=comment[2]) }}">{{ comment[4] }}</a>
+            {% if id == session["user_id"] %}
+                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                        <input type="hidden" name="id" value="{{ comment[0] }}">
+                        <input type="hidden" name="type" value="comment">
+                        <input type="submit" value="Delete Comment">
+                    </form>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}
