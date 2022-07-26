@@ -6,7 +6,7 @@
         Create Post
     </button><br>
     <div id="form">
-        <form action="/create_post" method="POST" enctype="application/x-www-form-urlencoded">    
+        <form action="/create_post" method="POST" enctype="application/x-www-form-urlencoded">
             <input type="text" name="title" placeholder="An intriguing title" maxlength="50" required
             oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')"><br>
             <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)"></textarea><br>
@@ -30,63 +30,66 @@
     <input type="submit" value="Log In to create a post">
 </form>
 {% endif %}
-<ul>
-    <!--
-        Reference
-        Index : Column Name
-            0 : id
-            1 : type
-            2 : title
-            3 : content
-            4 : like
-            5 : dislike
-            6 : user_id
-            7 : date
-     -->
-    {% for post in post %}
-        <li>
-            <div class="post">
-                <div class="post_head">
-                    <h4 class="post_title">
-                        <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
-                    </h4>
+<div class="main_page">
+    <ul>
+        <!--
+            Reference
+            Index : Column Name
+                0 : id
+                1 : type
+                2 : title
+                3 : content
+                4 : like
+                5 : dislike
+                6 : username
+                7 : date
+                8 : user_id
+        -->
+        {% for post in post %}
+            <li>
+                <div class="post">
                     <div class="post_head">
-                        <h5>
-                            {{ post[1] }}
-                        </h5>
+                        <h4 class="post_title">
+                            <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
+                        </h4>
+                        <div class="post_head">
+                            <h5>
+                                {{ post[1] }}
+                            </h5>
+                            <p>
+                                <a href="{{ url_for('dashboard', id=post[8])}}">{{ post[6] }}</a>
+                            </p>
+                            <p>
+                                {{ post[1] }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="post_body">
+                        <p>{{ post[3] }}</p>
+                    </div>
+                    <div class="post_foot">
                         <p>
-                            {{ post[6] }}
+                            {{ post[4] }}
                         </p>
                         <p>
-                            {{ post[1] }}
+                            {{ post[5] }}
+                        </p>
+                        {% if session["user_id"] is defined %}
+                            <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="table" value="Post">
+                                <input type="submit" name="grade" value="Like">
+                                <input type="submit" name="grade" value="Dislike">
+                            </form>
+                        {% endif %}
+                        <p>
+                            {{ post[7] }}
                         </p>
                     </div>
                 </div>
-                <div class="post_body">
-                    <p>{{ post[3] }}</p>
-                </div>
-                <div class="post_foot">
-                    <p>
-                        {{ post[4] }}
-                    </p>
-                    <p>
-                        {{ post[5] }}
-                    </p>
-                    {% if session["user_id"] is defined %}
-                        <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                            <input type="hidden" name="table" value="Post">
-                            <input type="submit" name="grade" value="Like">
-                            <input type="submit" name="grade" value="Dislike">
-                        </form>
-                    {% endif %}
-                    <p>
-                        {{ post[7] }}
-                    </p>
-                </div>
-            </div>
-        </li>
-    {% endfor %}
-</ul>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
 <script>
     var show = document.getElementById("form");
     show.style.display = "none"

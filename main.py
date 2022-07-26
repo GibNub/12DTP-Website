@@ -51,7 +51,7 @@ def delete_entry(type, id):
     elif type == "comment":
         first = "DELETE FROM Comment"
     elif type == "user":
-        first = "DELETE FROM User" 
+        first = "DELETE FROM User"
     cur.execute(f"{first} WHERE id = ?", (id,))
     conn.commit()
 
@@ -110,9 +110,11 @@ def create_user(username, date, password_hash):
     conn.commit()
 
 
+# Changes user credit in databasea
 def credit_update(user_id):
     conn = get_db()
     cur = conn.cursor()
+    # Defaults any none values into zero
     post_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Post WHERE user_id = ?", (user_id,))[0][0] or 0)
     comment_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Comment WHERE user_id = ?", (user_id,))[0][0] or 0)
     print(comment_credit)
@@ -130,15 +132,15 @@ def credit_update(user_id):
 @app.route("/")
 def home():
     # Replace user_id with associated username.
-    post = call_database("""SELECT Post.id, 
-                         Post.type, 
-                         Post.title, 
-                         Post.content, 
-                         Post.like, 
-                         Post.dislike, 
-                         User.username, 
-                         Post.date 
-                         FROM Post 
+    post = call_database("""SELECT Post.id,
+                         Post.type,
+                         Post.title,
+                         Post.content,
+                         Post.like,
+                         Post.dislike,
+                         User.username,
+                         Post.date
+                         FROM Post
                          INNER JOIN User ON Post.user_id=User.id""")
     app.logger.info(post[2])
     existing_usernames = call_database("SELECT username FROM User")
@@ -149,7 +151,7 @@ def home():
 # The route creates pages dynamically.
 # The id variable passed into the call database function.
 # Page info is passed into HTML with jinja code
-@app.route("/page/<int:id>") 
+@app.route("/page/<int:id>")
 def page(id):
     # Page_info needs index of 0 as the result is stored in tuple inside a list
     page_info = call_database("SELECT * FROM Post WHERE id = ?", (str(id),))[0]
@@ -213,13 +215,13 @@ def account(action):
 
 
 # Goes to account manager
-# Calls any relevant database entries 
+# Calls any relevant database entries
 @app.route("/account_management/<int:id>")
 def dashboard(id):
     user_id = session["user_id"]
-    user_post = call_database("SELECT * FROM Post WHERE user_id = ?",(user_id,))
-    user_comment = call_database("SELECT * FROM Comment WHERE user_id = ?",(user_id,))
-    user_info = call_database("SELECT * FROM User WHERE id = ?",(user_id,))[0]
+    user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (user_id,))
+    user_comment = call_database("SELECT * FROM Comment WHERE user_id = ?", (user_id,))
+    user_info = call_database("SELECT * FROM User WHERE id = ?", (user_id,))[0]
     return render_template("user.html", user_info=user_info, user_post=user_post, user_comment=user_comment, id=id)
 
 
@@ -235,7 +237,7 @@ def create_post():
         update_post(type, title, content, date, session["user_id"])
         # Go back to home page so users can easily see their new post
         return redirect(request.referrer)
- 
+
 
 # Gets values from each created comment
 # Update comment database using given values
@@ -275,7 +277,7 @@ def grade(id):
 
 # Creates user account and adds to the database
 # Password is salted and hashed
-@app.route("/sign_up", methods=["GET","POST"])
+@app.route("/sign_up", methods=["GET", "POST"])
 def sign_up():
     if request.method == "POST":
         username = request.form["username"]
