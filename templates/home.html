@@ -1,5 +1,14 @@
 {% extends "index.html" %}
 {% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    {% for m in messages %}
+        <p>{{m}}</p>
+    {% endfor %}
+{% endif %}
+{% endwith %}{% set section = namespace(value=0) %}
+
 {% if session["user_id"] is defined %}
 <div class="create_post">
     <button onclick="hideForm()" id="create_post">
@@ -46,7 +55,8 @@
                 8 : user_id
         -->
         {% for post in post %}
-            <li>
+            {% set section.value = section.value + 1 %}
+            <li id ="{{ section.value }}">
                 <div class="post">
                     <div class="post_head">
                         <h4 class="post_title">
@@ -54,11 +64,8 @@
                         </h4>
                         <div class="post_head">
                             <h5>
-                                {{ post[1] }}
+                                <a href="{{ url_for('dashboard', id=post[8])}}">{{ post[6] }}</a> ● {{ post[7][6:] }} / {{ post[7][4:6] }} / {{ post[7][:4] }}
                             </h5>
-                            <p>
-                                <a href="{{ url_for('dashboard', id=post[8])}}">{{ post[6] }}</a>
-                            </p>
                             <p>
                                 {{ post[1] }}
                             </p>
@@ -77,13 +84,11 @@
                         {% if session["user_id"] is defined %}
                             <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
                                 <input type="hidden" name="table" value="Post">
+                                <input type="hidden" name="section" value="{{ section.value }}">
                                 <input type="submit" name="grade" value="Like">
                                 <input type="submit" name="grade" value="Dislike">
                             </form>
                         {% endif %}
-                        <p>
-                            {{ post[7] }}
-                        </p>
                     </div>
                 </div>
             </li>
@@ -94,7 +99,6 @@
     var show = document.getElementById("form");
     show.style.display = "none"
     function hideForm() {
-        console.log("Shown")
         if (show.style.display == "none"){
             show.style.display = "block";
         } else {

@@ -13,20 +13,25 @@ Index : Column
     6 : dislike
     7 : date
 -->
-<h3>
-    Reply To:
-</h3>
-<p>
-    {{ comment[1] }}
-</p>
-<p>
-    {{ comment[4] }}
-</p>
+{% if session["user_id"] is defined %}
+    <h3>
+        Reply To:
+    </h3>
+    <p>
+        {{ comment[1] }}
+    </p>
+    <p>
+        {{ comment[4] }}
+    </p>
 
-<form action="/reply" method="POST" enctype="application/x-www-form-urlencoded">
-    <textarea name="content" cols="30" rows="10" placeholder="Your reply" required></textarea><br>
-    <input type="hidden" name="post_id" value="{{ comment[2] }}">
-    <input type="hidden" name="comment_id" value="{{ comment[0] }}">
-    <input type="submit" value="Post">
-</form>
+    <form action="/reply" method="POST" enctype="application/x-www-form-urlencoded">
+        <textarea name="content" cols="30" rows="10" placeholder="Your reply" required></textarea><br>
+        <input type="hidden" name="post_id" value="{{ comment[2] }}">
+        <input type="hidden" name="comment_id" value="{{ comment[0] }}">
+        <input type="submit" value="Post">
+    </form>
+{% else %}
+    <h3>You must be logged in to reply to this comment</h3>
+    <a href="{{ url_for('home') }}">Back to home page</a>
+{% endif %}
 {% endblock %}

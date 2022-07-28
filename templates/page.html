@@ -1,5 +1,6 @@
 {% extends "index.html" %}
 {% block content %}
+{% set section = namespace(value=0) %}
 <!-- 
     page Reference
     Index : Column Name
@@ -11,6 +12,7 @@
         5 : dislike
         6 : user_id
         7 : date
+        * : 
     -->
 <div class="page_head">
     <h1>
@@ -19,12 +21,7 @@
     <h2>
         {{ page[1] }}
     </h2>
-    <p>
-        {{ page[7] }}
-    </p>
-    <p>
-        {{ page[6] }}
-    </p>
+    <a href="{{ url_for('dashboard', id=page[8])}}">{{ page[6] }}</a> ● {{ page[7][6:] }} / {{ page[7][4:6] }} / {{ page[7][:4] }}
 </div>
 <div class="page_body">
     <p>
@@ -48,17 +45,19 @@
     <h3>
         Comments
     </h3>
-    <div id="comment_form">
-        <form action="/create_comment" method="POST" enctype="application/x-www-form-urlencoded">    
-            <textarea name="comment_content" cols="30" rows="10" placeholder="Your comment" required></textarea><br>
-            <input type="hidden" name="post_id" value="{{ page[0] }}">
-            <input type="submit" value="Post">
-        </form>
-    </div>
+    {% if session["user_id"] is defined %}
+        <div id="comment_form">
+            <form action="/create_comment" method="POST" enctype="application/x-www-form-urlencoded">    
+                <textarea name="comment_content" cols="30" rows="10" placeholder="Your comment" required></textarea><br>
+                <input type="hidden" name="post_id" value="{{ page[0] }}">
+                <input type="submit" value="Post">
+            </form>
+        </div>
+    {% endif %}
     <!-- Comment and reply reference
     Index : Column
         0 : id
-        1 : user_id
+        1 : username
         2 : post_id
         3 : comment_id
         4 : content
@@ -67,10 +66,11 @@
         7 : date -->
     <ul>
         {% for comment in comment %}
-            <li> 
+            {% set section.value = section.value + 1 %}
+            <li id="{{ section.value }}"> 
                 <div class="comment">
                     <p>
-                        {{ comment[1] }}
+                        <a href="{{ url_for('dashboard', id=comment[8])}}">{{ comment[1] }}</a> ● {{ comment[7][6:] }} / {{ comment[7][4:6] }} / {{ comment[7][:4] }}
                     </p>
                     <p>
                         {{ comment[4] }}
@@ -83,6 +83,7 @@
                     </p>
                     {% if session["user_id"] is defined %}
                         <form action="{{ url_for('grade', id=comment[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="section" value="{{ section.value }}">
                             <input type="hidden" name="table" value="Comment">
                             <input type="submit" name="grade" value="like">
                             <input type="submit" name="grade" value="dislike">
@@ -90,33 +91,39 @@
                     {% endif %}
                 </div><br>
                 <div class="reply">
-                    <form action="{{ url_for('reply_to', post_id=page[0], comment_id=comment[0]) }}">
-                        <input type="submit" value="Reply to comment">
-                    </form>
+                    {% if session["user_id"] is defined %}
+                        <form action="{{ url_for('reply_to', post_id=page[0], comment_id=comment[0]) }}">
+                            <input type="submit" value="Reply to comment">
+                        </form>
+                    {% endif %}
                     <ul>
                         <!-- Check if the reply "comment_id" id is the same as the comment "id" -->
                         <!-- This checks if the reply is with the corresponsing comment -->
                         {% for reply in reply %}
                             {% if reply[3] == comment[0] %}
-                                <p>
-                                    {{ reply[1] }}
-                                </p>
-                                <p>
-                                    {{ reply[4] }}
-                                </p>
-                                <p>
-                                    Likes : {{ reply[5] }}
-                                </p>
-                                <p>
-                                    Dislikes : {{ reply[6] }}
-                                </p>
-                                {% if session["user_id"] is defined %}
-                                    <form action="{{ url_for('grade', id=reply[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                                        <input type="hidden" name="table" value="Comment">
-                                        <input type="submit" name="grade" value="like">
-                                        <input type="submit" name="grade" value="dislike">
-                                    </form>
-                                {% endif %}
+                                {% set section.value = section.value + 1 %}
+                                <li id="{{ section.value }}">
+                                    <p>
+                                        <a href="{{ url_for('dashboard', id=reply[8])}}">{{ reply[1] }}</a> ● {{ reply[7][6:] }} / {{ reply[7][4:6] }} / {{ reply[7][:4] }}
+                                    </p>
+                                    <p>
+                                        {{ reply[4] }}
+                                    </p>
+                                    <p>
+                                        Likes : {{ reply[5] }}
+                                    </p>
+                                    <p>
+                                        Dislikes : {{ reply[6] }}
+                                    </p>
+                                    {% if session["user_id"] is defined %}
+                                        <form action="{{ url_for('grade', id=reply[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                            <input type="hidden" name="section" value="{{ section.value }}">
+                                            <input type="hidden" name="table" value="Comment">
+                                            <input type="submit" name="grade" value="like">
+                                            <input type="submit" name="grade" value="dislike">
+                                        </form>
+                                    {% endif %}
+                                </li>
                             {% endif %}
                         {% endfor %}
                     </ul>

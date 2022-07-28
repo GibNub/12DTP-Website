@@ -36,25 +36,26 @@
             {% endfor %}
         </ul>
     </div>
-    Comments:
-    <div>
+    <!-- <div>
         <ul>
-            {% for comment in comment %}
-            <p>
-                <!-- Get post content from comments post_id -->
-                Replying to {{ post[comment[2]][3] }}
-            </p>
-            <a href="{{ url_for('page', id=comment[2]) }}">{{ comment[4] }}</a>
-            {% if id == session["user_id"] %}
-                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
-                        <input type="hidden" name="id" value="{{ comment[0] }}">
-                        <input type="hidden" name="type" value="comment">
-                        <input type="submit" value="Delete Comment">
-                    </form>
-            {% endif %}
+            {% for comment in user_comment %}
+                <li>
+                    <p>
+                        Get post content from comments post_id 
+                        Replying to {{ user_post[comment[2]][3] }}
+                    </p>
+                    <a href="{{ url_for('page', id=comment[2]) }}">{{ comment[4] }}</a>
+                    {% if id == session["user_id"] %}
+                            <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="id" value="{{ comment[0] }}">
+                                <input type="hidden" name="type" value="comment">
+                                <input type="submit" value="Delete Comment">
+                            </form>
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
-    </div>
+    </div> -->
 </div>
 
 {% endblock %}

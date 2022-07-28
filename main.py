@@ -1,7 +1,7 @@
 import sqlite3
-from subprocess import call
-from webbrowser import get
+import re
 from flask import *
+import werkzeug
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -25,6 +25,12 @@ def today():
     return today
 
 
+def date_display(date):
+    date = str(date)
+    new_date = f"{date[:-3]}/{date[-3:-6]}/{date[-5:]}"
+    return new_date
+
+
 # Gather the information for forum posts from the database.
 # String building may be required in a later date
 # All results will be stored as a tuple in a list
@@ -34,10 +40,10 @@ def call_database(query, parameter=None):
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
-    if parameter is None:
-        cur.execute(query)
-    else:
+    try:
         cur.execute(query, parameter)
+    except (sqlite3.ProgrammingError, ValueError) as e:
+        cur.execute(query)
     result = cur.fetchall()
     return result
 
@@ -85,8 +91,8 @@ def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dis
 # This query must never be user on other occasions; only on the update grade route
 def update_grade(table, grade, id):
     conn = get_db()
-    cur = conn.cursor()
     conn.set_trace_callback(print)
+    cur = conn.cursor()
     if table.lower() == "post":
         first = "UPDATE Post SET"
     elif table.lower() == "comment":
@@ -115,11 +121,11 @@ def credit_update(user_id):
     conn = get_db()
     cur = conn.cursor()
     # Defaults any none values into zero
-    post_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Post WHERE user_id = ?", (user_id,))[0][0] or 0)
-    comment_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Comment WHERE user_id = ?", (user_id,))[0][0] or 0)
-    print(comment_credit)
+    post_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Post WHERE user_id = ?",
+                     (user_id,))[0][0] or 0)
+    comment_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Comment WHERE user_id = ?",
+                        (user_id,))[0][0] or 0)
     total_credit = comment_credit + post_credit
-    print(total_credit)
     cur.execute("UPDATE User SET credit = ? WHERE id = ?", (total_credit, user_id))
     conn.commit()
 
@@ -132,19 +138,22 @@ def credit_update(user_id):
 @app.route("/")
 def home():
     # Replace user_id with associated username.
-    post = call_database("""SELECT Post.id,
-                         Post.type,
-                         Post.title,
-                         Post.content,
-                         Post.like,
-                         Post.dislike,
-                         User.username,
-                         Post.date
-                         FROM Post
-                         INNER JOIN User ON Post.user_id=User.id""")
-    app.logger.info(post[2])
-    existing_usernames = call_database("SELECT username FROM User")
-    print(existing_usernames)
+    final_query = """SELECT Post.id, 
+                         Post.type, 
+                         Post.title, 
+                         Post.content, 
+                         Post.like, 
+                         Post.dislike, 
+                         User.username, 
+                         Post.date, 
+                         Post.user_id 
+                         FROM Post 
+                         INNER JOIN User ON Post.user_id=User.id"""
+    search = session.get("search_query", None)
+    search = None
+    if search is not None:
+        final_query = f"{final_query} WHERE title AND content LIKE ?"
+    post = call_database(final_query, (search,))
     return render_template("home.html", post=post)
 
 
@@ -154,7 +163,17 @@ def home():
 @app.route("/page/<int:id>")
 def page(id):
     # Page_info needs index of 0 as the result is stored in tuple inside a list
-    page_info = call_database("SELECT * FROM Post WHERE id = ?", (str(id),))[0]
+    page_info = call_database("""SELECT Post.id, 
+                         Post.type, 
+                         Post.title, 
+                         Post.content, 
+                         Post.like, 
+                         Post.dislike, 
+                         User.username, 
+                         Post.date, 
+                         Post.user_id 
+                         FROM Post 
+                         INNER JOIN User ON Post.user_id=User.id WHERE Post.id = ?""", (id,))[0]
     # Comments tied to posts have no comment_id
     comment = call_database("""SELECT Comment.id,
                             User.username,
@@ -163,7 +182,8 @@ def page(id):
                             Comment.content,
                             Comment.like,
                             Comment.dislike,
-                            Comment.date
+                            Comment.date,
+                            Comment.user_id
                             FROM Comment INNER JOIN User ON Comment.user_id=User.id
                             WHERE Comment.comment_id IS NULL AND Comment.post_id = ?""",
                             (str(id),))
@@ -175,7 +195,8 @@ def page(id):
                           Comment.content,
                           Comment.like,
                           Comment.dislike,
-                          Comment.date
+                          Comment.date,
+                          Comment.user_id
                           FROM Comment INNER JOIN User ON Comment.user_id=User.id
                           WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ?""",
                           (str(id),))
@@ -218,11 +239,9 @@ def account(action):
 # Calls any relevant database entries
 @app.route("/account_management/<int:id>")
 def dashboard(id):
-    user_id = session["user_id"]
-    user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (user_id,))
-    user_comment = call_database("SELECT * FROM Comment WHERE user_id = ?", (user_id,))
-    user_info = call_database("SELECT * FROM User WHERE id = ?", (user_id,))[0]
-    return render_template("user.html", user_info=user_info, user_post=user_post, user_comment=user_comment, id=id)
+    user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (id,))
+    user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
+    return render_template("user.html", user_info=user_info, user_post=user_post, id=id)
 
 
 # Gets the form values from the home page,
@@ -269,10 +288,18 @@ def reply():
 def grade(id):
     if session["user_id"]:
         if request.method == "POST":
-            table = request.form["table"]
-            grade = request.form["grade"]
-            update_grade(table, grade, id)
-            return redirect(request.referrer)
+            try:
+                section = request.form["section"]
+                table = request.form["table"]
+                grade = request.form["grade"]
+                update_grade(table, grade, id)
+                url = request.referrer + f"#{str(section)}"
+                return redirect(url)
+            except werkzeug.exceptions.BadRequestKeyError:
+                table = request.form["table"]
+                grade = request.form["grade"]
+                update_grade(table, grade, id)
+                return redirect(request.referrer)
 
 
 # Creates user account and adds to the database
@@ -286,11 +313,12 @@ def sign_up():
         # Get existing usernames then converts result into list without single element tuples
         existing_usernames = call_database("SELECT username FROM User")
         existing_usernames = [i[0] for i in existing_usernames]
-        print(existing_usernames)
         if username not in existing_usernames:
             create_user(username, date, (generate_password_hash(password, salt_length=16)))
+            flash("Account created, log in to access your account", "info")
             return redirect(url_for("account", action="sign_in"))
         else:
+            flash("That username already exists", "info")
             return redirect(request.referrer)
 
 
@@ -300,20 +328,36 @@ def sign_in():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,))[0]
-        if check_password_hash(user_info[2], password):
+        user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,))
+        print(user_info)
+        if not user_info:
+            flash("Username or password is incorrect")
+            return redirect(request.referrer)
+        user_info = user_info[0]
+        if not check_password_hash(user_info[2], password):
+            flash("Username or password is incorrect")
+            return redirect(request.referrer)
+        else:
             session["user_id"] = user_info[0]
             credit_update(session["user_id"])
-        return redirect(url_for("home"))
+            flash(f"Logged in successfully as {username}", "info")
+            return redirect(url_for("home"))       
 
 
-# Update user credit
+# searches for specific entries in the database
+@app.route("/search", methods=["GET", "POST"])
+def searching():
+    if request.method == "POST":
+        query = request.form["query"]
+        flash(f"Searching for {query}")
+        session["search_query"] = query
 
 
 # Log user out
 @app.route("/sign_out")
 def sign_out():
     session.pop("user_id", None)
+    flash("Successfully logged out", "info")
     return redirect(url_for("home"))
 
 
@@ -322,7 +366,7 @@ def sign_out():
 def delete():
     if request.method == "POST":
         id = request.form["id"]
-        type = request.form["post"]
+        type = request.form["type"]
         delete_entry(type, id)
         return redirect(request.referrer)
 
