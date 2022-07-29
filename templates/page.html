@@ -85,8 +85,8 @@
                         <form action="{{ url_for('grade', id=comment[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
                             <input type="hidden" name="section" value="{{ section.value }}">
                             <input type="hidden" name="table" value="Comment">
-                            <input type="submit" name="grade" value="like">
-                            <input type="submit" name="grade" value="dislike">
+                            <input type="submit" name="grade" value="Like">
+                            <input type="submit" name="grade" value="Dislike">
                         </form>
                     {% endif %}
                 </div><br>
@@ -119,8 +119,8 @@
                                         <form action="{{ url_for('grade', id=reply[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
                                             <input type="hidden" name="section" value="{{ section.value }}">
                                             <input type="hidden" name="table" value="Comment">
-                                            <input type="submit" name="grade" value="like">
-                                            <input type="submit" name="grade" value="dislike">
+                                            <input type="submit" name="grade" value="Like">
+                                            <input type="submit" name="grade" value="Dislike">
                                         </form>
                                     {% endif %}
                                 </li>

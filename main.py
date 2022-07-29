@@ -25,12 +25,6 @@ def today():
     return today
 
 
-def date_display(date):
-    date = str(date)
-    new_date = f"{date[:-3]}/{date[-3:-6]}/{date[-5:]}"
-    return new_date
-
-
 # Gather the information for forum posts from the database.
 # String building may be required in a later date
 # All results will be stored as a tuple in a list
@@ -73,6 +67,62 @@ def update_post(type, title, content, date, user_id, like=0, dislike=0):
     conn.commit()
 
 
+# Verify grade of user
+def graded(user_id, type, type_id, grade, replace):
+    query = None
+    conn = get_db()
+    cur = conn.cursor()
+    conn.set_trace_callback(print)
+    # Add new grade 
+    if not replace:
+        if type == "Post":
+            query = "INSERT INTO Graded (user_id, post_id, grade) VALUES (?, ?, ?)" 
+        elif type == "Comment":
+            query = "INSERT INTO Graded (user_id, comment_id, grade) VALUES (?, ?, ?)"
+        parameter = (user_id, type_id, grade)
+    # Replace existing grade
+    elif replace:
+        if type == "Post":
+            query = "UPDATE Graded SET grade = ? WHERE user_id = ? AND post_id = ?"
+        elif type == "Comment":
+            query = "UPDATE Graded SET grade = ? WHERE user_id = ? AND post_id = ?"
+        parameter = (grade, user_id, type_id)
+    cur.execute(query, parameter)
+    conn.commit()
+
+
+# Incriment the like or dislike counter by one.
+# Parameters can't be used to pass table or column names
+# So string building must be user to update certain parts of the database depending on the conditions.
+# This query must never be user on other occasions; only on the update grade route
+# Old Code Below
+# def update_grade(table, grade, id, grade_exist):
+#     conn = get_db()
+#     cur = conn.cursor()
+#     if not grade_exist:
+#         if table.lower() == "post":
+#             first = "UPDATE Post SET"
+#         elif table.lower() == "comment":
+#             first = "UPDATE Comment SET"
+#         if grade.lower() == "like":
+#             last = "like = like + 1 WHERE id = ?"
+#         elif grade.lower() == "dislike":
+#             last = "dislike = dislike + 1 WHERE id = ?"
+#     cur.execute(f"{first} {last}", (id,))
+#     conn.commit()
+ 
+def update_grade(id, type):
+    conn = get_db()
+    cur = conn.cursor
+    conn.set_trace_callback(print)
+    if type == "Post":
+        query = "SELECT COUNT(grade) FROM Graded WHERE post_id = ?"
+    elif type == "Comment":
+        query = "SELECT COUNT(grade) FROM Graded WHERE comment_id = ?"
+    cur.execute(query, (id,))
+    result = cur.fetchall()
+
+
 # Updates comments table once user creates a comment or reply
 # like and dislike cannot be null so default value is 0
 def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dislike=0):
@@ -82,26 +132,6 @@ def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dis
                 (user_id, post_id, comment_id, content, like, dislike, date)
                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (user_id, post_id, comment_id, content, like, dislike, date))
-    conn.commit()
-
-
-# Incriment the like or dislike counter by one.
-# Parameters can't be used to pass table or column names
-# So string building must be user to update certain parts of the database depending on the conditions.
-# This query must never be user on other occasions; only on the update grade route
-def update_grade(table, grade, id):
-    conn = get_db()
-    conn.set_trace_callback(print)
-    cur = conn.cursor()
-    if table.lower() == "post":
-        first = "UPDATE Post SET"
-    elif table.lower() == "comment":
-        first = "UPDATE Comment SET"
-    if grade.lower() == "like":
-        last = "like = like + 1 WHERE id = ?"
-    if grade.lower() == "dislike":
-        last = "dislike = dislike + 1 WHERE id = ?"
-    cur.execute(f"{first} {last}", (id,))
     conn.commit()
 
 
@@ -139,16 +169,16 @@ def credit_update(user_id):
 def home():
     # Replace user_id with associated username.
     final_query = """SELECT Post.id, 
-                         Post.type, 
-                         Post.title, 
-                         Post.content, 
-                         Post.like, 
-                         Post.dislike, 
-                         User.username, 
-                         Post.date, 
-                         Post.user_id 
-                         FROM Post 
-                         INNER JOIN User ON Post.user_id=User.id"""
+                  Post.type, 
+                  Post.title, 
+                  Post.content, 
+                  Post.like, 
+                  Post.dislike, 
+                  User.username, 
+                  Post.date, 
+                  Post.user_id 
+                  FROM Post 
+                  INNER JOIN User ON Post.user_id=User.id"""
     search = session.get("search_query", None)
     search = None
     if search is not None:
@@ -164,16 +194,16 @@ def home():
 def page(id):
     # Page_info needs index of 0 as the result is stored in tuple inside a list
     page_info = call_database("""SELECT Post.id, 
-                         Post.type, 
-                         Post.title, 
-                         Post.content, 
-                         Post.like, 
-                         Post.dislike, 
-                         User.username, 
-                         Post.date, 
-                         Post.user_id 
-                         FROM Post 
-                         INNER JOIN User ON Post.user_id=User.id WHERE Post.id = ?""", (id,))[0]
+                              Post.type, 
+                              Post.title, 
+                              Post.content, 
+                              Post.like, 
+                              Post.dislike, 
+                              User.username, 
+                              Post.date, 
+                              Post.user_id 
+                              FROM Post 
+                              INNER JOIN User ON Post.user_id=User.id WHERE Post.id = ?""", (id,))[0]
     # Comments tied to posts have no comment_id
     comment = call_database("""SELECT Comment.id,
                             User.username,
@@ -286,21 +316,35 @@ def reply():
 # Update post or comment with like or dislike.
 @app.route("/grade/<int:id>/", methods=["GET", "POST"])
 def grade(id):
-    if session["user_id"]:
-        if request.method == "POST":
-            try:
-                section = request.form["section"]
-                table = request.form["table"]
-                grade = request.form["grade"]
-                update_grade(table, grade, id)
-                url = request.referrer + f"#{str(section)}"
-                return redirect(url)
-            except werkzeug.exceptions.BadRequestKeyError:
-                table = request.form["table"]
-                grade = request.form["grade"]
-                update_grade(table, grade, id)
-                return redirect(request.referrer)
-
+    if not session.get("user_id", None ):
+        return redirect(request.referrer)
+    if request.method == "POST":
+        user_id = session.get("user_id", None)
+        table = request.form["table"]
+        grade = request.form["grade"]
+        print(table)
+        # Find if user already liked or disliked post/comment
+        if table == "Post":
+            query = "SELECT grade FROM Graded WHERE user_id = ? AND post_id = ?"
+        elif table == "Comment":
+            query = "SELECT grade FROM Graded WHERE user_id = ? AND comment_id = ?"
+        existing_grade = call_database(query, (user_id, id))
+        # Prevent user for giving the same grade to posts/comments Otherwise give grade.
+        if not existing_grade:
+            update_grade(id, table)
+            graded(user_id, table, id, grade, False)
+        # Change grade by user
+        elif existing_grade[0][0] != grade:
+            update_grade(id, table)
+            graded(user_id, table, id, grade, True)
+        # Build url
+        try:
+            section = request.form["section"]
+            url = request.referrer + f"#{str(section)}"
+        except werkzeug.exceptions.BadRequestKeyError:
+            url = request.referrer
+        return redirect(url)
+            
 
 # Creates user account and adds to the database
 # Password is salted and hashed
