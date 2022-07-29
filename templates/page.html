@@ -37,8 +37,8 @@
 {% if session["user_id"] is defined %}
     <form action="{{ url_for('grade', id=page[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
         <input type="hidden" name="table" value="Post">
-        <input type="submit" name="grade" value="like">
-        <input type="submit" name="grade" value="dislike">
+        <input type="submit" name="grade" value="Like">
+        <input type="submit" name="grade" value="Dislike">
     </form>
 {% endif %}
 <div class="page_foot"></div>

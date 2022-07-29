@@ -68,11 +68,9 @@ def update_post(type, title, content, date, user_id, like=0, dislike=0):
 
 
 # Verify grade of user
-def graded(user_id, type, type_id, grade, replace):
-    query = None
+def graded(user_id, type, type_id, grade, replace=None):
     conn = get_db()
     cur = conn.cursor()
-    conn.set_trace_callback(print)
     # Add new grade 
     if not replace:
         if type == "Post":
@@ -113,15 +111,21 @@ def graded(user_id, type, type_id, grade, replace):
  
 def update_grade(id, type):
     conn = get_db()
-    cur = conn.cursor
-    conn.set_trace_callback(print)
+    cur = conn.cursor()
     if type == "Post":
-        query = "SELECT COUNT(grade) FROM Graded WHERE post_id = ?"
+        query = "SELECT grade FROM Graded WHERE post_id = ?"
+        update_counter_query = "UPDATE Post SET like = ?, dislike = ? WHERE id = ?"
     elif type == "Comment":
-        query = "SELECT COUNT(grade) FROM Graded WHERE comment_id = ?"
+        query = "SELECT grade FROM Graded WHERE comment_id = ?"
+        update_counter_query = "UPDATE Comment SET like = ?, dislike = ? WHERE id = ?"
     cur.execute(query, (id,))
     result = cur.fetchall()
-
+    result = [i[0] for i in result]
+    print(result)
+    likes = result.count("Like")
+    dislikes = result.count("Dislike")
+    cur.execute(update_counter_query, (likes, dislikes, id))
+    conn.commit()
 
 # Updates comments table once user creates a comment or reply
 # like and dislike cannot be null so default value is 0
@@ -179,12 +183,16 @@ def home():
                   Post.user_id 
                   FROM Post 
                   INNER JOIN User ON Post.user_id=User.id"""
+    # 
+    user_graded_posts = call_database("SELECT post_id FROM Graded WHERE user_id = ?", (session.get("user_id", None),))[0]
+    user_graded_posts = [i[0] for i in user_graded_posts]
+    # Apply search to database query
     search = session.get("search_query", None)
     search = None
     if search is not None:
         final_query = f"{final_query} WHERE title AND content LIKE ?"
     post = call_database(final_query, (search,))
-    return render_template("home.html", post=post)
+    return render_template("home.html", post=post, user_graded=user_graded)
 
 
 # The route creates pages dynamically.
@@ -322,7 +330,6 @@ def grade(id):
         user_id = session.get("user_id", None)
         table = request.form["table"]
         grade = request.form["grade"]
-        print(table)
         # Find if user already liked or disliked post/comment
         if table == "Post":
             query = "SELECT grade FROM Graded WHERE user_id = ? AND post_id = ?"
@@ -331,12 +338,12 @@ def grade(id):
         existing_grade = call_database(query, (user_id, id))
         # Prevent user for giving the same grade to posts/comments Otherwise give grade.
         if not existing_grade:
+            graded(user_id, table, id, grade)
             update_grade(id, table)
-            graded(user_id, table, id, grade, False)
         # Change grade by user
         elif existing_grade[0][0] != grade:
-            update_grade(id, table)
             graded(user_id, table, id, grade, True)
+            update_grade(id, table)
         # Build url
         try:
             section = request.form["section"]
@@ -373,7 +380,6 @@ def sign_in():
         username = request.form["username"]
         password = request.form["password"]
         user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,))
-        print(user_info)
         if not user_info:
             flash("Username or password is incorrect")
             return redirect(request.referrer)
