@@ -39,6 +39,27 @@
 </form>
 {% endif %}
 <div class="main_page">
+    {# SORTING #}
+    <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
+        <select name="type" required>
+            <option value="">-Find Post By Category--</option>
+            <option value="General">General</option>
+            <option value="Help">Help</option>
+            <option value="Lore">Lore</option>
+            <option value="Humor">Humor</option>
+            <option value="News">News</option>
+            <option value="">Reset Sort</option>
+        </select>
+        <input type="submit" value="Sort">
+    </form><br>
+    <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
+        <select name="order" required>
+            <option value="">-Order By--</option>
+            <option value="Like">Likes</option>
+            <option value="Dislike">Dislikes</option>
+            <option value="">Reset Order</option>
+        </select>
+        <input type="submit" value="Order">
     <ul>
         <!--
             Reference

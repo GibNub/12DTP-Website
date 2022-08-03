@@ -1,5 +1,7 @@
 import sqlite3
 import re
+from typing import final
+from unicodedata import category
 from flask import *
 import werkzeug
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,11 +10,6 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
-dict = {
-    1 : "hello",
-    2 : "world"
-}
-print(dict)
 
 
 # Store database connection in a variable
@@ -35,7 +32,9 @@ def today():
 # All results will be stored as a tuple in a list
 # For single item lists, specify with a index of 0
 def call_database(query, parameter=None):
+    
     conn = get_db()
+    conn.set_trace_callback(print)
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
@@ -175,10 +174,13 @@ def credit_update(user_id):
 # This is to create HTML posts for each entry in the post table.
 @app.route("/")
 def home():
-    # Replace user_id with associated username.
-    if session.get("user_id", None):
-        current_user = session.get("user_id", None)
-        default_query = """SELECT Post.*,
+    parameter = []
+    user_id = session.get("user_id", None)
+    category = session.get("category", None)
+    order = session.get("order", None)
+    # Build query    
+    if user_id:
+        final_query = """SELECT Post.*,
                         User.username, Graded.grade AS grade FROM POST
                         INNER JOIN User ON Post.user_id = User.id
                         LEFT JOIN Graded ON grade = Graded.grade
@@ -186,39 +188,23 @@ def home():
                         UNION
                         SELECT Post.*, User.username, NULL FROM POST
                         INNER JOIN User ON Post.user_id = User.id"""
-        parameter = (current_user,)
-        # default_query = """SELECT Post.id, 
-        #                 Post.type, 
-        #                 Post.title, 
-        #                 Post.content, 
-        #                 Post.like, 
-        #                 Post.dislike, 
-        #                 User.username, 
-        #                 Post.date, 
-        #                 Post.user_id, 
-        #                 Graded.grade AS grade
-        #                 FROM Post
-        #                 INNER JOIN User ON Post.user_id = User.id
-        #                 LEFT JOIN Graded ON grade = Graded.grade
-        #                 WHERE Graded.Post_id = Post.id AND Graded.user_id = ?
-        #                 UNION
-        #                 SELECT Post.id, 
-        #                 Post.type, 
-        #                 Post.title, 
-        #                 Post.content, 
-        #                 Post.like, 
-        #                 Post.dislike, 
-        #                 User.username, 
-        #                 Post.date, 
-        #                 Post.user_id,
-        #                 NULL
-        #                 FROM Post
-        #                 INNER JOIN User ON Post.user_id = User.id
-        #               """
+        parameter.append(user_id)
     else:
-        default_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id"""
-        parameter = None
-    final_query = default_query
+        final_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id"""
+    # Check for sorting
+    if category:
+        sort_query = " WHERE type = ?"
+        parameter.append(category)
+        final_query = final_query + sort_query
+    if order:
+        if order == "Like":
+            order_query = " ORDER BY like DESC"
+        elif order == "Dislike":
+            order_query = " ORDER BY dislike DESC"
+        final_query = final_query + order_query
+    # Query execution
+    parameter = tuple(parameter)
+    print(final_query)
     post = call_database(final_query, parameter)
     return render_template("home.html", post=post)
 
@@ -270,45 +256,6 @@ def page(id):
     page_info = call_database(page_query, parameter)
     comment = call_database(comment_query, parameter)
     reply = call_database(reply_query, parameter)
-    
-    # page_info = call_database("""SELECT Post.id, 
-    #                           Post.type, 
-    #                           Post.title, 
-    #                           Post.content, 
-    #                           Post.like, 
-    #                           Post.dislike, 
-    #                           User.username, 
-    #                           Post.date, 
-    #                           Post.user_id 
-    #                           FROM Post 
-    #                           INNER JOIN User ON Post.user_id=User.id WHERE Post.id = ?""", (id,))[0]
-    # # Comments tied to posts have no comment_id
-    # comment = call_database("""SELECT Comment.id,
-    #                         User.username,
-    #                         Comment.post_id,
-    #                         Comment.comment_id,
-    #                         Comment.content,
-    #                         Comment.like,
-    #                         Comment.dislike,
-    #                         Comment.date,
-    #                         Comment.user_id
-    #                         FROM Comment INNER JOIN User ON Comment.user_id=User.id
-    #                         WHERE Comment.comment_id IS NULL AND Comment.post_id = ?""",
-    #                         (str(id),))
-    # # Replies are tied to a comment so theres a comment_id
-    # reply = call_database("""SELECT Comment.id,
-    #                       User.username,
-    #                       Comment.post_id,
-    #                       Comment.comment_id,
-    #                       Comment.content,
-    #                       Comment.like,
-    #                       Comment.dislike,
-    #                       Comment.date,
-    #                       Comment.user_id
-    #                       FROM Comment INNER JOIN User ON Comment.user_id=User.id
-    #                       WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ?""",
-    #                       (str(id),))
-    # Add amount of comments and replies
     return render_template("page.html",
                            page=page_info,
                            comment=comment,
@@ -329,12 +276,6 @@ def reply_to(post_id, comment_id):
 @app.route("/about")
 def about():
     return render_template("about.html")
-
-
-# A page exclusively to search for specific posts.
-@app.route("/search")
-def search():
-    return render_template("search.html")
 
 
 # Redirect user to either sign in or sign up page.
@@ -464,13 +405,16 @@ def sign_in():
             return redirect(url_for("home"))       
 
 
-# searches for specific entries in the database
-@app.route("/search", methods=["GET", "POST"])
-def searching():
+# Filter posts
+@app.route("/sort/<type>", methods=["GET", "POST"])
+def sort(type):
     if request.method == "POST":
-        query = request.form["query"]
-        flash(f"Searching for {query}")
-        session["search_query"] = query
+        if type == "sort":
+            session["category"] = request.form["type"]
+            return redirect(request.referrer)
+        elif type == "order":
+            session["order"] = request.form["order"]
+            return redirect(request.referrer)
 
 
 # Log user out
