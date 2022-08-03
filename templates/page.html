@@ -12,7 +12,7 @@
         5 : dislike
         6 : user_id
         7 : date
-        * : 
+        8 : username
     -->
 <div class="page_head">
     <h1>
@@ -21,7 +21,7 @@
     <h2>
         {{ page[1] }}
     </h2>
-    <a href="{{ url_for('dashboard', id=page[8])}}">{{ page[6] }}</a> ● {{ page[7][6:] }} / {{ page[7][4:6] }} / {{ page[7][:4] }}
+    <a href="{{ url_for('dashboard', id=page[6])}}">{{ page[8] }}</a> ● {{ page[7][6:] }} / {{ page[7][4:6] }} / {{ page[7][:4] }}
 </div>
 <div class="page_body">
     <p>

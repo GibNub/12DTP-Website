@@ -8,6 +8,11 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
+dict = {
+    1 : "hello",
+    2 : "world"
+}
+print(dict)
 
 
 # Store database connection in a variable
@@ -108,7 +113,6 @@ def graded(user_id, type, type_id, grade, replace=None):
 #             last = "dislike = dislike + 1 WHERE id = ?"
 #     cur.execute(f"{first} {last}", (id,))
 #     conn.commit()
- 
 def update_grade(id, type):
     conn = get_db()
     cur = conn.cursor()
@@ -121,11 +125,11 @@ def update_grade(id, type):
     cur.execute(query, (id,))
     result = cur.fetchall()
     result = [i[0] for i in result]
-    print(result)
     likes = result.count("Like")
     dislikes = result.count("Dislike")
     cur.execute(update_counter_query, (likes, dislikes, id))
     conn.commit()
+
 
 # Updates comments table once user creates a comment or reply
 # like and dislike cannot be null so default value is 0
@@ -172,27 +176,51 @@ def credit_update(user_id):
 @app.route("/")
 def home():
     # Replace user_id with associated username.
-    final_query = """SELECT Post.id, 
-                  Post.type, 
-                  Post.title, 
-                  Post.content, 
-                  Post.like, 
-                  Post.dislike, 
-                  User.username, 
-                  Post.date, 
-                  Post.user_id 
-                  FROM Post 
-                  INNER JOIN User ON Post.user_id=User.id"""
-    # 
-    user_graded_posts = call_database("SELECT post_id FROM Graded WHERE user_id = ?", (session.get("user_id", None),))[0]
-    user_graded_posts = [i[0] for i in user_graded_posts]
-    # Apply search to database query
-    search = session.get("search_query", None)
-    search = None
-    if search is not None:
-        final_query = f"{final_query} WHERE title AND content LIKE ?"
-    post = call_database(final_query, (search,))
-    return render_template("home.html", post=post, user_graded=user_graded)
+    if session.get("user_id", None):
+        current_user = session.get("user_id", None)
+        default_query = """SELECT Post.*,
+                        User.username, Graded.grade AS grade FROM POST
+                        INNER JOIN User ON Post.user_id = User.id
+                        LEFT JOIN Graded ON grade = Graded.grade
+                        WHERE Graded.post_id = post.id AND Graded.user_id = ?
+                        UNION
+                        SELECT Post.*, User.username, NULL FROM POST
+                        INNER JOIN User ON Post.user_id = User.id"""
+        parameter = (current_user,)
+        # default_query = """SELECT Post.id, 
+        #                 Post.type, 
+        #                 Post.title, 
+        #                 Post.content, 
+        #                 Post.like, 
+        #                 Post.dislike, 
+        #                 User.username, 
+        #                 Post.date, 
+        #                 Post.user_id, 
+        #                 Graded.grade AS grade
+        #                 FROM Post
+        #                 INNER JOIN User ON Post.user_id = User.id
+        #                 LEFT JOIN Graded ON grade = Graded.grade
+        #                 WHERE Graded.Post_id = Post.id AND Graded.user_id = ?
+        #                 UNION
+        #                 SELECT Post.id, 
+        #                 Post.type, 
+        #                 Post.title, 
+        #                 Post.content, 
+        #                 Post.like, 
+        #                 Post.dislike, 
+        #                 User.username, 
+        #                 Post.date, 
+        #                 Post.user_id,
+        #                 NULL
+        #                 FROM Post
+        #                 INNER JOIN User ON Post.user_id = User.id
+        #               """
+    else:
+        default_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id"""
+        parameter = None
+    final_query = default_query
+    post = call_database(final_query, parameter)
+    return render_template("home.html", post=post)
 
 
 # The route creates pages dynamically.
@@ -201,43 +229,85 @@ def home():
 @app.route("/page/<int:id>")
 def page(id):
     # Page_info needs index of 0 as the result is stored in tuple inside a list
-    page_info = call_database("""SELECT Post.id, 
-                              Post.type, 
-                              Post.title, 
-                              Post.content, 
-                              Post.like, 
-                              Post.dislike, 
-                              User.username, 
-                              Post.date, 
-                              Post.user_id 
-                              FROM Post 
-                              INNER JOIN User ON Post.user_id=User.id WHERE Post.id = ?""", (id,))[0]
-    # Comments tied to posts have no comment_id
-    comment = call_database("""SELECT Comment.id,
-                            User.username,
-                            Comment.post_id,
-                            Comment.comment_id,
-                            Comment.content,
-                            Comment.like,
-                            Comment.dislike,
-                            Comment.date,
-                            Comment.user_id
-                            FROM Comment INNER JOIN User ON Comment.user_id=User.id
-                            WHERE Comment.comment_id IS NULL AND Comment.post_id = ?""",
-                            (str(id),))
-    # Replies are tied to a comment so theres a comment_id
-    reply = call_database("""SELECT Comment.id,
-                          User.username,
-                          Comment.post_id,
-                          Comment.comment_id,
-                          Comment.content,
-                          Comment.like,
-                          Comment.dislike,
-                          Comment.date,
-                          Comment.user_id
-                          FROM Comment INNER JOIN User ON Comment.user_id=User.id
-                          WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ?""",
-                          (str(id),))
+    if session.get("user_id", None):
+        current_user = session.get("user_id", None)
+        page_query = """SELECT Post.*,
+                        User.username, Graded.grade AS grade FROM POST
+                        INNER JOIN User ON Post.user_id = User.id
+                        LEFT JOIN Graded ON grade = Graded.grade
+                        WHERE Graded.post_id = post.id AND Graded.user_id = ? AND Post.id = ?
+                        UNION
+                        SELECT Post.*, User.username, NULL FROM POST
+                        INNER JOIN User ON Post.user_id = User.id
+                        WHERE Post.id = ?
+                        """
+        comment_query = """SELECT Comment.*,
+                        User.username, Graded.grade AS grade FROM Comment
+                        INNER JOIN User ON Comment.user_id = User.id
+                        LEFT JOIN Graded ON grade = Graded.grade
+                        WHERE Graded.comment_id = Comment.id AND Graded.user_id = ? AND Comment.comment_id IS NULL AND Comment.post_id = ?
+                        UNION
+                        SELECT Comment.*, User.username, NULL FROM Comment
+                        INNER JOIN User ON Comment.user_id = User.id
+                        WHERE Comment.comment_id IS NULL AND Comment.post_id = ?"""
+        reply_query = """SELECT Comment.*,
+                        User.username, Graded.grade AS grade FROM Comment
+                        INNER JOIN User ON Comment.user_id = User.id
+                        LEFT JOIN Graded ON grade = Graded.grade
+                        WHERE Graded.comment_id = Comment.id AND Graded.user_id = ? AND Comment.comment_id IS NOT NULL AND Comment.post_id = ?
+                        UNION
+                        SELECT Comment.*, User.username, NULL FROM Comment
+                        INNER JOIN User ON Comment.user_id = User.id
+                        WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ?"""
+        parameter = (current_user, id, id)
+    else:
+        page_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id WHERE Post.id = ?"""
+        comment_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
+                        WHERE Comment.comment_id IS NULL AND Comment.post_id = ? """
+        reply_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
+                      WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ? """
+        parameter = (id,)
+    page_info = call_database(page_query, parameter)
+    comment = call_database(comment_query, parameter)
+    reply = call_database(reply_query, parameter)
+    
+    # page_info = call_database("""SELECT Post.id, 
+    #                           Post.type, 
+    #                           Post.title, 
+    #                           Post.content, 
+    #                           Post.like, 
+    #                           Post.dislike, 
+    #                           User.username, 
+    #                           Post.date, 
+    #                           Post.user_id 
+    #                           FROM Post 
+    #                           INNER JOIN User ON Post.user_id=User.id WHERE Post.id = ?""", (id,))[0]
+    # # Comments tied to posts have no comment_id
+    # comment = call_database("""SELECT Comment.id,
+    #                         User.username,
+    #                         Comment.post_id,
+    #                         Comment.comment_id,
+    #                         Comment.content,
+    #                         Comment.like,
+    #                         Comment.dislike,
+    #                         Comment.date,
+    #                         Comment.user_id
+    #                         FROM Comment INNER JOIN User ON Comment.user_id=User.id
+    #                         WHERE Comment.comment_id IS NULL AND Comment.post_id = ?""",
+    #                         (str(id),))
+    # # Replies are tied to a comment so theres a comment_id
+    # reply = call_database("""SELECT Comment.id,
+    #                       User.username,
+    #                       Comment.post_id,
+    #                       Comment.comment_id,
+    #                       Comment.content,
+    #                       Comment.like,
+    #                       Comment.dislike,
+    #                       Comment.date,
+    #                       Comment.user_id
+    #                       FROM Comment INNER JOIN User ON Comment.user_id=User.id
+    #                       WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ?""",
+    #                       (str(id),))
     # Add amount of comments and replies
     return render_template("page.html",
                            page=page_info,
@@ -344,7 +414,7 @@ def grade(id):
         elif existing_grade[0][0] != grade:
             graded(user_id, table, id, grade, True)
             update_grade(id, table)
-        # Build url
+        # Build url No section exception
         try:
             section = request.form["section"]
             url = request.referrer + f"#{str(section)}"

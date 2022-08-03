@@ -1,7 +1,40 @@
+/* Index */
+
+body{
+    color: #ffffffff;
+    background-color: #000000ff;
+}
+
+header{
+    color:#ecce00ff;
+    text-align: center;
+    font-size: larger;
+}
+
+nav{
+
+}
+
+ul{
+    padding: 0;
+    list-style-type: none;
+}
+
 /* Home page */
 
 .main_page{
+    width: 80%;
+    margin: 0 auto;
+    padding: 10px;
+    border-style: solid;
+    border-color: #ecce00ff;
+    
+}
 
+.post{
+    background-color: #2E2E2E;
+    margin-top: 5%;
+    margin-bottom: 5%;
 }
 
 /* Forms for posting and commenting */
