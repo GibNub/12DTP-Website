@@ -1,7 +1,5 @@
 import sqlite3
 import re
-from typing import final
-from unicodedata import category
 from flask import *
 import werkzeug
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -32,7 +30,6 @@ def today():
 # All results will be stored as a tuple in a list
 # For single item lists, specify with a index of 0
 def call_database(query, parameter=None):
-    
     conn = get_db()
     conn.set_trace_callback(print)
     cur = conn.cursor()
@@ -253,8 +250,9 @@ def page(id):
         reply_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
                       WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ? """
         parameter = (id,)
-    page_info = call_database(page_query, parameter)
+    page_info = call_database(page_query, parameter)[0]
     comment = call_database(comment_query, parameter)
+    print(comment)
     reply = call_database(reply_query, parameter)
     return render_template("page.html",
                            page=page_info,

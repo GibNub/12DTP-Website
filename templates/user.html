@@ -8,7 +8,7 @@
         Credits : {{ user_info[2] }}
     </p>
     <p>
-        Joined : {{ user_info[4] }}
+        Joined : {{ user_info[4][6:] }} / {{ user_info[4][4:6] }} / {{ user_info[4][:4] }}
     </p>
     {% if id == session["user_id"] %}
     <p>

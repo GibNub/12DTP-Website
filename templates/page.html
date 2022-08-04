@@ -57,7 +57,7 @@
     <!-- Comment and reply reference
     Index : Column
         0 : id
-        1 : username
+        1 : user_id
         2 : post_id
         3 : comment_id
         4 : content
@@ -70,7 +70,7 @@
             <li id="{{ section.value }}"> 
                 <div class="comment">
                     <p>
-                        <a href="{{ url_for('dashboard', id=comment[8])}}">{{ comment[1] }}</a> ● {{ comment[7][6:] }} / {{ comment[7][4:6] }} / {{ comment[7][:4] }}
+                        <a href="{{ url_for('dashboard', id=comment[1])}}">{{ comment[8] }}</a> ● {{ comment[7][6:] }} / {{ comment[7][4:6] }} / {{ comment[7][:4] }}
                     </p>
                     <p>
                         {{ comment[4] }}
@@ -104,7 +104,7 @@
                                 {% set section.value = section.value + 1 %}
                                 <li id="{{ section.value }}">
                                     <p>
-                                        <a href="{{ url_for('dashboard', id=reply[8])}}">{{ reply[1] }}</a> ● {{ reply[7][6:] }} / {{ reply[7][4:6] }} / {{ reply[7][:4] }}
+                                        <a href="{{ url_for('dashboard', id=reply[1])}}">{{ reply[8] }}</a> ● {{ reply[7][6:] }} / {{ reply[7][4:6] }} / {{ reply[7][:4] }}
                                     </p>
                                     <p>
                                         {{ reply[4] }}
