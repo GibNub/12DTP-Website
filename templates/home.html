@@ -15,7 +15,7 @@
     </button><br>
     <div id="form">
         <form action="/create_post" method="POST" enctype="application/x-www-form-urlencoded">
-            <input type="text" name="title" placeholder="An intriguing title" maxlength="50" required
+            <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
             oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')"><br>
             <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)"></textarea><br>
             <select name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
@@ -78,7 +78,7 @@
         -->
         {% for post in post %}
             {% set section.value = section.value + 1 %}
-            <li id ="{{ section.value }}">
+            <li id="{{ section.value }}">
                 <div class="post">
                     <div class="post_head">
                         <h4 class="post_title">
@@ -103,18 +103,13 @@
                         <p>
                             {{ post[5] }}
                         </p>
-                        {{ post[9] }}
                         {% if session["user_id"] is defined %}
-                            {% if post[9] == None %}
-                                <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                                    <input type="hidden" name="table" value="Post">
-                                    <input type="hidden" name="section" value="{{ section.value }}">
-                                    <input type="submit" name="grade" value="Like">
-                                    <input type="submit" name="grade" value="Dislike">
-                                </form>
-                            {% else %}
-                                <p>{{ post[9] }}d</p>
-                            {% endif %}
+                            <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="table" value="Post">
+                                <input type="hidden" name="section" value="{{ section.value }}">
+                                <input type="submit" name="grade" value="Like">
+                                <input type="submit" name="grade" value="Dislike">
+                            </form>
                         {% endif %}
                     </div>
                 </div>

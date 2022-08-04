@@ -1,5 +1,6 @@
 import sqlite3
 import re
+from turtle import title
 from flask import *
 import werkzeug
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,6 +9,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
+default_title = "The Roundtable Hold"
 
 
 # Store database connection in a variable
@@ -176,18 +178,18 @@ def home():
     category = session.get("category", None)
     order = session.get("order", None)
     # Build query    
-    if user_id:
-        final_query = """SELECT Post.*,
-                        User.username, Graded.grade AS grade FROM POST
-                        INNER JOIN User ON Post.user_id = User.id
-                        LEFT JOIN Graded ON grade = Graded.grade
-                        WHERE Graded.post_id = post.id AND Graded.user_id = ?
-                        UNION
-                        SELECT Post.*, User.username, NULL FROM POST
-                        INNER JOIN User ON Post.user_id = User.id"""
-        parameter.append(user_id)
-    else:
-        final_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id"""
+    # if user_id:
+    #     final_query = """SELECT Post.*,
+    #                     User.username, Graded.grade AS grade FROM POST
+    #                     INNER JOIN User ON Post.user_id = User.id
+    #                     LEFT JOIN Graded ON grade = Graded.grade
+    #                     WHERE Graded.post_id = post.id AND Graded.user_id = ?
+    #                     UNION
+    #                     SELECT Post.*, User.username, NULL FROM POST
+    #                     INNER JOIN User ON Post.user_id = User.id"""
+    #     parameter.append(user_id)
+    # else:
+    final_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id"""
     # Check for sorting
     if category:
         sort_query = " WHERE type = ?"
@@ -199,11 +201,13 @@ def home():
         elif order == "Dislike":
             order_query = " ORDER BY dislike DESC"
         final_query = final_query + order_query
+    else:
+        final_query = final_query + " ORDER BY id DESC"
     # Query execution
     parameter = tuple(parameter)
     print(final_query)
     post = call_database(final_query, parameter)
-    return render_template("home.html", post=post)
+    return render_template("home.html", post=post, title=default_title)
 
 
 # The route creates pages dynamically.
@@ -212,44 +216,44 @@ def home():
 @app.route("/page/<int:id>")
 def page(id):
     # Page_info needs index of 0 as the result is stored in tuple inside a list
-    if session.get("user_id", None):
-        current_user = session.get("user_id", None)
-        page_query = """SELECT Post.*,
-                        User.username, Graded.grade AS grade FROM POST
-                        INNER JOIN User ON Post.user_id = User.id
-                        LEFT JOIN Graded ON grade = Graded.grade
-                        WHERE Graded.post_id = post.id AND Graded.user_id = ? AND Post.id = ?
-                        UNION
-                        SELECT Post.*, User.username, NULL FROM POST
-                        INNER JOIN User ON Post.user_id = User.id
-                        WHERE Post.id = ?
-                        """
-        comment_query = """SELECT Comment.*,
-                        User.username, Graded.grade AS grade FROM Comment
-                        INNER JOIN User ON Comment.user_id = User.id
-                        LEFT JOIN Graded ON grade = Graded.grade
-                        WHERE Graded.comment_id = Comment.id AND Graded.user_id = ? AND Comment.comment_id IS NULL AND Comment.post_id = ?
-                        UNION
-                        SELECT Comment.*, User.username, NULL FROM Comment
-                        INNER JOIN User ON Comment.user_id = User.id
-                        WHERE Comment.comment_id IS NULL AND Comment.post_id = ?"""
-        reply_query = """SELECT Comment.*,
-                        User.username, Graded.grade AS grade FROM Comment
-                        INNER JOIN User ON Comment.user_id = User.id
-                        LEFT JOIN Graded ON grade = Graded.grade
-                        WHERE Graded.comment_id = Comment.id AND Graded.user_id = ? AND Comment.comment_id IS NOT NULL AND Comment.post_id = ?
-                        UNION
-                        SELECT Comment.*, User.username, NULL FROM Comment
-                        INNER JOIN User ON Comment.user_id = User.id
-                        WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ?"""
-        parameter = (current_user, id, id)
-    else:
-        page_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id WHERE Post.id = ?"""
-        comment_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
-                        WHERE Comment.comment_id IS NULL AND Comment.post_id = ? """
-        reply_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
-                      WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ? """
-        parameter = (id,)
+    # if session.get("user_id", None):
+    #     current_user = session.get("user_id", None)
+    #     page_query = """SELECT Post.*,
+    #                     User.username, Graded.grade AS grade FROM POST
+    #                     INNER JOIN User ON Post.user_id = User.id
+    #                     LEFT JOIN Graded ON grade = Graded.grade
+    #                     WHERE Graded.post_id = post.id AND Graded.user_id = ? AND Post.id = ?
+    #                     UNION
+    #                     SELECT Post.*, User.username, NULL FROM POST
+    #                     INNER JOIN User ON Post.user_id = User.id
+    #                     WHERE Post.id = ?
+    #                     """
+    #     comment_query = """SELECT Comment.*,
+    #                     User.username, Graded.grade AS grade FROM Comment
+    #                     INNER JOIN User ON Comment.user_id = User.id
+    #                     LEFT JOIN Graded ON grade = Graded.grade
+    #                     WHERE Graded.comment_id = Comment.id AND Graded.user_id = ? AND Comment.comment_id IS NULL AND Comment.post_id = ?
+    #                     UNION
+    #                     SELECT Comment.*, User.username, NULL FROM Comment
+    #                     INNER JOIN User ON Comment.user_id = User.id
+    #                     WHERE Comment.comment_id IS NULL AND Comment.post_id = ?"""
+    #     reply_query = """SELECT Comment.*,
+    #                     User.username, Graded.grade AS grade FROM Comment
+    #                     INNER JOIN User ON Comment.user_id = User.id
+    #                     LEFT JOIN Graded ON grade = Graded.grade
+    #                     WHERE Graded.comment_id = Comment.id AND Graded.user_id = ? AND Comment.comment_id IS NOT NULL AND Comment.post_id = ?
+    #                     UNION
+    #                     SELECT Comment.*, User.username, NULL FROM Comment
+    #                     INNER JOIN User ON Comment.user_id = User.id
+    #                     WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ?"""
+    #     parameter = (current_user, id, id)
+    # else:
+    page_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id WHERE Post.id = ?"""
+    comment_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
+                    WHERE Comment.comment_id IS NULL AND Comment.post_id = ? """
+    reply_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
+                    WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ? """
+    parameter = (id,)
     page_info = call_database(page_query, parameter)[0]
     comment = call_database(comment_query, parameter)
     print(comment)
@@ -257,7 +261,8 @@ def page(id):
     return render_template("page.html",
                            page=page_info,
                            comment=comment,
-                           reply=reply,)
+                           reply=reply,
+                           title=page_info[1])
 
 
 # Page where user replies to a comment.
@@ -267,19 +272,21 @@ def reply_to(post_id, comment_id):
                                      WHERE id = ?
                                      AND post_id = ?""",
                                      (comment_id, post_id))[0]
-    return render_template("reply.html", comment=reffered_comment)
+    return render_template("reply.html", comment=reffered_comment, title=default_title)
 
 
 # Directs user to the about page
 @app.route("/about")
 def about():
-    return render_template("about.html")
+    return render_template("about.html", title="About")
 
 
 # Redirect user to either sign in or sign up page.
 @app.route("/account/<action>")
 def account(action):
-    return render_template("sign.html", page=action)
+    # Capitalise first letter and remove underscore
+    page_title = f"{action[0].upper()}{action[1:4]} {action[5].upper()}{action[6:]}"
+    return render_template("sign.html", page=action, title=page_title)
 
 
 # Goes to account manager
@@ -288,7 +295,7 @@ def account(action):
 def dashboard(id):
     user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (id,))
     user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
-    return render_template("user.html", user_info=user_info, user_post=user_post, id=id)
+    return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1])
 
 
 # Gets the form values from the home page,
