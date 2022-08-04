@@ -1,8 +1,8 @@
 import sqlite3
 import re
-from turtle import title
+
 from flask import *
-import werkzeug
+from string import ascii_letters, digits, punctuation
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -10,6 +10,9 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
+username_whitelist = set(ascii_letters + digits + "_")
+print(username_whitelist)
+
 
 
 # Store database connection in a variable
@@ -341,7 +344,8 @@ def reply():
 @app.route("/grade/<int:id>/", methods=["GET", "POST"])
 def grade(id):
     if not session.get("user_id", None ):
-        return redirect(request.referrer)
+        flash("Create an account to like or dislike")
+        return redirect(url_for("account", action="sign_up"))
     if request.method == "POST":
         user_id = session.get("user_id", None)
         table = request.form["table"]
@@ -377,6 +381,8 @@ def sign_up():
         username = request.form["username"]
         password = request.form["password"]
         date = today()
+        if not all(letter in username_whitelist for letter in username):
+            flash("Username must only contain A-Z, 0-9, and '_'")
         # Get existing usernames then converts result into list without single element tuples
         existing_usernames = call_database("SELECT username FROM User")
         existing_usernames = [i[0] for i in existing_usernames]

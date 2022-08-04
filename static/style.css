@@ -47,7 +47,8 @@ ul{
     border-style: solid;
     border-radius: 1em;
     border-color: #ecce00ff;
-    box-shadow: 0px 0px 5px 2px;
+    box-shadow: 0px 0px 5px 2px #ecce00ff;
+    
     padding: 2em;
     margin-top: 2em;
     margin-bottom: 2em;
@@ -55,6 +56,11 @@ ul{
 
 .post_title{
     font-size: 2.5em;
+}
+
+form.grade{
+    display: flex;
+    flex-direction: row;
 }
 
 /* Forms for posting and commenting */
