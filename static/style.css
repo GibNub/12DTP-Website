@@ -4,9 +4,13 @@ html{
     scroll-behavior: smooth;
 }
 
-body{
-    color: #ffffffff;
-    background-color: #050505;
+nav{
+    top: 0;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    padding-top: 1.5%;
+    padding-bottom: 1.5%;
 }
 
 header{
@@ -17,6 +21,11 @@ header{
 
 nav{
     background-color: #171717;
+}
+
+body{
+    color: #ffffffff;
+    background-color: #050505;
 }
 
 a, a:hover, a:visited, a:active{

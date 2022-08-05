@@ -1,6 +1,7 @@
 import sqlite3
 import re
 
+
 from flask import *
 from string import ascii_letters, digits, punctuation
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,8 +12,6 @@ app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
 username_whitelist = set(ascii_letters + digits + "_")
-print(username_whitelist)
-
 
 
 # Store database connection in a variable
