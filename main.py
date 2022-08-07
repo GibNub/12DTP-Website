@@ -12,23 +12,6 @@ app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
 username_whitelist = set(ascii_letters + digits + "_")
-# post_v_table_query = """
-#                      DROP TABLE IF EXISTS Post_V;
-#                      CREATE TABLE Post_V AS
-#                      SELECT Post.*,
-#                      SUM(CASE WHEN PostGrade.grade = -1 THEN 1 ELSE 0 END) as Dislikes, 
-#                      SUM(CASE WHEN PostGrade.grade = 1 THEN 1 ELSE 0 END) as Likes,
-#                      User.username,
-#                      FROM Post INNER JOIN User ON Post.user_id = User.id;
-#                      ALTER TABLE Post_V ADD COLUMN grade TEXT;
-
-#                      UPDATE Post_V
-#                      SET grade = (
-#                      SELECT PostGrade.grade FROM PostGrade WHERE PostGrade.user_id = ? AND PostGrade.post_id = Post_V.id AND PostGrade.grade IS NOT NULL
-#                      )
-#                      WHERE EXISTS (SELECT * FROM PostGrade WHERE PostGrade.user_id = ?);
-#                      SELECT * FROM Post_V 
-#                      """
 
 
 # Store database connection in a variable
@@ -64,6 +47,49 @@ def call_database(query, parameter=None):
         cur.executescript(query)
     result = cur.fetchall()
     return result
+
+
+"""
+DO NOT USE WITH CUSTOM USER INPUT
+"""
+def build_query(type, user_id):
+    if type == "c":
+        v_table_name = "Comment_V"
+        table = "Comment"
+        bridge_table = "CommentGrade"
+        match_id = "comment_id"
+    elif type == "p":
+        v_table_name = "Post_V"
+        table = "Post"
+        bridge_table = "PostGrade"
+        match_id = "post_id"
+    else:
+        return
+    update_query = f"""
+                    UPDATE {v_table_name} 
+                    SET grade = (
+                        SELECT {bridge_table}.grade FROM {bridge_table} 
+                        WHERE {bridge_table}.user_id = {user_id} 
+                        AND {bridge_table}.{match_id} = {v_table_name}.id 
+                        AND {bridge_table}.grade IS NOT NULL
+                    )
+                    WHERE EXISTS (
+                        SELECT * FROM {bridge_table}
+                        WHERE {bridge_table}.user_id = {user_id}
+                    )"""
+    final_query = f"""
+    DROP TABLE IF EXISTS {v_table_name};
+    CREATE TEMP TABLE {v_table_name} AS
+    SELECT {table}.*,
+    SUM(CASE WHEN {bridge_table}.grade = -1 THEN 1 ELSE 0) AS dislike,
+    SUM(CASE WHEN {bridge_table}.grade = 1 THEN 1 ELSE 0) AS like,
+    User.username FROM {table}
+    INNER JOIN User ON {table}.user_id = User.id 
+    LEFT JOIN {bridge_table} ON {bridge_table}.{match_id} = {table}.id GROUP BY {table}.id;
+    ALTER TABLE {v_table_name} ADD COLUMN grade TEXT;
+    {update_query}
+    SELECT * FROM {v_table_name}"""
+    pass
 
 
 # Delete entry in database function
