@@ -40,15 +40,15 @@ ul{
 
 /* Home page */
 
-.create_post{
-
-
-}
 .main_page{
     width: 30%;
     min-width: 500px;
     margin: 0 auto;
     padding: 10px;
+}
+
+.create_post{
+    
 }
 
 .post{

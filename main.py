@@ -4,6 +4,7 @@ import re
 
 from flask import *
 from string import ascii_letters, digits, punctuation
+import werkzeug
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -35,7 +36,6 @@ def today():
 # For single item lists, specify with a index of 0
 def call_database(query, parameter=None):
     conn = get_db()
-    conn.set_trace_callback(print)
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
@@ -79,16 +79,16 @@ def graded(user_id, type, type_id, grade, replace=None):
     # Add new grade 
     if not replace:
         if type == "Post":
-            query = "INSERT INTO Graded (user_id, post_id, grade) VALUES (?, ?, ?)" 
+            query = "INSERT INTO Grade (user_id, post_id, grade) VALUES (?, ?, ?)" 
         elif type == "Comment":
-            query = "INSERT INTO Graded (user_id, comment_id, grade) VALUES (?, ?, ?)"
+            query = "INSERT INTO Grade (user_id, comment_id, grade) VALUES (?, ?, ?)"
         parameter = (user_id, type_id, grade)
     # Replace existing grade
     elif replace:
         if type == "Post":
-            query = "UPDATE Graded SET grade = ? WHERE user_id = ? AND post_id = ?"
+            query = "UPDATE Grade SET grade = ? WHERE user_id = ? AND post_id = ?"
         elif type == "Comment":
-            query = "UPDATE Graded SET grade = ? WHERE user_id = ? AND post_id = ?"
+            query = "UPDATE Grade SET grade = ? WHERE user_id = ? AND post_id = ?"
         parameter = (grade, user_id, type_id)
     cur.execute(query, parameter)
     conn.commit()
@@ -113,22 +113,22 @@ def graded(user_id, type, type_id, grade, replace=None):
 #             last = "dislike = dislike + 1 WHERE id = ?"
 #     cur.execute(f"{first} {last}", (id,))
 #     conn.commit()
-def update_grade(id, type):
-    conn = get_db()
-    cur = conn.cursor()
-    if type == "Post":
-        query = "SELECT grade FROM Graded WHERE post_id = ?"
-        update_counter_query = "UPDATE Post SET like = ?, dislike = ? WHERE id = ?"
-    elif type == "Comment":
-        query = "SELECT grade FROM Graded WHERE comment_id = ?"
-        update_counter_query = "UPDATE Comment SET like = ?, dislike = ? WHERE id = ?"
-    cur.execute(query, (id,))
-    result = cur.fetchall()
-    result = [i[0] for i in result]
-    likes = result.count("Like")
-    dislikes = result.count("Dislike")
-    cur.execute(update_counter_query, (likes, dislikes, id))
-    conn.commit()
+# def update_grade(id, type):
+#     conn = get_db()
+#     cur = conn.cursor()
+#     if type == "Post":
+#         query = "SELECT grade FROM  WHERE post_id = ?"
+#         update_counter_query = "UPDATE Post SET like = ?, dislike = ? WHERE id = ?"
+#     elif type == "Comment":
+#         query = "SELECT grade FROM Grade WHERE comment_id = ?"
+#         update_counter_query = "UPDATE Comment SET like = ?, dislike = ? WHERE id = ?"
+#     cur.execute(query, (id,))
+#     result = cur.fetchall()
+#     result = [i[0] for i in result]
+#     likes = result.count("Like")
+#     dislikes = result.count("Dislike")
+#     cur.execute(update_counter_query, (likes, dislikes, id))
+#     conn.commit()
 
 
 # Updates comments table once user creates a comment or reply
@@ -180,6 +180,16 @@ def home():
     category = session.get("category", None)
     order = session.get("order", None)
     final_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id"""
+    # Get posts graded by user
+    post_graded = call_database("SELECT Post.id, Grade.grade FROM Post LEFT JOIN Grade ON Grade.post_id = Post.id WHERE Grade.user_id = ?", (user_id,))
+    post_graded = dict(post_graded)
+    # Get No. graded each post
+    grade_count_data = call_database("SELECT Post.id, (SELECT COUNT(grade) FROM Grade WHERE post_id = Post.id AND grade = 'Like') AS like, (SELECT COUNT(grade) FROM Grade WHERE post_id = post.id AND grade = 'Dislike') AS dislike FROM Post")
+    grade_count = {}
+    # Convert grade_count_data into dict where key = post.id and value = [post.like, post.dislike]
+    for i in grade_count_data:
+        grade_count.update({i[0]: [i[1],i[2]]})
+    print(grade_count)
     # Check for sorting
     if category:
         sort_query = " WHERE type = ?"
@@ -195,9 +205,8 @@ def home():
         final_query = final_query + " ORDER BY id DESC"
     # Query execution
     parameter = tuple(parameter)
-    print(final_query)
     post = call_database(final_query, parameter)
-    return render_template("home.html", post=post, title=default_title)
+    return render_template("home.html", post=post, title=default_title, post_graded=post_graded, grade_count=grade_count)
 
 
 # The route creates pages dynamically.
@@ -213,7 +222,6 @@ def page(id):
     parameter = (id,)
     page_info = call_database(page_query, parameter)[0]
     comment = call_database(comment_query, parameter)
-    print(comment)
     reply = call_database(reply_query, parameter)
     return render_template("page.html",
                            page=page_info,
@@ -306,18 +314,18 @@ def grade(id):
         grade = request.form["grade"]
         # Find if user already liked or disliked post/comment
         if table == "Post":
-            query = "SELECT grade FROM Graded WHERE user_id = ? AND post_id = ?"
+            query = "SELECT grade FROM Grade WHERE user_id = ? AND post_id = ?"
         elif table == "Comment":
-            query = "SELECT grade FROM Graded WHERE user_id = ? AND comment_id = ?"
+            query = "SELECT grade FROM Grade WHERE user_id = ? AND comment_id = ?"
         existing_grade = call_database(query, (user_id, id))
         # Prevent user for giving the same grade to posts/comments Otherwise give grade.
         if not existing_grade:
             graded(user_id, table, id, grade)
-            update_grade(id, table)
+            # update_grade(id, table)
         # Change grade by user
         elif existing_grade[0][0] != grade:
             graded(user_id, table, id, grade, True)
-            update_grade(id, table)
+            # update_grade(id, table)
         # Build url No section exception
         try:
             section = request.form["section"]

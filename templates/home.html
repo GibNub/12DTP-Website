@@ -62,7 +62,7 @@
         <input type="submit" value="Order">
     </form>
     <ul>
-        <!--
+        {#
             Reference
             Index : Column Name
                 0 : id
@@ -75,7 +75,8 @@
                 7 : date
                 8 : username
                 9 : grade
-        -->
+        #}
+        {{ post_graded }}
         {% for post in post %}
             {% set section.value = section.value + 1 %}
             <li id="{{ section.value }}">
@@ -84,7 +85,7 @@
                         <h4 class="post_title">
                             <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
                         </h4>
-                        <div class="post_head">
+                        <div>
                             <h5>
                                 <a href="{{ url_for('dashboard', id=post[6])}}">{{ post[8] }}</a> ● {{ post[7][6:] }} / {{ post[7][4:6] }} / {{ post[7][:4] }}
                             </h5>
@@ -96,15 +97,22 @@
                     <div class="post_body">
                         <p>{{ post[3] }}</p>
                     </div>
+                    <!-- likes and dislikes -->
                     <div class="post_foot">
-                        <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                            <input type="hidden" name="table" value="Post">
-                            <input type="hidden" name="section" value="{{ section.value }}">
-                            {{ post[4] }}
-                            <input type="submit" name="grade" value="Like">
-                            {{ post[5] }}
-                            <input type="submit" name="grade" value="Dislike">
-                        </form>
+                        {% if post[0] in post_graded.keys() %}
+                        <p>
+                            {{ post_graded.get(post[0]) }}d
+                        </p>
+                        {% else %}
+                            <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="table" value="Post">
+                                <input type="hidden" name="section" value="{{ section.value }}">
+                                {{ post[4] }}
+                                <input type="submit" name="grade" value="Like">
+                                {{ post[5] }}
+                                <input type="submit" name="grade" value="Dislike">
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
             </li>
