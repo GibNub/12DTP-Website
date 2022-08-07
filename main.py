@@ -1,10 +1,9 @@
 import sqlite3
 import re
 
-
 from flask import *
-from string import ascii_letters, digits, punctuation
-import werkzeug
+from string import ascii_letters, digits
+from werkzeug.exceptions import BadRequestKeyError
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -13,6 +12,22 @@ app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
 username_whitelist = set(ascii_letters + digits + "_")
+post_v_table_query = """
+                     DROP TABLE IF EXISTS Post_V;
+                     CREATE TABLE Post_V AS
+                     SELECT Post.*, User.username,
+                     (SELECT COUNT(grade) FROM Grade WHERE post_id = Post.id AND grade = 'Like') AS like,
+                     (SELECT COUNT(grade) FROM Grade WHERE post_id = post.id AND grade = 'Dislike') AS dislike
+                     FROM Post INNER JOIN User ON Post.user_id = User.id;
+                     ALTER TABLE Post_V ADD COLUMN grade TEXT;
+
+                     UPDATE Post_V
+                     SET GRADE = (
+                     SELECT Grade.grade FROM Grade WHERE Grade.user_id = ? AND Grade.post_id = Post_V.id AND Grade.grade IS NOT NULL
+                     )
+                     WHERE EXISTS (SELECT * FROM Grade WHERE Grade.user_id = ?);
+                     SELECT * FROM Post_V 
+                     """
 
 
 # Store database connection in a variable
@@ -36,6 +51,7 @@ def today():
 # For single item lists, specify with a index of 0
 def call_database(query, parameter=None):
     conn = get_db()
+    conn.set_trace_callback(print)
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
@@ -43,11 +59,16 @@ def call_database(query, parameter=None):
         cur.execute(query, parameter)
     except (sqlite3.ProgrammingError, ValueError) as e:
         cur.execute(query)
+    except (sqlite3.Warning) as e:
+        cur.executescript(query)
     result = cur.fetchall()
     return result
 
 
 # Delete entry in database function
+"""
+DO NOT USE FOR USER INPUT
+"""
 def delete_entry(type, id):
     conn = get_db()
     cur = conn.cursor()
@@ -168,6 +189,13 @@ def credit_update(user_id):
     conn.commit()
 
 
+def drop_v_table():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DROP TABLE IF EXISTS Post_V")
+    conn.commit()
+
+
 # Flask app starts below
 
 
@@ -179,17 +207,7 @@ def home():
     user_id = session.get("user_id", None)
     category = session.get("category", None)
     order = session.get("order", None)
-    final_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id"""
-    # Get posts graded by user
-    post_graded = call_database("SELECT Post.id, Grade.grade FROM Post LEFT JOIN Grade ON Grade.post_id = Post.id WHERE Grade.user_id = ?", (user_id,))
-    post_graded = dict(post_graded)
-    # Get No. graded each post
-    grade_count_data = call_database("SELECT Post.id, (SELECT COUNT(grade) FROM Grade WHERE post_id = Post.id AND grade = 'Like') AS like, (SELECT COUNT(grade) FROM Grade WHERE post_id = post.id AND grade = 'Dislike') AS dislike FROM Post")
-    grade_count = {}
-    # Convert grade_count_data into dict where key = post.id and value = [post.like, post.dislike]
-    for i in grade_count_data:
-        grade_count.update({i[0]: [i[1],i[2]]})
-    print(grade_count)
+    final_query = post_v_table_query
     # Check for sorting
     if category:
         sort_query = " WHERE type = ?"
@@ -205,8 +223,9 @@ def home():
         final_query = final_query + " ORDER BY id DESC"
     # Query execution
     parameter = tuple(parameter)
+    print(parameter)
     post = call_database(final_query, parameter)
-    return render_template("home.html", post=post, title=default_title, post_graded=post_graded, grade_count=grade_count)
+    return render_template("home.html", post=post, title=default_title,)
 
 
 # The route creates pages dynamically.
@@ -268,11 +287,11 @@ def dashboard(id):
 @app.route("/create_post", methods=["GET", "POST"])
 def create_post():
     if request.method == "POST":
-        title = request.form["title"]
-        content = request.form["content"]
-        type = request.form["type"]
+        title = request.form.get("title")
+        content = request.form.get("content")
+        type = request.form.get("type")
         date = today()
-        update_post(type, title, content, date, session["user_id"])
+        update_post(type, title, content, date, session.get("user_id"))
         # Go back to home page so users can easily see their new post
         return redirect(request.referrer)
 
@@ -283,22 +302,22 @@ def create_post():
 @app.route("/create_comment", methods=["GET", "POST"])
 def create_comment():
     if request.method == "POST":
-        content = request.form["comment_content"]
-        post_id = request.form["post_id"]
+        content = request.form.get("comment_content")
+        post_id = request.form.get("post_id")
         date = today()
-        update_comment(session["user_id"], post_id, content, date)
+        update_comment(session.get("user_id"), post_id, content, date)
         return redirect(request.referrer)
 
 
-# Update database with reply
+# Update database with reply    
 @app.route("/reply", methods=["GET", "POST"])
 def reply():
     if request.method == "POST":
-        content = request.form["content"]
-        post_id = request.form["post_id"]
-        comment_id = request.form["comment_id"]
+        content = request.form.get("content")
+        post_id = request.form.get("post_id")
+        comment_id = request.form("comment_id")
         date = today()
-        update_comment(session["user_id"], post_id, content, date, comment_id)
+        update_comment(session.get("user_id"), post_id, content, date, comment_id)
         return redirect(url_for("page", id=post_id))
 
 
@@ -310,8 +329,8 @@ def grade(id):
         return redirect(url_for("account", action="sign_up"))
     if request.method == "POST":
         user_id = session.get("user_id", None)
-        table = request.form["table"]
-        grade = request.form["grade"]
+        table = request.form.get("table")
+        grade = request.form.get("grade")
         # Find if user already liked or disliked post/comment
         if table == "Post":
             query = "SELECT grade FROM Grade WHERE user_id = ? AND post_id = ?"
@@ -330,7 +349,7 @@ def grade(id):
         try:
             section = request.form["section"]
             url = request.referrer + f"#{str(section)}"
-        except werkzeug.exceptions.BadRequestKeyError:
+        except BadRequestKeyError:
             url = request.referrer
         return redirect(url)
             
@@ -373,7 +392,7 @@ def sign_in():
             return redirect(request.referrer)
         else:
             session["user_id"] = user_info[0]
-            credit_update(session["user_id"])
+            credit_update(session.get("user_id"))
             flash(f"Logged in successfully as {username}", "info")
             return redirect(url_for("home"))       
 
@@ -411,6 +430,7 @@ def delete():
 # Close database once app is closed.
 @app.teardown_appcontext
 def teardown_db(_):
+    drop_v_table()
     get_db().close()
 
 

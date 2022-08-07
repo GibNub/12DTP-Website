@@ -6,34 +6,35 @@ html{
 
 nav{
     top: 0;
+    background-color: #171717;
     overflow: hidden;
     position: fixed;
     width: 100%;
-    padding-top: 1.5%;
-    padding-bottom: 1.5%;
+    padding-top: 25px;
+    padding-bottom: 25px;
 }
 
 header{
+    margin-top: 100px;
     color:#ecce00ff;
     text-align: center;
-    font-size: 4em;
+    font-size: 4.5em;
 }
 
-nav{
-    background-color: #171717;
-}
-
+/* Dark mode */
 body{
     color: #ffffffff;
     background-color: #050505;
 }
 
+/* Remove Colour from links */
 a, a:hover, a:visited, a:active{
     color: inherit;
     text-decoration: none;
     font-style: italic;
 }
 
+/* No bullet point */
 ul{
     list-style-type: none;
 }
@@ -67,6 +68,7 @@ ul{
     font-size: 2.5em;
 }
 
+/* Like/dislike button one row */
 form.grade{
     display: flex;
     flex-direction: row;
