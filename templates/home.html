@@ -17,7 +17,7 @@
         <form action="/create_post" method="POST" enctype="application/x-www-form-urlencoded">
             <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
             oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')"><br>
-            <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)"></textarea><br>
+            <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea><br>
             <select name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
                 <option value="">--Select Category--</option>
                 <option value="General">General</option>
@@ -97,20 +97,14 @@
                         <p>{{ post[3] }}</p>
                     </div>
                     <div class="post_foot">
-                        <p>
+                        <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="table" value="Post">
+                            <input type="hidden" name="section" value="{{ section.value }}">
                             {{ post[4] }}
-                        </p>
-                        <p>
+                            <input type="submit" name="grade" value="Like">
                             {{ post[5] }}
-                        </p>
-                        {% if session["user_id"] is defined %}
-                            <form action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                                <input type="hidden" name="table" value="Post">
-                                <input type="hidden" name="section" value="{{ section.value }}">
-                                <input type="submit" name="grade" value="Like">
-                                <input type="submit" name="grade" value="Dislike">
-                            </form>
-                        {% endif %}
+                            <input type="submit" name="grade" value="Dislike">
+                        </form>
                     </div>
                 </div>
             </li>

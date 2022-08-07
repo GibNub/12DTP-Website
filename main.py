@@ -1,8 +1,9 @@
 import sqlite3
 import re
-from turtle import title
+
+
 from flask import *
-import werkzeug
+from string import ascii_letters, digits, punctuation
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -10,6 +11,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
+username_whitelist = set(ascii_letters + digits + "_")
 
 
 # Store database connection in a variable
@@ -177,18 +179,6 @@ def home():
     user_id = session.get("user_id", None)
     category = session.get("category", None)
     order = session.get("order", None)
-    # Build query    
-    # if user_id:
-    #     final_query = """SELECT Post.*,
-    #                     User.username, Graded.grade AS grade FROM POST
-    #                     INNER JOIN User ON Post.user_id = User.id
-    #                     LEFT JOIN Graded ON grade = Graded.grade
-    #                     WHERE Graded.post_id = post.id AND Graded.user_id = ?
-    #                     UNION
-    #                     SELECT Post.*, User.username, NULL FROM POST
-    #                     INNER JOIN User ON Post.user_id = User.id"""
-    #     parameter.append(user_id)
-    # else:
     final_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id"""
     # Check for sorting
     if category:
@@ -215,39 +205,6 @@ def home():
 # Page info is passed into HTML with jinja code
 @app.route("/page/<int:id>")
 def page(id):
-    # Page_info needs index of 0 as the result is stored in tuple inside a list
-    # if session.get("user_id", None):
-    #     current_user = session.get("user_id", None)
-    #     page_query = """SELECT Post.*,
-    #                     User.username, Graded.grade AS grade FROM POST
-    #                     INNER JOIN User ON Post.user_id = User.id
-    #                     LEFT JOIN Graded ON grade = Graded.grade
-    #                     WHERE Graded.post_id = post.id AND Graded.user_id = ? AND Post.id = ?
-    #                     UNION
-    #                     SELECT Post.*, User.username, NULL FROM POST
-    #                     INNER JOIN User ON Post.user_id = User.id
-    #                     WHERE Post.id = ?
-    #                     """
-    #     comment_query = """SELECT Comment.*,
-    #                     User.username, Graded.grade AS grade FROM Comment
-    #                     INNER JOIN User ON Comment.user_id = User.id
-    #                     LEFT JOIN Graded ON grade = Graded.grade
-    #                     WHERE Graded.comment_id = Comment.id AND Graded.user_id = ? AND Comment.comment_id IS NULL AND Comment.post_id = ?
-    #                     UNION
-    #                     SELECT Comment.*, User.username, NULL FROM Comment
-    #                     INNER JOIN User ON Comment.user_id = User.id
-    #                     WHERE Comment.comment_id IS NULL AND Comment.post_id = ?"""
-    #     reply_query = """SELECT Comment.*,
-    #                     User.username, Graded.grade AS grade FROM Comment
-    #                     INNER JOIN User ON Comment.user_id = User.id
-    #                     LEFT JOIN Graded ON grade = Graded.grade
-    #                     WHERE Graded.comment_id = Comment.id AND Graded.user_id = ? AND Comment.comment_id IS NOT NULL AND Comment.post_id = ?
-    #                     UNION
-    #                     SELECT Comment.*, User.username, NULL FROM Comment
-    #                     INNER JOIN User ON Comment.user_id = User.id
-    #                     WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ?"""
-    #     parameter = (current_user, id, id)
-    # else:
     page_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id WHERE Post.id = ?"""
     comment_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
                     WHERE Comment.comment_id IS NULL AND Comment.post_id = ? """
@@ -341,7 +298,8 @@ def reply():
 @app.route("/grade/<int:id>/", methods=["GET", "POST"])
 def grade(id):
     if not session.get("user_id", None ):
-        return redirect(request.referrer)
+        flash("Create an account to like or dislike")
+        return redirect(url_for("account", action="sign_up"))
     if request.method == "POST":
         user_id = session.get("user_id", None)
         table = request.form["table"]
@@ -377,6 +335,8 @@ def sign_up():
         username = request.form["username"]
         password = request.form["password"]
         date = today()
+        if not all(letter in username_whitelist for letter in username):
+            flash("Username must only contain A-Z, 0-9, and '_'")
         # Get existing usernames then converts result into list without single element tuples
         existing_usernames = call_database("SELECT username FROM User")
         existing_usernames = [i[0] for i in existing_usernames]
