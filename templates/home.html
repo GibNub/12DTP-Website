@@ -30,8 +30,8 @@
             <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
         </form>
     </div>
-    <!-- Shows or hide the form when the user clicks the button
-    This button is only visible to logged in users -->
+    {# Shows or hide the form when the user clicks the button
+    This button is only visible to logged in users #}
 </div><br>
 {% else %}
 <form action="{{ url_for('account', action='sign_in')}}">
@@ -39,7 +39,7 @@
 </form>
 {% endif %}
 <div class="main_page">
-    {# SORTING #}
+    {# Sorting #}
     <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
         <select name="type" required>
             <option value="">-Find Post By Category--</option>
@@ -69,50 +69,49 @@
                 1 : type
                 2 : title
                 3 : content
-                4 : like
-                5 : dislike
-                6 : user_id
-                7 : date
+                4 : user_id
+                5 : date
+                6 : like
+                7 : dislike
                 8 : username
                 9 : grade
         #}
-        {{ post_graded }}
         {% for post in post %}
             {% set section.value = section.value + 1 %}
             <li id="{{ section.value }}">
                 <div class="post">
                     <div class="post_head">
                         <h4 class="post_title">
+                            {# id, title #}
                             <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
                         </h4>
                         <div>
                             <h5>
-                                <a href="{{ url_for('dashboard', id=post[6])}}">{{ post[8] }}</a> ● {{ post[7][6:] }} / {{ post[7][4:6] }} / {{ post[7][:4] }}
+                                {# user_id, username, date #}
+                                <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
                             </h5>
                             <p>
+                                {# title #}
                                 {{ post[1] }}
                             </p>
                         </div>
                     </div>
                     <div class="post_body">
+                        {# post content #}
                         <p>{{ post[3] }}</p>
                     </div>
                     <!-- likes and dislikes -->
                     <div class="post_foot">
-                        {% if post[0] in post_graded.keys() %}
-                        <p>
-                            {{ post_graded.get(post[0]) }}d
-                        </p>
-                        {% else %}
-                            <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                                <input type="hidden" name="table" value="Post">
-                                <input type="hidden" name="section" value="{{ section.value }}">
-                                {{ post[4] }}
-                                <input type="submit" name="grade" value="Like">
-                                {{ post[5] }}
-                                <input type="submit" name="grade" value="Dislike">
-                            </form>
-                        {% endif %}
+                        <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="table" value="Post">
+                            <input type="hidden" name="section" value="{{ section.value }}">
+                            {# likes #}
+                            {{ post[6] }}
+                            <input type="submit" name="grade" value="Like">
+                            {# dislikes #}
+                            {{ post[7] }}
+                            <input type="submit" name="grade" value="Dislike">
+                        </form>
                     </div>
                 </div>
             </li>

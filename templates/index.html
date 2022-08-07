@@ -10,11 +10,11 @@
                 <a href="{{ url_for('home') }}">HOME</a>
                 <a href="{{ url_for('about') }}">ABOUT</a>
                 {% if session["user_id"] is defined %}
-                <a href="{{ url_for('dashboard', id=session['user_id']) }}">MY ACCOUNT</a>
-                <a href="{{ url_for('sign_out') }} ">LOG OUT</a>
+                    <a href="{{ url_for('dashboard', id=session['user_id']) }}">MY ACCOUNT</a>
+                    <a href="{{ url_for('sign_out') }} ">LOG OUT</a>
                 {% else %}
-                <a href="{{ url_for('account', action='sign_in') }}">LOG IN</a>
-                <a href="{{ url_for('account', action='sign_up') }}">CREATE ACCOUNT</a>
+                    <a href="{{ url_for('account', action='sign_in') }}">LOG IN</a>
+                    <a href="{{ url_for('account', action='sign_up') }}">CREATE ACCOUNT</a>
                 {% endif %}
             </nav>
             <header>

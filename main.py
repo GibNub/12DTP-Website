@@ -12,22 +12,23 @@ app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
 username_whitelist = set(ascii_letters + digits + "_")
-post_v_table_query = """
-                     DROP TABLE IF EXISTS Post_V;
-                     CREATE TABLE Post_V AS
-                     SELECT Post.*, User.username,
-                     (SELECT COUNT(grade) FROM Grade WHERE post_id = Post.id AND grade = 'Like') AS like,
-                     (SELECT COUNT(grade) FROM Grade WHERE post_id = post.id AND grade = 'Dislike') AS dislike
-                     FROM Post INNER JOIN User ON Post.user_id = User.id;
-                     ALTER TABLE Post_V ADD COLUMN grade TEXT;
+# post_v_table_query = """
+#                      DROP TABLE IF EXISTS Post_V;
+#                      CREATE TABLE Post_V AS
+#                      SELECT Post.*,
+#                      SUM(CASE WHEN PostGrade.grade = -1 THEN 1 ELSE 0 END) as Dislikes, 
+#                      SUM(CASE WHEN PostGrade.grade = 1 THEN 1 ELSE 0 END) as Likes,
+#                      User.username,
+#                      FROM Post INNER JOIN User ON Post.user_id = User.id;
+#                      ALTER TABLE Post_V ADD COLUMN grade TEXT;
 
-                     UPDATE Post_V
-                     SET GRADE = (
-                     SELECT Grade.grade FROM Grade WHERE Grade.user_id = ? AND Grade.post_id = Post_V.id AND Grade.grade IS NOT NULL
-                     )
-                     WHERE EXISTS (SELECT * FROM Grade WHERE Grade.user_id = ?);
-                     SELECT * FROM Post_V 
-                     """
+#                      UPDATE Post_V
+#                      SET grade = (
+#                      SELECT PostGrade.grade FROM PostGrade WHERE PostGrade.user_id = ? AND PostGrade.post_id = Post_V.id AND PostGrade.grade IS NOT NULL
+#                      )
+#                      WHERE EXISTS (SELECT * FROM PostGrade WHERE PostGrade.user_id = ?);
+#                      SELECT * FROM Post_V 
+#                      """
 
 
 # Store database connection in a variable
@@ -83,13 +84,13 @@ def delete_entry(type, id):
 
 
 # Updates Post table once user submits new post
-def update_post(type, title, content, date, user_id, like=0, dislike=0):
+def update_post(type, title, content, date, user_id,):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""INSERT INTO Post
-                (type, title, content, like, dislike, user_id, date)
-                VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (type, title, content, like, dislike, user_id, date))
+                (type, title, content, user_id, date)
+                VALUES (?, ?, ?, ?, ?,)""",
+                (type, title, content, user_id, date))
     conn.commit()
 
 
@@ -100,16 +101,16 @@ def graded(user_id, type, type_id, grade, replace=None):
     # Add new grade 
     if not replace:
         if type == "Post":
-            query = "INSERT INTO Grade (user_id, post_id, grade) VALUES (?, ?, ?)" 
+            query = "INSERT INTO PostGrade (user_id, post_id, grade) VALUES (?, ?, ?)" 
         elif type == "Comment":
-            query = "INSERT INTO Grade (user_id, comment_id, grade) VALUES (?, ?, ?)"
+            query = "INSERT INTO CommentGrade (user_id, comment_id, grade) VALUES (?, ?, ?)"
         parameter = (user_id, type_id, grade)
     # Replace existing grade
     elif replace:
         if type == "Post":
-            query = "UPDATE Grade SET grade = ? WHERE user_id = ? AND post_id = ?"
+            query = "UPDATE PostGrade SET grade = ? WHERE user_id = ? AND post_id = ?"
         elif type == "Comment":
-            query = "UPDATE Grade SET grade = ? WHERE user_id = ? AND post_id = ?"
+            query = "UPDATE CommenetGrade SET grade = ? WHERE user_id = ? AND comment_id = ?"
         parameter = (grade, user_id, type_id)
     cur.execute(query, parameter)
     conn.commit()
@@ -154,13 +155,13 @@ def graded(user_id, type, type_id, grade, replace=None):
 
 # Updates comments table once user creates a comment or reply
 # like and dislike cannot be null so default value is 0
-def update_comment(user_id, post_id, content, date, comment_id=None, like=0, dislike=0):
+def update_comment(user_id, post_id, content, date, parent_comment_id=None,):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""INSERT INTO Comment
-                (user_id, post_id, comment_id, content, like, dislike, date)
-                VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (user_id, post_id, comment_id, content, like, dislike, date))
+                (user_id, post_id, parent_comment_id, content, date)
+                VALUES (?, ?, ?, ?, ?)""",
+                (user_id, post_id, parent_comment_id, content, date))
     conn.commit()
 
 
@@ -175,18 +176,18 @@ def create_user(username, date, password_hash):
     conn.commit()
 
 
-# Changes user credit in databasea
-def credit_update(user_id):
-    conn = get_db()
-    cur = conn.cursor()
-    # Defaults any none values into zero
-    post_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Post WHERE user_id = ?",
-                     (user_id,))[0][0] or 0)
-    comment_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Comment WHERE user_id = ?",
-                        (user_id,))[0][0] or 0)
-    total_credit = comment_credit + post_credit
-    cur.execute("UPDATE User SET credit = ? WHERE id = ?", (total_credit, user_id))
-    conn.commit()
+# # Changes user credit in databasea
+# def credit_update(user_id):
+#     conn = get_db()
+#     cur = conn.cursor()
+#     # Defaults any none values into zero
+#     post_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Post WHERE user_id = ?",
+#                      (user_id,))[0][0] or 0)
+#     comment_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Comment WHERE user_id = ?",
+#                         (user_id,))[0][0] or 0)
+#     total_credit = comment_credit + post_credit
+#     cur.execute("UPDATE User SET credit = ? WHERE id = ?", (total_credit, user_id))
+#     conn.commit()
 
 
 def drop_v_table():
@@ -207,7 +208,8 @@ def home():
     user_id = session.get("user_id", None)
     category = session.get("category", None)
     order = session.get("order", None)
-    final_query = post_v_table_query
+    final_query = """
+                  SELECT Post.* FROM Post"""
     # Check for sorting
     if category:
         sort_query = " WHERE type = ?"
@@ -293,7 +295,7 @@ def create_post():
         date = today()
         update_post(type, title, content, date, session.get("user_id"))
         # Go back to home page so users can easily see their new post
-        return redirect(request.referrer)
+    return redirect(request.referrer)
 
 
 # Gets values from each created comment
@@ -306,7 +308,7 @@ def create_comment():
         post_id = request.form.get("post_id")
         date = today()
         update_comment(session.get("user_id"), post_id, content, date)
-        return redirect(request.referrer)
+    return redirect(request.referrer)
 
 
 # Update database with reply    
@@ -315,39 +317,42 @@ def reply():
     if request.method == "POST":
         content = request.form.get("content")
         post_id = request.form.get("post_id")
-        comment_id = request.form("comment_id")
+        comment_id = request.form.get("comment_id")
         date = today()
         update_comment(session.get("user_id"), post_id, content, date, comment_id)
         return redirect(url_for("page", id=post_id))
+    return request.referrer
 
 
 # Update post or comment with like or dislike.
 @app.route("/grade/<int:id>/", methods=["GET", "POST"])
 def grade(id):
+    grade_to_int = {
+        "Like" : 1,
+        "Dislike" : -1
+    }
     if not session.get("user_id", None ):
         flash("Create an account to like or dislike")
         return redirect(url_for("account", action="sign_up"))
     if request.method == "POST":
         user_id = session.get("user_id", None)
         table = request.form.get("table")
-        grade = request.form.get("grade")
+        grade = grade_to_int.get(request.form.get("grade"))
         # Find if user already liked or disliked post/comment
         if table == "Post":
-            query = "SELECT grade FROM Grade WHERE user_id = ? AND post_id = ?"
+            query = "SELECT grade FROM PostGrade WHERE user_id = ? AND post_id = ?"
         elif table == "Comment":
-            query = "SELECT grade FROM Grade WHERE user_id = ? AND comment_id = ?"
+            query = "SELECT grade FROM CommentGrade WHERE user_id = ? AND comment_id = ?"
         existing_grade = call_database(query, (user_id, id))
         # Prevent user for giving the same grade to posts/comments Otherwise give grade.
         if not existing_grade:
             graded(user_id, table, id, grade)
-            # update_grade(id, table)
-        # Change grade by user
+        # Change grade 
         elif existing_grade[0][0] != grade:
             graded(user_id, table, id, grade, True)
-            # update_grade(id, table)
         # Build url No section exception
         try:
-            section = request.form["section"]
+            section = request.form.get("section")
             url = request.referrer + f"#{str(section)}"
         except BadRequestKeyError:
             url = request.referrer
@@ -359,14 +364,14 @@ def grade(id):
 @app.route("/sign_up", methods=["GET", "POST"])
 def sign_up():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username")
+        password = request.form.get("password")
         date = today()
-        if not all(letter in username_whitelist for letter in username):
-            flash("Username must only contain A-Z, 0-9, and '_'")
+        # Check for invalid characters
+        if not all(u_letter in username_whitelist for u_letter in username):
+            flash("Usernames can only contain A-Z, 0-9, and '_'")
         # Get existing usernames then converts result into list without single element tuples
-        existing_usernames = call_database("SELECT username FROM User")
-        existing_usernames = [i[0] for i in existing_usernames]
+        existing_usernames = [i[0] for i in call_database("SELECT username FROM User")]
         if username not in existing_usernames:
             create_user(username, date, (generate_password_hash(password, salt_length=16)))
             flash("Account created, log in to access your account", "info")
@@ -380,9 +385,9 @@ def sign_up():
 @app.route("/sign_in", methods=["GET", "POST"])
 def sign_in():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,))
+        username = request.form.get("username")
+        password = request.form.get("password")
+        user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,)) 
         if not user_info:
             flash("Username or password is incorrect")
             return redirect(request.referrer)
@@ -392,9 +397,8 @@ def sign_in():
             return redirect(request.referrer)
         else:
             session["user_id"] = user_info[0]
-            credit_update(session.get("user_id"))
             flash(f"Logged in successfully as {username}", "info")
-            return redirect(url_for("home"))       
+            return redirect(url_for("home"))
 
 
 # Filter posts
@@ -402,11 +406,10 @@ def sign_in():
 def sort(type):
     if request.method == "POST":
         if type == "sort":
-            session["category"] = request.form["type"]
-            return redirect(request.referrer)
+            session["category"] = request.form.get("type")
         elif type == "order":
-            session["order"] = request.form["order"]
-            return redirect(request.referrer)
+            session["order"] = request.form.get("order")
+    return redirect(request.referrer)
 
 
 # Log user out
@@ -421,8 +424,8 @@ def sign_out():
 @app.route("/delete", methods=["GET", "POST"])
 def delete():
     if request.method == "POST":
-        id = request.form["id"]
-        type = request.form["type"]
+        id = request.form.get("id")
+        type = request.form.get("type")
         delete_entry(type, id)
         return redirect(request.referrer)
 
