@@ -1,7 +1,6 @@
 import sqlite3
-import re
 
-from flask import *
+from flask import Flask, render_template, redirect, url_for, g, session, request, flash
 from string import ascii_letters, digits
 from werkzeug.exceptions import BadRequestKeyError
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -46,13 +45,14 @@ def call_database(query, parameter=None):
     except (sqlite3.Warning) as e:
         cur.executescript(query)
     result = cur.fetchall()
+    print(result)
     return result
 
 
 """
 DO NOT USE WITH CUSTOM USER INPUT
 """
-def build_query(type, user_id):
+def build_query(type, user_id, category="", order=""):
     if type == "c":
         v_table_name = "Comment_V"
         table = "Comment"
@@ -65,31 +65,35 @@ def build_query(type, user_id):
         match_id = "post_id"
     else:
         return
-    update_query = f"""
-                    UPDATE {v_table_name} 
-                    SET grade = (
-                        SELECT {bridge_table}.grade FROM {bridge_table} 
-                        WHERE {bridge_table}.user_id = {user_id} 
-                        AND {bridge_table}.{match_id} = {v_table_name}.id 
-                        AND {bridge_table}.grade IS NOT NULL
-                    )
-                    WHERE EXISTS (
-                        SELECT * FROM {bridge_table}
-                        WHERE {bridge_table}.user_id = {user_id}
-                    )"""
+    if user_id:
+        update_query = f"""
+                        UPDATE {v_table_name} 
+                        SET grade = (
+                            SELECT {bridge_table}.grade FROM {bridge_table} 
+                            WHERE {bridge_table}.user_id = {user_id} 
+                            AND {bridge_table}.{match_id} = {v_table_name}.id 
+                            AND {bridge_table}.grade IS NOT NULL
+                        )
+                        WHERE EXISTS (
+                            SELECT * FROM {bridge_table}
+                            WHERE {bridge_table}.user_id = {user_id}
+                        );"""
+    else:
+        update_query = ""
     final_query = f"""
     DROP TABLE IF EXISTS {v_table_name};
     CREATE TEMP TABLE {v_table_name} AS
     SELECT {table}.*,
-    SUM(CASE WHEN {bridge_table}.grade = -1 THEN 1 ELSE 0) AS dislike,
-    SUM(CASE WHEN {bridge_table}.grade = 1 THEN 1 ELSE 0) AS like,
+    SUM(CASE WHEN {bridge_table}.grade = -1 THEN 1 ELSE 0 END) AS dislike,
+    SUM(CASE WHEN {bridge_table}.grade = 1 THEN 1 ELSE 0 END) AS like,
     User.username FROM {table}
     INNER JOIN User ON {table}.user_id = User.id 
     LEFT JOIN {bridge_table} ON {bridge_table}.{match_id} = {table}.id GROUP BY {table}.id;
     ALTER TABLE {v_table_name} ADD COLUMN grade TEXT;
     {update_query}
-    SELECT * FROM {v_table_name}"""
-    pass
+    SELECT * FROM {v_table_name} {category} {order};"""
+    print(final_query)
+    return final_query
 
 
 # Delete entry in database function
@@ -230,29 +234,20 @@ def drop_v_table():
 # This is to create HTML posts for each entry in the post table.
 @app.route("/")
 def home():
-    parameter = []
     user_id = session.get("user_id", None)
     category = session.get("category", None)
     order = session.get("order", None)
-    final_query = """
-                  SELECT Post.* FROM Post"""
     # Check for sorting
     if category:
-        sort_query = " WHERE type = ?"
-        parameter.append(category)
-        final_query = final_query + sort_query
-    if order:
-        if order == "Like":
-            order_query = " ORDER BY like DESC"
-        elif order == "Dislike":
-            order_query = " ORDER BY dislike DESC"
-        final_query = final_query + order_query
+        where = f"WHERE type = {category}"
     else:
-        final_query = final_query + " ORDER BY id DESC"
-    # Query execution
-    parameter = tuple(parameter)
-    print(parameter)
-    post = call_database(final_query, parameter)
+        where = ""
+    if order:
+        order_by = f"ORDER BY {order} DESC"
+    else:
+        order_by = f"ORDER BY id DESC"
+    final_query = build_query("p", user_id, where, order_by)
+    post = call_database(final_query)
     return render_template("home.html", post=post, title=default_title,)
 
 
