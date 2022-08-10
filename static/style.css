@@ -1,4 +1,4 @@
-/* Index */
+/* Index 
 
 html{
     scroll-behavior: smooth;
@@ -22,27 +22,27 @@ header{
     font-size: 4.5em;
 }
 
-/* Dark mode */
+/* Dark mode 
 body{
     color: #ffffffff;
     background-color: #050505;
 }
 
-/* Remove Colour from links */
+/* Remove Colour from links 
 a, a:hover, a:visited, a:active{
     color: inherit;
     text-decoration: none;
     font-style: italic;
 }
 
-/* No bullet point */
+/* No bullet point 
 ul{
     list-style-type: none;
 }
 
 /* 
 Home page 
-*/
+
 
 .main_page{
     width: 30%;
@@ -52,10 +52,8 @@ Home page
 }
 
 button{
-    position: absolute;
+    margin: 0 auto;
     left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
     
 }
 
@@ -87,14 +85,14 @@ button{
     font-size: 2.5em;
 }
 
-/* Like/dislike button one row */
+/* Like/dislike button one row 
 form.grade{
     display: flex;
     flex-direction: row;
 }
 
-/* Forms for posting and commenting */
+/* Forms for posting and commenting 
 
 textarea{
     resize: none;
-}
+}*/

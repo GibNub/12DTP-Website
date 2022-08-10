@@ -12,8 +12,17 @@ app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
 username_whitelist = set(ascii_letters + digits + "_")
-categories = ["general", "help", "lore", "humor", "news"]
-
+categories = {
+    "1":"general",
+    "2":"help",
+    "3":"lore",
+    "4":"humor",
+    "5":"news"    
+}
+orders = {
+    "1":"like",
+    "2":"dislike"
+}
 
 # Store database connection in a variable
 def get_db():
@@ -54,8 +63,9 @@ def call_database(query, parameter=None):
 """
 DO NOT USE WITH CUSTOM USER INPUT
 """
-# Create query for virtual table
+# Create query to present data
 def build_query(type, user_id, category="", order=""):
+    
     if type == "c":
         table = "Comment"
         bridge_table = "CommentGrade"
@@ -74,11 +84,14 @@ def build_query(type, user_id, category="", order=""):
     User.username FROM {table}
     INNER JOIN User ON {table}.user_id = User.id
     LEFT JOIN {bridge_table} ON {bridge_table}.{match_id} = {table}.id
-    LEFT JOIN {bridge_table} as UserGrade ON UserGrade.{match_id} = {table}.id AND UserGrade.user_id = ? GROUP BY {table}.id
-    ;
+    LEFT JOIN {bridge_table} as UserGrade ON UserGrade.{match_id} = {table}.id AND UserGrade.user_id = ? 
+    GROUP BY {table}.id
+    {category}
+    {order};
     """
     conn = get_db()
     cur = conn.cursor()
+    conn.set_trace_callback(print)
     cur.execute(final_query, (user_id,))
     result = cur.fetchall()
     return result
@@ -113,65 +126,6 @@ def update_post(type, title, content, date, user_id,):
     conn.commit()
 
 
-# Verify grade of user
-def graded(user_id, type, type_id, grade, replace=None):
-    conn = get_db()
-    cur = conn.cursor()
-    # Add new grade 
-    if not replace:
-        if type == "Post":
-            query = "INSERT INTO PostGrade (user_id, post_id, grade) VALUES (?, ?, ?)" 
-        elif type == "Comment":
-            query = "INSERT INTO CommentGrade (user_id, comment_id, grade) VALUES (?, ?, ?)"
-        parameter = (user_id, type_id, grade)
-    # Replace existing grade
-    elif replace:
-        if type == "Post":
-            query = "UPDATE PostGrade SET grade = ? WHERE user_id = ? AND post_id = ?"
-        elif type == "Comment":
-            query = "UPDATE CommenetGrade SET grade = ? WHERE user_id = ? AND comment_id = ?"
-        parameter = (grade, user_id, type_id)
-    cur.execute(query, parameter)
-    conn.commit()
-
-
-# Incriment the like or dislike counter by one.
-# Parameters can't be used to pass table or column names
-# So string building must be user to update certain parts of the database depending on the conditions.
-# This query must never be user on other occasions; only on the update grade route
-# Old Code Below
-# def update_grade(table, grade, id, grade_exist):
-#     conn = get_db()
-#     cur = conn.cursor()
-#     if not grade_exist:
-#         if table.lower() == "post":
-#             first = "UPDATE Post SET"
-#         elif table.lower() == "comment":
-#             first = "UPDATE Comment SET"
-#         if grade.lower() == "like":
-#             last = "like = like + 1 WHERE id = ?"
-#         elif grade.lower() == "dislike":
-#             last = "dislike = dislike + 1 WHERE id = ?"
-#     cur.execute(f"{first} {last}", (id,))
-#     conn.commit()
-# def update_grade(id, type):
-#     conn = get_db()
-#     cur = conn.cursor()
-#     if type == "Post":
-#         query = "SELECT grade FROM  WHERE post_id = ?"
-#         update_counter_query = "UPDATE Post SET like = ?, dislike = ? WHERE id = ?"
-#     elif type == "Comment":
-#         query = "SELECT grade FROM Grade WHERE comment_id = ?"
-#         update_counter_query = "UPDATE Comment SET like = ?, dislike = ? WHERE id = ?"
-#     cur.execute(query, (id,))
-#     result = cur.fetchall()
-#     result = [i[0] for i in result]
-#     likes = result.count("Like")
-#     dislikes = result.count("Dislike")
-#     cur.execute(update_counter_query, (likes, dislikes, id))
-#     conn.commit()
-
-
 # Updates comments table once user creates a comment or reply
 # like and dislike cannot be null so default value is 0
 def update_comment(user_id, post_id, content, date, parent_comment_id=None,):
@@ -195,28 +149,31 @@ def create_user(username, date, password_hash):
     conn.commit()
 
 
-# # Changes user credit in databasea
-# def credit_update(user_id):
-#     conn = get_db()
-#     cur = conn.cursor()
-#     # Defaults any none values into zero
-#     post_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Post WHERE user_id = ?",
-#                      (user_id,))[0][0] or 0)
-#     comment_credit = int(call_database("SELECT SUM(like) - SUM(dislike) FROM Comment WHERE user_id = ?",
-#                         (user_id,))[0][0] or 0)
-#     total_credit = comment_credit + post_credit
-#     cur.execute("UPDATE User SET credit = ? WHERE id = ?", (total_credit, user_id))
-#     conn.commit()
+# Verify grade of user
+def add_grade(user_id, type, type_id, grade, replace=None):
+    conn = get_db()
+    cur = conn.cursor()
+    # Add new grade 
+    if not replace:
+        if type == "Post":
+            query = "INSERT INTO PostGrade (user_id, post_id, grade) VALUES (?, ?, ?)" 
+        elif type == "Comment":
+            query = "INSERT INTO CommentGrade (user_id, comment_id, grade) VALUES (?, ?, ?)"
+        parameter = (user_id, type_id, grade)
+    # Replace existing grade
+    elif replace:
+        if type == "Post":
+            query = "UPDATE PostGrade SET grade = ? WHERE user_id = ? AND post_id = ?"
+        elif type == "Comment":
+            query = "UPDATE CommenetGrade SET grade = ? WHERE user_id = ? AND comment_id = ?"
+        parameter = (grade, user_id, type_id)
+    cur.execute(query, parameter)
+    conn.commit()
 
 
-# def drop_v_table():
-#     conn = get_db()
-#     cur = conn.cursor()
-#     cur.execute("DROP TABLE IF EXISTS Post_V")
-#     conn.commit()
-
-
-# Flask app starts below
+"""
+Flask app starts below
+"""
 
 
 # The post tables gets passed to the jinja loop in "home.html".
@@ -224,15 +181,15 @@ def create_user(username, date, password_hash):
 @app.route("/")
 def home():
     user_id = session.get("user_id", None)
-    category = session.get("category", None)
-    order = session.get("order", None)
+    selected_category = session.get("category", None)
+    selected_order = session.get("order", None)
     # Check for sorting
-    if category:
-        where = f"WHERE type = {category}"
+    if selected_category:
+        where = f"WHERE type = {categories[selected_category]}"
     else:
         where = ""
-    if order:
-        order_by = f"ORDER BY {order} DESC"
+    if selected_order:
+        order_by = f"ORDER BY {orders[selected_order]} DESC"
     else:
         order_by = f"ORDER BY id DESC"
     post = build_query("p", user_id, where, order_by)
@@ -355,10 +312,10 @@ def grade(id):
         existing_grade = call_database(query, (user_id, id))
         # Prevent user for giving the same grade to posts/comments Otherwise give grade.
         if not existing_grade:
-            graded(user_id, table, id, grade)
+            add_grade(user_id, table, id, grade)
         # Change grade 
         elif existing_grade[0][0] != grade:
-            graded(user_id, table, id, grade, True)
+            add_grade(user_id, table, id, grade, True)
         # Build url No section exception
         try:
             section = request.form.get("section")

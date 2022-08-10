@@ -40,21 +40,33 @@
     <div class="sort">
         <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
             <select name="type" required>
+                {#categories = {
+                "1":"general",
+                "2":"help",
+                "3":"lore",
+                "4":"humor",
+                "5":"news"    
+                } #}
                 <option value="">-Find Post By Category--</option>
-                <option value="General">General</option>
-                <option value="Help">Help</option>
-                <option value="Lore">Lore</option>
-                <option value="Humor">Humor</option>
-                <option value="News">News</option>
+                <option value="1">General</option>
+                <option value="2">Help</option>
+                <option value="3">Lore</option>
+                <option value="4">Humor</option>
+                <option value="5">News</option>
                 <option value="">Reset Sort</option>
             </select>
             <input type="submit" value="Sort">
         </form><br>
         <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
             <select name="order" required>
+                {# order = {
+                "1":"id",
+                "2":"like",
+                "3":"dislike"
+                } #}
                 <option value="">-Order By--</option>
-                <option value="Like">Likes</option>
-                <option value="Dislike">Dislikes</option>
+                <option value="1">Likes</option>
+                <option value="2">Dislikes</option>
                 <option value="">Reset Order</option>
             </select>
             <input type="submit" value="Order">
