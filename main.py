@@ -1,4 +1,5 @@
 from distutils.command.build import build
+from operator import ge
 import sqlite3
 
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash
@@ -17,7 +18,7 @@ categories = {
     "2":"help",
     "3":"lore",
     "4":"humor",
-    "5":"news"    
+    "5":"news"
 }
 orders = {
     "1":"like",
@@ -45,7 +46,6 @@ def today():
 # For single item lists, specify with a index of 0
 def call_database(query, parameter=None):
     conn = get_db()
-    conn.set_trace_callback(print)
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
@@ -56,7 +56,6 @@ def call_database(query, parameter=None):
     except (sqlite3.ProgrammingError, ValueError) as e:
         cur.execute(query)
     result = cur.fetchall()
-    print(result)
     return result
 
 
@@ -91,7 +90,6 @@ def build_query(type, user_id, category="", order=""):
     """
     conn = get_db()
     cur = conn.cursor()
-    conn.set_trace_callback(print)
     cur.execute(final_query, (user_id,))
     result = cur.fetchall()
     return result
@@ -117,7 +115,6 @@ def delete_entry(type, id):
 # Updates Post table once user submits new post
 def update_post(type, title, content, date, user_id,):
     conn = get_db()
-    conn.set_trace_callback(print)
     cur = conn.cursor()
     cur.execute("""INSERT INTO Post
                 (type, title, content, user_id, date)
@@ -170,6 +167,17 @@ def add_grade(user_id, type, type_id, grade, replace=None):
     cur.execute(query, parameter)
     conn.commit()
 
+
+# Update user credit when displayed
+def update_credit(user_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""SELECT SUM(PostGrade.grade) FROM PostGrade""")
+    grade_credit = cur.fetchone()
+    cur.execut("SELECT SUM(CommentGrade.grade) FROM CommentGrade")
+    comment_credit = cur.fetchone()
+    total_credit = grade
+    pass
 
 """
 Flask app starts below
