@@ -7,14 +7,12 @@
     {% endfor %}
 {% endif %}
 {% endwith %}{% set section = namespace(value=0) %}
-{{ user_graded }}
 {% if session["user_id"] is defined %}
-<div class="create_post">
     <button onclick="hideForm()" id="create_post">
         Create Post
     </button><br>
-    <div id="form">
-        <form action="/create_post" method="POST" enctype="application/x-www-form-urlencoded">
+    <div class="create_post">
+        <form action="/create_post" method="POST" enctype="application/x-www-form-urlencoded" id="form_post">
             <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
             oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')"><br>
             <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea><br>
@@ -29,38 +27,39 @@
             <input type="submit" value="Post">
             <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
         </form>
-    </div>
-    {# Shows or hide the form when the user clicks the button
-    This button is only visible to logged in users #}
-</div><br>
-{% else %}
-<form action="{{ url_for('account', action='sign_in')}}">
-    <input type="submit" value="Log In to create a post">
-</form>
+        {# Shows or hide the form when the user clicks the button
+            This button is only visible to logged in users #}
+        {% else %}
+        <a href="{{ url_for('account', action='sign_in')}}">
+            <button>Log in to start creating posts</button>
+        </a>
+    </div><br>
 {% endif %}
 <div class="main_page">
     {# Sorting #}
-    <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
-        <select name="type" required>
-            <option value="">-Find Post By Category--</option>
-            <option value="General">General</option>
-            <option value="Help">Help</option>
-            <option value="Lore">Lore</option>
-            <option value="Humor">Humor</option>
-            <option value="News">News</option>
-            <option value="">Reset Sort</option>
-        </select>
-        <input type="submit" value="Sort">
-    </form><br>
-    <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
-        <select name="order" required>
-            <option value="">-Order By--</option>
-            <option value="Like">Likes</option>
-            <option value="Dislike">Dislikes</option>
-            <option value="">Reset Order</option>
-        </select>
-        <input type="submit" value="Order">
-    </form>
+    <div class="sort">
+        <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
+            <select name="type" required>
+                <option value="">-Find Post By Category--</option>
+                <option value="General">General</option>
+                <option value="Help">Help</option>
+                <option value="Lore">Lore</option>
+                <option value="Humor">Humor</option>
+                <option value="News">News</option>
+                <option value="">Reset Sort</option>
+            </select>
+            <input type="submit" value="Sort">
+        </form><br>
+        <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
+            <select name="order" required>
+                <option value="">-Order By--</option>
+                <option value="Like">Likes</option>
+                <option value="Dislike">Dislikes</option>
+                <option value="">Reset Order</option>
+            </select>
+            <input type="submit" value="Order">
+        
+    </div></form>
     <ul>
         {#
             Reference
@@ -88,7 +87,7 @@
                         <div>
                             <h5>
                                 {# user_id, username, date #}
-                                <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
+                                <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[9] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
                             </h5>
                             <p>
                                 {# title #}
@@ -106,11 +105,12 @@
                             <input type="hidden" name="table" value="Post">
                             <input type="hidden" name="section" value="{{ section.value }}">
                             {# likes #}
-                            {{ post[6] }}
+                            {{ post[7] }}
                             <input type="submit" name="grade" value="Like">
                             {# dislikes #}
-                            {{ post[7] }}
+                            {{ post[6] }}
                             <input type="submit" name="grade" value="Dislike">
+                            <p>Grade: {{ post[8] }}</p>
                         </form>
                     </div>
                 </div>
@@ -119,7 +119,7 @@
     </ul>
 </div>
 <script>
-    var show = document.getElementById("form");
+    var show = document.getElementById("form_post");
     show.style.display = "none"
     function hideForm() {
         if (show.style.display == "none"){

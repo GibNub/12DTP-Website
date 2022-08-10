@@ -1,3 +1,4 @@
+from distutils.command.build import build
 import sqlite3
 
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash
@@ -11,6 +12,7 @@ app = Flask(__name__)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
 username_whitelist = set(ascii_letters + digits + "_")
+categories = ["general", "help", "lore", "humor", "news"]
 
 
 # Store database connection in a variable
@@ -40,10 +42,10 @@ def call_database(query, parameter=None):
     # May use string building in the future
     try:
         cur.execute(query, parameter)
-    except (sqlite3.ProgrammingError, ValueError) as e:
-        cur.execute(query)
     except (sqlite3.Warning) as e:
         cur.executescript(query)
+    except (sqlite3.ProgrammingError, ValueError) as e:
+        cur.execute(query)
     result = cur.fetchall()
     print(result)
     return result
@@ -52,48 +54,34 @@ def call_database(query, parameter=None):
 """
 DO NOT USE WITH CUSTOM USER INPUT
 """
+# Create query for virtual table
 def build_query(type, user_id, category="", order=""):
     if type == "c":
-        v_table_name = "Comment_V"
         table = "Comment"
         bridge_table = "CommentGrade"
         match_id = "comment_id"
     elif type == "p":
-        v_table_name = "Post_V"
         table = "Post"
         bridge_table = "PostGrade"
         match_id = "post_id"
     else:
         return
-    if user_id:
-        update_query = f"""
-                        UPDATE {v_table_name} 
-                        SET grade = (
-                            SELECT {bridge_table}.grade FROM {bridge_table} 
-                            WHERE {bridge_table}.user_id = {user_id} 
-                            AND {bridge_table}.{match_id} = {v_table_name}.id 
-                            AND {bridge_table}.grade IS NOT NULL
-                        )
-                        WHERE EXISTS (
-                            SELECT * FROM {bridge_table}
-                            WHERE {bridge_table}.user_id = {user_id}
-                        );"""
-    else:
-        update_query = ""
     final_query = f"""
-    DROP TABLE IF EXISTS {v_table_name};
-    CREATE TEMP TABLE {v_table_name} AS
     SELECT {table}.*,
     SUM(CASE WHEN {bridge_table}.grade = -1 THEN 1 ELSE 0 END) AS dislike,
     SUM(CASE WHEN {bridge_table}.grade = 1 THEN 1 ELSE 0 END) AS like,
+    UserGrade.grade,
     User.username FROM {table}
-    INNER JOIN User ON {table}.user_id = User.id 
-    LEFT JOIN {bridge_table} ON {bridge_table}.{match_id} = {table}.id GROUP BY {table}.id;
-    ALTER TABLE {v_table_name} ADD COLUMN grade TEXT;
-    {update_query}
-    SELECT * FROM {v_table_name} {category} {order};"""
-    print(final_query)
-    return final_query
+    INNER JOIN User ON {table}.user_id = User.id
+    LEFT JOIN {bridge_table} ON {bridge_table}.{match_id} = {table}.id
+    LEFT JOIN {bridge_table} as UserGrade ON UserGrade.{match_id} = {table}.id AND UserGrade.user_id = ? GROUP BY {table}.id
+    ;
+    """
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(final_query, (user_id,))
+    result = cur.fetchall()
+    return result
 
 
 # Delete entry in database function
@@ -116,10 +104,11 @@ def delete_entry(type, id):
 # Updates Post table once user submits new post
 def update_post(type, title, content, date, user_id,):
     conn = get_db()
+    conn.set_trace_callback(print)
     cur = conn.cursor()
     cur.execute("""INSERT INTO Post
                 (type, title, content, user_id, date)
-                VALUES (?, ?, ?, ?, ?,)""",
+                VALUES (?, ?, ?, ?, ?)""",
                 (type, title, content, user_id, date))
     conn.commit()
 
@@ -220,11 +209,11 @@ def create_user(username, date, password_hash):
 #     conn.commit()
 
 
-def drop_v_table():
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("DROP TABLE IF EXISTS Post_V")
-    conn.commit()
+# def drop_v_table():
+#     conn = get_db()
+#     cur = conn.cursor()
+#     cur.execute("DROP TABLE IF EXISTS Post_V")
+#     conn.commit()
 
 
 # Flask app starts below
@@ -246,8 +235,7 @@ def home():
         order_by = f"ORDER BY {order} DESC"
     else:
         order_by = f"ORDER BY id DESC"
-    final_query = build_query("p", user_id, where, order_by)
-    post = call_database(final_query)
+    post = build_query("p", user_id, where, order_by)
     return render_template("home.html", post=post, title=default_title,)
 
 
@@ -454,7 +442,6 @@ def delete():
 # Close database once app is closed.
 @app.teardown_appcontext
 def teardown_db(_):
-    drop_v_table()
     get_db().close()
 
 

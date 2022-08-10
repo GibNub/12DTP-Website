@@ -5,6 +5,7 @@ html{
 }
 
 nav{
+    margin: 0;
     top: 0;
     background-color: #171717;
     overflow: hidden;
@@ -39,7 +40,9 @@ ul{
     list-style-type: none;
 }
 
-/* Home page */
+/* 
+Home page 
+*/
 
 .main_page{
     width: 30%;
@@ -48,9 +51,25 @@ ul{
     padding: 10px;
 }
 
-.create_post{
+button{
+    position: absolute;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
     
 }
+
+.create_post input[type="text"]{
+    padding: 20px 50px;
+    margin: 10px 0;
+    box-sizing: border-box;
+}
+
+.create_post{
+    width: 30%;
+    margin: 0 auto;
+}
+
 
 .post{
     background-color: #1c1c1c;
