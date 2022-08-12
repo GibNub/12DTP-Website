@@ -3,6 +3,7 @@ from operator import ge
 import sqlite3
 
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash
+from flask_wtf.csrf import CSRFProtect, CSRFError
 from string import ascii_letters, digits
 from werkzeug.exceptions import BadRequestKeyError
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,6 +11,7 @@ from datetime import datetime
 
 
 app = Flask(__name__)
+CSRFProtect(app)
 app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
 default_title = "The Roundtable Hold"
 username_whitelist = set(ascii_letters + digits + "_")
@@ -63,8 +65,7 @@ def call_database(query, parameter=None):
 DO NOT USE WITH CUSTOM USER INPUT
 """
 # Create query to present data
-def build_query(type, user_id, category="", order=""):
-    
+def build_query(type, user_id, category="", order="", reply="", parameter=None):
     if type == "c":
         table = "Comment"
         bridge_table = "CommentGrade"
@@ -74,7 +75,7 @@ def build_query(type, user_id, category="", order=""):
         bridge_table = "PostGrade"
         match_id = "post_id"
     else:
-        return
+        raise Exception(f"type {type} is invalid, must be 'c' or 'p'")
     final_query = f"""
     SELECT {table}.*,
     SUM(CASE WHEN {bridge_table}.grade = -1 THEN 1 ELSE 0 END) AS dislike,
@@ -85,9 +86,9 @@ def build_query(type, user_id, category="", order=""):
     LEFT JOIN {bridge_table} ON {bridge_table}.{match_id} = {table}.id
     LEFT JOIN {bridge_table} as UserGrade ON UserGrade.{match_id} = {table}.id AND UserGrade.user_id = ? 
     GROUP BY {table}.id
+    {reply}
     {category}
-    {order};
-    """
+    {order};"""
     conn = get_db()
     cur = conn.cursor()
     cur.execute(final_query, (user_id,))
@@ -102,12 +103,14 @@ DO NOT USE FOR USER INPUT
 def delete_entry(type, id):
     conn = get_db()
     cur = conn.cursor()
-    if type == "post":
+    if type == "p":
         first = "DELETE FROM Post"
-    elif type == "comment":
+    elif type == "c":
         first = "DELETE FROM Comment"
-    elif type == "user":
+    elif type == "u":
         first = "DELETE FROM User"
+    else:
+        raise Exception(f"{type} is an invalid type")
     cur.execute(f"{first} WHERE id = ?", (id,))
     conn.commit()
 
@@ -152,16 +155,16 @@ def add_grade(user_id, type, type_id, grade, replace=None):
     cur = conn.cursor()
     # Add new grade 
     if not replace:
-        if type == "Post":
+        if type == "p":
             query = "INSERT INTO PostGrade (user_id, post_id, grade) VALUES (?, ?, ?)" 
-        elif type == "Comment":
+        elif type == "c":
             query = "INSERT INTO CommentGrade (user_id, comment_id, grade) VALUES (?, ?, ?)"
         parameter = (user_id, type_id, grade)
     # Replace existing grade
     elif replace:
-        if type == "Post":
+        if type == "p":
             query = "UPDATE PostGrade SET grade = ? WHERE user_id = ? AND post_id = ?"
-        elif type == "Comment":
+        elif type == "c":
             query = "UPDATE CommenetGrade SET grade = ? WHERE user_id = ? AND comment_id = ?"
         parameter = (grade, user_id, type_id)
     cur.execute(query, parameter)
@@ -173,10 +176,10 @@ def update_credit(user_id):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""SELECT SUM(PostGrade.grade) FROM PostGrade""")
-    grade_credit = cur.fetchone()
+    post_credit = cur.fetchone()
     cur.execut("SELECT SUM(CommentGrade.grade) FROM CommentGrade")
     comment_credit = cur.fetchone()
-    total_credit = grade
+    total_credit = post_credit + comment_credit
     pass
 
 """
@@ -209,13 +212,9 @@ def home():
 # Page info is passed into HTML with jinja code
 @app.route("/page/<int:id>")
 def page(id):
-    page_query = """SELECT Post.*, User.username FROM Post INNER JOIN User ON Post.user_id = User.id WHERE Post.id = ?"""
-    comment_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
-                    WHERE Comment.comment_id IS NULL AND Comment.post_id = ? """
-    reply_query = """SELECT Comment.*, User.username FROM Comment INNER JOIN User ON Comment.user_id = User.id
-                    WHERE Comment.comment_id IS NOT NULL AND Comment.post_id = ? """
-    parameter = (id,)
-    page_info = call_database(page_query, parameter)[0]
+    page_parameter = (id,)
+    user_id = session.get("user_id", None)
+    page_query = build_query(user_id=user_id, type="c", category="WHERE id = ?", parameter=page_parameter)
     comment = call_database(comment_query, parameter)
     reply = call_database(reply_query, parameter)
     return render_template("page.html",
@@ -256,6 +255,11 @@ def dashboard(id):
     user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (id,))
     user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
     return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1])
+
+
+@app.error_handler(CSRFError)
+def csrf_error(error):
+    return render_template()
 
 
 # Gets the form values from the home page,
@@ -308,14 +312,15 @@ def grade(id):
     if not session.get("user_id", None ):
         flash("Create an account to like or dislike")
         return redirect(url_for("account", action="sign_up"))
+    
     if request.method == "POST":
         user_id = session.get("user_id", None)
         table = request.form.get("table")
         grade = grade_to_int.get(request.form.get("grade"))
         # Find if user already liked or disliked post/comment
-        if table == "Post":
+        if table == "p":
             query = "SELECT grade FROM PostGrade WHERE user_id = ? AND post_id = ?"
-        elif table == "Comment":
+        elif table == "c":
             query = "SELECT grade FROM CommentGrade WHERE user_id = ? AND comment_id = ?"
         existing_grade = call_database(query, (user_id, id))
         # Prevent user for giving the same grade to posts/comments Otherwise give grade.
@@ -402,6 +407,7 @@ def delete():
         type = request.form.get("type")
         delete_entry(type, id)
         return redirect(request.referrer)
+
 
 
 # Close database once app is closed.

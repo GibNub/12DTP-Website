@@ -28,6 +28,7 @@
                     <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
                         <input type="hidden" name="id" value="{{ post[0] }}">
                         <input type="hidden" name="type" value="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="submit" value="Delete Post">
                     </form>
                 </p>

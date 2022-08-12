@@ -121,7 +121,7 @@
                                     {% if session["user_id"] is defined %}
                                         <form action="{{ url_for('grade', id=reply[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
                                             <input type="hidden" name="section" value="{{ section.value }}">
-                                            <input type="hidden" name="table" value="Comment">
+                                            <input type="hidden" name="table" value="c">
                                             <input type="submit" name="grade" value="Like">
                                             <input type="submit" name="grade" value="Dislike">
                                         </form>
