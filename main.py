@@ -1,5 +1,3 @@
-from distutils.command.build import build
-from operator import ge
 import sqlite3
 
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash
@@ -65,7 +63,8 @@ def call_database(query, parameter=None):
 DO NOT USE WITH CUSTOM USER INPUT
 """
 # Create query to present data
-def build_query(type, user_id, category="", order="", reply="", parameter=None):
+def build_query(type, user_id, category="", order="", reply="", post_id=None):
+    print(parameter)
     if type == "c":
         table = "Comment"
         bridge_table = "CommentGrade"
@@ -76,6 +75,10 @@ def build_query(type, user_id, category="", order="", reply="", parameter=None):
         match_id = "post_id"
     else:
         raise Exception(f"type {type} is invalid, must be 'c' or 'p'")
+    if post_id:
+        parameter += [user_id]
+    parameter = tuple(parameter)
+    print(parameter)
     final_query = f"""
     SELECT {table}.*,
     SUM(CASE WHEN {bridge_table}.grade = -1 THEN 1 ELSE 0 END) AS dislike,
@@ -85,13 +88,10 @@ def build_query(type, user_id, category="", order="", reply="", parameter=None):
     INNER JOIN User ON {table}.user_id = User.id
     LEFT JOIN {bridge_table} ON {bridge_table}.{match_id} = {table}.id
     LEFT JOIN {bridge_table} as UserGrade ON UserGrade.{match_id} = {table}.id AND UserGrade.user_id = ? 
-    GROUP BY {table}.id
-    {reply}
-    {category}
-    {order};"""
+    {reply} {category} {order} GROUP BY {table}.id;"""
     conn = get_db()
     cur = conn.cursor()
-    cur.execute(final_query, (user_id,))
+    cur.execute(final_query, parameter)
     result = cur.fetchall()
     return result
 
@@ -212,16 +212,15 @@ def home():
 # Page info is passed into HTML with jinja code
 @app.route("/page/<int:id>")
 def page(id):
-    page_parameter = (id,)
     user_id = session.get("user_id", None)
-    page_query = build_query(user_id=user_id, type="c", category="WHERE id = ?", parameter=page_parameter)
-    comment = call_database(comment_query, parameter)
-    reply = call_database(reply_query, parameter)
+    page = build_query(user_id=user_id, type="p", category="WHERE Post.id = ?", post_id=id)
+    comment = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NULL", post_id=id)
+    reply = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NOT NULL", post_id=id)
     return render_template("page.html",
-                           page=page_info,
+                           page=page,
                            comment=comment,
                            reply=reply,
-                           title=page_info[1])
+                           title=page[1])
 
 
 # Page where user replies to a comment.
@@ -257,7 +256,7 @@ def dashboard(id):
     return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1])
 
 
-@app.error_handler(CSRFError)
+@app.errorhandler(CSRFError)
 def csrf_error(error):
     return render_template()
 
