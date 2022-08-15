@@ -6,7 +6,9 @@
         <p>{{m}}</p>
     {% endfor %}
 {% endif %}
-{% endwith %}{% set section = namespace(value=0) %}
+{% endwith %}
+{# Each entry will have an assinged id for page section redirect #}
+{% set section = namespace(value=0) %}
 {% if session["user_id"] is defined %}
     <button onclick="hideForm()" id="create_post">
         Create Post
@@ -57,6 +59,7 @@
                 <option value="">Reset Sort</option>
             </select>
             <input type="submit" value="Sort">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         </form><br>
         <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
             <select name="order" required>
@@ -68,10 +71,10 @@
                 <option value="">-Order By--</option>
                 <option value="1">Likes</option>
                 <option value="2">Dislikes</option>
-                <option value="">Reset Order</option>
+                <option value="">Newest</option>
             </select>
             <input type="submit" value="Order">
-        
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </div></form>
     <ul>
         {#
@@ -110,21 +113,45 @@
                     </div>
                     <div class="post_body">
                         {# post content #}
-                        <p>{{ post[3] }}</p>
+                        {{ post[3] }}
                     </div>
                     <!-- likes and dislikes -->
                     <div class="post_foot">
-                        <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                            <input type="hidden" name="table" value="p">
-                            <input type="hidden" name="section" value="{{ section.value }}">
-                            {# likes #}
-                            {{ post[7] }}
-                            <input type="submit" name="grade" value="Like">
-                            {# dislikes #}
-                            {{ post[6] }}
-                            <input type="submit" name="grade" value="Dislike">
-                            <p>Grade: {{ post[8] }}</p>
-                        </form>
+                        {% if post[8] == 1 %}
+                            Likes : {{ post[7] }}
+                            Dislikes : {{ post[6] }}
+                            <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="table" value="p">
+                                <input type="hidden" name="section" value="{{ section.value }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                Liked
+                                {# Dislike Post #}
+                                <input type="submit" name="grade" value="Dislike">
+                            </form>
+                        {% elif post[8] == -11 %}
+                            Likes : {{ post[7] }}
+                            Dislikes : {{ post[6] }}
+                            <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="table" value="p">
+                                <input type="hidden" name="section" value="{{ section.value }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                Disliked
+                                {# Like Post #}
+                                <input type="submit" name="grade" value="Like">
+                            </form>
+                        {% else %}
+                        Likes : {{ post[7] }}
+                        Dislikes : {{ post[6] }}
+                            <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="table" value="p">
+                                <input type="hidden" name="section" value="{{ section.value }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                {# likes #}
+                                <input type="submit" name="grade" value="Like">
+                                {# dislikes #}
+                                <input type="submit" name="grade" value="Dislike">
+                            </form>
+                        {% endif %}
                     </div>
                 </div>
             </li>

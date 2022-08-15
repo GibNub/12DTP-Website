@@ -1,4 +1,5 @@
 import sqlite3
+from sre_parse import CATEGORIES
 
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash
 from flask_wtf.csrf import CSRFProtect, CSRFError
@@ -8,22 +9,21 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 
-app = Flask(__name__)
-CSRFProtect(app)
-app.secret_key = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
-default_title = "The Roundtable Hold"
-username_whitelist = set(ascii_letters + digits + "_")
-categories = {
-    "1":"general",
-    "2":"help",
-    "3":"lore",
-    "4":"humor",
-    "5":"news"
+SECRET_KEY = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
+DEFAULT_TITLE = "The Roundtable Hold"
+USERNAME_WHITELIST = set(ascii_letters + digits + "_")
+CATEGORIES = {
+    "1" : "General",
+    "2" : "Help",
+    "3" : "Lore",
+    "4" : "Humor",
+    "5" : "News"
 }
-orders = {
+SORT = {
     "1":"like",
     "2":"dislike"
 }
+
 
 # Store database connection in a variable
 def get_db():
@@ -64,31 +64,48 @@ DO NOT USE WITH CUSTOM USER INPUT
 """
 # Create query to present data
 def build_query(type, user_id, category="", order="", reply="", post_id=None):
-    print(parameter)
-    if type == "c":
-        table = "Comment"
-        bridge_table = "CommentGrade"
-        match_id = "comment_id"
-    elif type == "p":
-        table = "Post"
-        bridge_table = "PostGrade"
-        match_id = "post_id"
+    if type == "p":
+        if user_id:
+            graded_post = f"LEFT JOIN PostGrade AS UserGrade ON UserGrade.post_id = Post.id AND UserGrade.user_id = {user_id}"
+            user_grade = "UserGrade.grade,"
+        else:
+            graded_post = ""
+            user_grade = ""
+        final_query = f"""
+        SELECT Post.*,
+        SUM(CASE WHEN PostGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
+        SUM(CASE WHEN PostGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
+        {user_grade}
+        User.username FROM Post
+        (SELECT COUNT(Comment.id) FROM Comment WHERE Comment.post_id = Post.id) AS comment_count
+        INNER JOIN User ON Post.user_id = User.id
+        LEFT JOIN PostGrade ON PostGrade.post_id = Post.id {graded_post} 
+        {category} GROUP BY Post.id {order};"""
+    elif type == "c":
+        if user_id:
+            graded_post = f"LEFT JOIN CommentGrade AS UserGrade ON UserGrade.comment_id = Comment.id AND UserGrade.user_id = {user_id}"
+            user_grade = "UserGrade.grade,"
+        else:
+            graded_post = ""
+            user_grade = ""
+        final_query = f"""
+        SELECT Comment.*,
+        SUM(CASE WHEN CommentGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
+        SUM(CASE WHEN CommentGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
+        {user_grade}
+        User.username FROM Comment
+        INNER JOIN User ON Comment.user_id = User.id
+        LEFT JOIN CommentGrade ON CommentGrade.post_id = Post.id {graded_post} 
+        WHERE Comment.post_id =  
+        GROUP BY Comment.id;"""
     else:
         raise Exception(f"type {type} is invalid, must be 'c' or 'p'")
+
     if post_id:
-        parameter += [user_id]
-    parameter = tuple(parameter)
-    print(parameter)
-    final_query = f"""
-    SELECT {table}.*,
-    SUM(CASE WHEN {bridge_table}.grade = -1 THEN 1 ELSE 0 END) AS dislike,
-    SUM(CASE WHEN {bridge_table}.grade = 1 THEN 1 ELSE 0 END) AS like,
-    UserGrade.grade,
-    User.username FROM {table}
-    INNER JOIN User ON {table}.user_id = User.id
-    LEFT JOIN {bridge_table} ON {bridge_table}.{match_id} = {table}.id
-    LEFT JOIN {bridge_table} as UserGrade ON UserGrade.{match_id} = {table}.id AND UserGrade.user_id = ? 
-    {reply} {category} {order} GROUP BY {table}.id;"""
+        parameter = (post_id,)
+    else:
+        parameter = tuple()
+
     conn = get_db()
     cur = conn.cursor()
     cur.execute(final_query, parameter)
@@ -182,9 +199,15 @@ def update_credit(user_id):
     total_credit = post_credit + comment_credit
     pass
 
+
 """
 Flask app starts below
 """
+
+
+app = Flask(__name__)
+CSRFProtect().init_app(app)
+app.secret_key = SECRET_KEY
 
 
 # The post tables gets passed to the jinja loop in "home.html".
@@ -196,15 +219,16 @@ def home():
     selected_order = session.get("order", None)
     # Check for sorting
     if selected_category:
-        where = f"WHERE type = {categories[selected_category]}"
+        where = f"WHERE Post.type = '{CATEGORIES[selected_category]}'"
     else:
         where = ""
     if selected_order:
-        order_by = f"ORDER BY {orders[selected_order]} DESC"
+        order_by = f"ORDER BY {SORT[selected_order]} DESC"
     else:
         order_by = f"ORDER BY id DESC"
+    
     post = build_query("p", user_id, where, order_by)
-    return render_template("home.html", post=post, title=default_title,)
+    return render_template("home.html", post=post, title=DEFAULT_TITLE,)
 
 
 # The route creates pages dynamically.
@@ -213,14 +237,14 @@ def home():
 @app.route("/page/<int:id>")
 def page(id):
     user_id = session.get("user_id", None)
-    page = build_query(user_id=user_id, type="p", category="WHERE Post.id = ?", post_id=id)
+    post = build_query(user_id=user_id, type="p", category="WHERE Post.id = ?", post_id=id)[0]
     comment = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NULL", post_id=id)
     reply = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NOT NULL", post_id=id)
     return render_template("page.html",
-                           page=page,
+                           post=post,
                            comment=comment,
                            reply=reply,
-                           title=page[1])
+                           title=post[2]) # Post Title
 
 
 # Page where user replies to a comment.
@@ -230,7 +254,7 @@ def reply_to(post_id, comment_id):
                                      WHERE id = ?
                                      AND post_id = ?""",
                                      (comment_id, post_id))[0]
-    return render_template("reply.html", comment=reffered_comment, title=default_title)
+    return render_template("reply.html", comment=reffered_comment, title=DEFAULT_TITLE)
 
 
 # Directs user to the about page
@@ -258,7 +282,7 @@ def dashboard(id):
 
 @app.errorhandler(CSRFError)
 def csrf_error(error):
-    return render_template()
+    return render_template("error.html")
 
 
 # Gets the form values from the home page,
@@ -346,7 +370,7 @@ def sign_up():
         password = request.form.get("password")
         date = today()
         # Check for invalid characters
-        if not all(u_letter in username_whitelist for u_letter in username):
+        if not all(u_letter in USERNAME_WHITELIST for u_letter in username):
             flash("Usernames can only contain A-Z, 0-9, and '_'")
         # Get existing usernames then converts result into list without single element tuples
         existing_usernames = [i[0] for i in call_database("SELECT username FROM User")]
