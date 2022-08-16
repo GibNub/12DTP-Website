@@ -63,49 +63,53 @@ def call_database(query, parameter=None):
 DO NOT USE WITH CUSTOM USER INPUT
 """
 # Create query to present data
-def build_query(type, user_id, category="", order="", reply="", post_id=None):
+def build_query(type, user_id, category="", order="", reply=None, post_id=None):
     if type == "p":
         if user_id:
             graded_post = f"LEFT JOIN PostGrade AS UserGrade ON UserGrade.post_id = Post.id AND UserGrade.user_id = {user_id}"
-            user_grade = "UserGrade.grade,"
+            user_grade = "UserGrade.grade"
         else:
             graded_post = ""
-            user_grade = ""
+            user_grade = "NULL"
         final_query = f"""
         SELECT Post.*,
         SUM(CASE WHEN PostGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
         SUM(CASE WHEN PostGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
+        User.username,
+        (SELECT COUNT(Comment.id) FROM Comment WHERE Comment.post_id = Post.id) AS comment_count,
         {user_grade}
-        User.username FROM Post
-        (SELECT COUNT(Comment.id) FROM Comment WHERE Comment.post_id = Post.id) AS comment_count
+        FROM Post
         INNER JOIN User ON Post.user_id = User.id
         LEFT JOIN PostGrade ON PostGrade.post_id = Post.id {graded_post} 
         {category} GROUP BY Post.id {order};"""
     elif type == "c":
         if user_id:
             graded_post = f"LEFT JOIN CommentGrade AS UserGrade ON UserGrade.comment_id = Comment.id AND UserGrade.user_id = {user_id}"
-            user_grade = "UserGrade.grade,"
+            user_grade = "UserGrade.grade"
         else:
             graded_post = ""
             user_grade = ""
+        if reply:
+            reply = " AND Comment.parent_comment_id IS NOT NULL"
+        else:
+            reply = " AND Comment.parent_comment_id IS NULL"
         final_query = f"""
         SELECT Comment.*,
         SUM(CASE WHEN CommentGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
         SUM(CASE WHEN CommentGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
+        User.username,
         {user_grade}
-        User.username FROM Comment
+        FROM Comment
         INNER JOIN User ON Comment.user_id = User.id
-        LEFT JOIN CommentGrade ON CommentGrade.post_id = Post.id {graded_post} 
-        WHERE Comment.post_id =  
+        LEFT JOIN CommentGrade ON CommentGrade.comment_id = Comment.id {graded_post} 
+        WHERE Comment.post_id = ? {reply}
         GROUP BY Comment.id;"""
     else:
         raise Exception(f"type {type} is invalid, must be 'c' or 'p'")
-
     if post_id:
         parameter = (post_id,)
     else:
         parameter = tuple()
-
     conn = get_db()
     cur = conn.cursor()
     cur.execute(final_query, parameter)
@@ -182,8 +186,9 @@ def add_grade(user_id, type, type_id, grade, replace=None):
         if type == "p":
             query = "UPDATE PostGrade SET grade = ? WHERE user_id = ? AND post_id = ?"
         elif type == "c":
-            query = "UPDATE CommenetGrade SET grade = ? WHERE user_id = ? AND comment_id = ?"
+            query = "UPDATE CommentGrade SET grade = ? WHERE user_id = ? AND comment_id = ?"
         parameter = (grade, user_id, type_id)
+    print(query)
     cur.execute(query, parameter)
     conn.commit()
 
@@ -226,7 +231,6 @@ def home():
         order_by = f"ORDER BY {SORT[selected_order]} DESC"
     else:
         order_by = f"ORDER BY id DESC"
-    
     post = build_query("p", user_id, where, order_by)
     return render_template("home.html", post=post, title=DEFAULT_TITLE,)
 
@@ -239,7 +243,7 @@ def page(id):
     user_id = session.get("user_id", None)
     post = build_query(user_id=user_id, type="p", category="WHERE Post.id = ?", post_id=id)[0]
     comment = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NULL", post_id=id)
-    reply = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NOT NULL", post_id=id)
+    reply = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NOT NULL", post_id=id, reply=True)
     return render_template("page.html",
                            post=post,
                            comment=comment,

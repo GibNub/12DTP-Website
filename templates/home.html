@@ -86,10 +86,11 @@
                 3 : content
                 4 : user_id
                 5 : date
-                6 : like
-                7 : dislike
+                6 : dislike
+                7 : like
                 8 : username
-                9 : grade
+                9 : comment
+                10: grade
         #}
         {% for post in post %}
             {% set section.value = section.value + 1 %}
@@ -103,7 +104,7 @@
                         <div>
                             <h5>
                                 {# user_id, username, date #}
-                                <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[9] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
+                                <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
                             </h5>
                             <p>
                                 {# title #}
@@ -117,7 +118,7 @@
                     </div>
                     <!-- likes and dislikes -->
                     <div class="post_foot">
-                        {% if post[8] == 1 %}
+                        {% if post[10] == 1 %}
                             Likes : {{ post[7] }}
                             Dislikes : {{ post[6] }}
                             <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
@@ -128,7 +129,7 @@
                                 {# Dislike Post #}
                                 <input type="submit" name="grade" value="Dislike">
                             </form>
-                        {% elif post[8] == -11 %}
+                        {% elif post[10] == -1 %}
                             Likes : {{ post[7] }}
                             Dislikes : {{ post[6] }}
                             <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
