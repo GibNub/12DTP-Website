@@ -35,9 +35,10 @@ a, a:hover, a:visited, a:active{
     font-style: italic;
 }
 
-/* No bullet point */
+/* No bullet point*/
 ul{
     list-style-type: none;
+    padding: 0;
 }
 
 /* 
@@ -51,21 +52,15 @@ Home page
     padding: 10px;
 }
 
-button{
+.form_post{
     margin: 0 auto;
-    left: 50%;
-    
+    width: 50%;
+    text-align: center;
+    margin-bottom: 5em;
 }
 
-.create_post input[type="text"]{
-    padding: 20px 50px;
-    margin: 10px 0;
-    box-sizing: border-box;
-}
-
-.create_post{
-    width: 30%;
-    margin: 0 auto;
+input[type=button], input[type=submit], button, select {
+    padding: 10px;
 }
 
 

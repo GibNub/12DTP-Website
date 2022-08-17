@@ -9,73 +9,72 @@
 {% endwith %}
 {# Each entry will have an assinged id for page section redirect #}
 {% set section = namespace(value=0) %}
-{% if session["user_id"] is defined %}
+<div class="form_post">
+    {% if session["user_id"] is defined %}
     <button onclick="hideForm()" id="create_post">
         Create Post
     </button><br>
-    <div class="create_post">
-        <form action="/create_post" method="POST" enctype="application/x-www-form-urlencoded" id="form_post">
-            <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
-            oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')"><br>
-            <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea><br>
-            <select name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
-                <option value="">--Select Category--</option>
-                <option value="General">General</option>
-                <option value="Help">Help</option>
-                <option value="Lore">Lore</option>
-                <option value="Humor">Humor</option>
-                <option value="News">News</option>
-            </select>
-            <input type="submit" value="Post">
-            <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        </form>
-        {# Shows or hide the form when the user clicks the button
-            This button is only visible to logged in users #}
-        {% else %}
-        <a href="{{ url_for('account', action='sign_in')}}">
-            <button>Log in to start creating posts</button>
-        </a>
-    </div><br>
-{% endif %}
+    <form action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" id="form_post">
+        <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
+        oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')"><br>
+        <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea><br>
+        <select name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
+            <option value="">--Select Category--</option>
+            <option value="General">General</option>
+            <option value="Help">Help</option>
+            <option value="Lore">Lore</option>
+            <option value="Humor">Humor</option>
+            <option value="News">News</option>
+        </select>
+        <input type="submit" value="Post">
+        <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+    {# Shows or hide the form when the user clicks the button
+        This button is only visible to logged in users #}
+    {% else %}
+    <a href="{{ url_for('account', action='sign_in')}}">
+        <button style="text-align:center;">Log in to start creating posts</button>
+    </a>        
+    {% endif %}
+</div><br>
+{# Sorting #}
+<div class="sort">
+    <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
+        <select name="type" required>
+            {#categories = {
+            "1":"general",
+            "2":"help",
+            "3":"lore",
+            "4":"humor",
+            "5":"news"} #}
+            <option value="">-Find Post By Category--</option>
+            <option value="1">General</option>
+            <option value="2">Help</option>
+            <option value="3">Lore</option>
+            <option value="4">Humor</option>
+            <option value="5">News</option>
+            <option value="">Reset Sort</option>
+        </select>
+        <input type="submit" value="Sort">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form><br>
+    <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
+        <select name="order" required>
+            {# order = {
+            "1":"id",
+            "2":"like",
+            "3":"dislike"} #}
+            <option value="">-Order By--</option>
+            <option value="1">Likes</option>
+            <option value="2">Dislikes</option>
+            <option value="">Newest</option>
+        </select>
+        <input type="submit" value="Order">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+</div>
 <div class="main_page">
-    {# Sorting #}
-    <div class="sort">
-        <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
-            <select name="type" required>
-                {#categories = {
-                "1":"general",
-                "2":"help",
-                "3":"lore",
-                "4":"humor",
-                "5":"news"    
-                } #}
-                <option value="">-Find Post By Category--</option>
-                <option value="1">General</option>
-                <option value="2">Help</option>
-                <option value="3">Lore</option>
-                <option value="4">Humor</option>
-                <option value="5">News</option>
-                <option value="">Reset Sort</option>
-            </select>
-            <input type="submit" value="Sort">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        </form><br>
-        <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
-            <select name="order" required>
-                {# order = {
-                "1":"id",
-                "2":"like",
-                "3":"dislike"
-                } #}
-                <option value="">-Order By--</option>
-                <option value="1">Likes</option>
-                <option value="2">Dislikes</option>
-                <option value="">Newest</option>
-            </select>
-            <input type="submit" value="Order">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    </div></form>
     <ul>
         {#
             Reference
@@ -97,24 +96,15 @@
             <li id="{{ section.value }}">
                 <div class="post">
                     <div class="post_head">
-                        <h4 class="post_title">
-                            {# id, title #}
-                            <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
-                        </h4>
-                        <div>
-                            <h5>
-                                {# user_id, username, date #}
-                                <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
-                            </h5>
-                            <p>
-                                {# title #}
-                                {{ post[1] }}
-                            </p>
-                        </div>
+                        {# id, title #}
+                        <h4 class="post_title"><a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a></h4>                            {# user_id, username, date #}
+                        <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
+                        {# type #}
+                        <p>{{ post[1] }}</p>
                     </div>
                     <div class="post_body">
                         {# post content #}
-                        {{ post[3] }}
+                        <p>{{ post[3] }}</p>
                     </div>
                     <!-- likes and dislikes -->
                     <div class="post_foot">

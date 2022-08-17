@@ -1,5 +1,4 @@
 import sqlite3
-from sre_parse import CATEGORIES
 
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash
 from flask_wtf.csrf import CSRFProtect, CSRFError
@@ -197,12 +196,13 @@ def add_grade(user_id, type, type_id, grade, replace=None):
 def update_credit(user_id):
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("""SELECT SUM(PostGrade.grade) FROM PostGrade""")
+    cur.execute("SELECT SUM(PostGrade.grade) FROM PostGrade WHERE user_id = ?", (user_id,))
     post_credit = cur.fetchone()
-    cur.execut("SELECT SUM(CommentGrade.grade) FROM CommentGrade")
+    cur.execut("SELECT SUM(CommentGrade.grade) FROM CommentGrade WHERE user_id = ?", (user_id,))
     comment_credit = cur.fetchone()
     total_credit = post_credit + comment_credit
-    pass
+    cur.execute("UPDATE User SET credit = ? WHERE user_id = ?", (total_credit, user_id))
+    conn.commit()
 
 
 """
