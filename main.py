@@ -1,11 +1,11 @@
 import sqlite3
 
+from string import ascii_letters, digits
+from datetime import datetime
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash
 from flask_wtf.csrf import CSRFProtect, CSRFError
-from string import ascii_letters, digits
-from werkzeug.exceptions import BadRequestKeyError
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from werkzeug.exceptions import BadRequestKeyError
 
 
 SECRET_KEY = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
@@ -128,7 +128,7 @@ def delete_entry(type, id):
     elif type == "c":
         first = "DELETE FROM Comment"
     elif type == "u":
-        first = "DELETE FROM User"
+        first = r"UPDATE User SET username, password_hash, join_date = '{account_deleted}'"
     else:
         raise Exception(f"{type} is an invalid type")
     cur.execute(f"{first} WHERE id = ?", (id,))
@@ -281,6 +281,7 @@ def account(action):
 def dashboard(id):
     user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (id,))
     user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
+    update_credit(id)
     return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1])
 
 

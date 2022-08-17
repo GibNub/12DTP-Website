@@ -45,35 +45,64 @@ ul{
 Home page 
 */
 
-.main_page{
+.main_page {
     width: 30%;
     min-width: 500px;
     margin: 0 auto;
     padding: 10px;
 }
 
-.form_post{
+
+ /* Create post form */
+.form_post {
     margin: 0 auto;
     width: 50%;
     text-align: center;
-    margin-bottom: 5em;
+    margin-bottom: 50px;
+    margin-top: 50px;
+
 }
 
-input[type=button], input[type=submit], button, select {
+
+.form_post input[type=button],
+.form_post input[type=submit],
+.form_post input[type=text],
+.form_post textarea,
+.form_post button,
+.form_post select {
+    border: none;
+    border-bottom: #ecce00ff;
+    min-width: 300px;
+    width: 50%;
     padding: 10px;
+    color: white;
+    background-color: #1c1c1c;
 }
 
 
+.create_post_element + .create_post_element{
+    margin-top: 10px;
+}
+
+.form_post textarea {
+    padding-bottom: 20%;
+    border: none;
+    border-bottom: #ecce00ff;
+}
+
+/* The posts */
 .post{
     background-color: #1c1c1c;
     border-style: solid;
     border-radius: 1em;
-    border-color: #ecce00ff;
-    box-shadow: 0px 0px 5px 2px #ecce00ff;
-    
+    border-color: #ecce00ff;    
     padding: 2em;
     margin-top: 2em;
     margin-bottom: 2em;
+}
+
+.post:hover{
+    box-shadow: 0px 0px 5px 2px #ecce00ff;
 }
 
 .post_title{
