@@ -1,7 +1,7 @@
 {% extends "index.html" %}
 {% block content %}
-<!-- Comment is what the user is replying to -->
-<!-- 
+{# Comment is what the user is replying to #}
+{#
 Comment
 Index : Column
     0 : id
@@ -12,22 +12,15 @@ Index : Column
     5 : like
     6 : dislike
     7 : date
--->
+#}
 {% if session["user_id"] is defined %}
-    <h3>
-        Reply To:
-    </h3>
-    <p>
-        {{ comment[1] }}
-    </p>
-    <p>
-        {{ comment[4] }}
-    </p>
-
+    <h3>Reply To:</h3>
+    <p>{{ comment[4] }}</p>
     <form action="/reply" method="POST" enctype="application/x-www-form-urlencoded">
         <textarea name="content" cols="30" rows="10" placeholder="Your reply" required></textarea><br>
         <input type="hidden" name="post_id" value="{{ comment[2] }}">
         <input type="hidden" name="comment_id" value="{{ comment[0] }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="submit" value="Post">
     </form>
 {% else %}

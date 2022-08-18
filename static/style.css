@@ -90,6 +90,12 @@ Home page
     border-bottom: #ecce00ff;
 }
 
+/* Sort buttones */
+.sort{
+    margin: auto;
+    width: 40%;
+}
+
 /* The posts */
 .post{
     background-color: #1c1c1c;
@@ -119,4 +125,14 @@ form.grade{
 
 textarea{
     resize: none;
+}
+
+
+/* 
+Page
+*/
+
+/* Replies */
+.reply {
+    padding-left: 5%;
 }

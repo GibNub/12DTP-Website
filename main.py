@@ -87,7 +87,7 @@ def build_query(type, user_id, category="", order="", reply=None, post_id=None):
             user_grade = "UserGrade.grade"
         else:
             graded_post = ""
-            user_grade = ""
+            user_grade = "NULL"
         if reply:
             reply = " AND Comment.parent_comment_id IS NOT NULL"
         else:
@@ -196,12 +196,21 @@ def add_grade(user_id, type, type_id, grade, replace=None):
 def update_credit(user_id):
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT SUM(PostGrade.grade) FROM PostGrade WHERE user_id = ?", (user_id,))
-    post_credit = cur.fetchone()
-    cur.execut("SELECT SUM(CommentGrade.grade) FROM CommentGrade WHERE user_id = ?", (user_id,))
-    comment_credit = cur.fetchone()
-    total_credit = post_credit + comment_credit
-    cur.execute("UPDATE User SET credit = ? WHERE user_id = ?", (total_credit, user_id))
+    cur.execute("""SELECT
+                SUM(CASE WHEN PostGrade.grade IS NULL THEN 0 ELSE PostGrade.grade END) AS post_credit
+                FROM PostGrade WHERE user_id = ?""",
+                (user_id,))
+    post_credit = cur.fetchone()[0]
+    cur.execute("""SELECT
+                SUM(CASE WHEN CommentGrade.grade IS NULL THEN 0 ELSE CommentGrade.grade END) AS comment_credit
+                FROM CommentGrade WHERE user_id = ?""",
+                (user_id,))
+    comment_credit = cur.fetchone()[0]
+    print(comment_credit)
+    print(post_credit)
+    total_credit = int(post_credit or 0) + int(comment_credit or 0)
+    print(total_credit)
+    cur.execute("UPDATE User SET credit = ? WHERE id = ?", (total_credit, user_id))
     conn.commit()
 
 
@@ -287,7 +296,8 @@ def dashboard(id):
 
 @app.errorhandler(CSRFError)
 def csrf_error(error):
-    return render_template("error.html")
+    flash("We have encountered a problem when trying to validate your submission, try again later.", "info")
+    return render_template("error.html", title="Error") 
 
 
 # Gets the form values from the home page,
