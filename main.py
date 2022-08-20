@@ -9,7 +9,6 @@ from werkzeug.exceptions import BadRequestKeyError
 
 
 SECRET_KEY = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
-DEFAULT_TITLE = "The Roundtable Hold"
 USERNAME_WHITELIST = set(ascii_letters + digits + "_")
 CATEGORIES = {
     "1" : "General",
@@ -128,7 +127,7 @@ def delete_entry(type, id):
     elif type == "c":
         first = "DELETE FROM Comment"
     elif type == "u":
-        first = r"UPDATE User SET username, password_hash, join_date = '{account_deleted}'"
+        first = "DELETE FROM User"
     else:
         raise Exception(f"{type} is an invalid type")
     cur.execute(f"{first} WHERE id = ?", (id,))
@@ -241,7 +240,7 @@ def home():
     else:
         order_by = f"ORDER BY id DESC"
     post = build_query("p", user_id, where, order_by)
-    return render_template("home.html", post=post, title=DEFAULT_TITLE,)
+    return render_template("home.html", post=post, title="Home")
 
 
 # The route creates pages dynamically.
@@ -267,7 +266,7 @@ def reply_to(post_id, comment_id):
                                      WHERE id = ?
                                      AND post_id = ?""",
                                      (comment_id, post_id))[0]
-    return render_template("reply.html", comment=reffered_comment, title=DEFAULT_TITLE)
+    return render_template("reply.html", comment=reffered_comment, title="Reply To")
 
 
 # Directs user to the about page
@@ -288,10 +287,12 @@ def account(action):
 # Calls any relevant database entries
 @app.route("/account_management/<int:id>")
 def dashboard(id):
+    user_id = session.get("user_id", None)
     user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (id,))
     user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
+    # if user is deleted, redirect error
     update_credit(id)
-    return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1])
+    return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1], user_id=user_id)
 
 
 @app.errorhandler(CSRFError)
@@ -373,7 +374,9 @@ def grade(id):
             url = request.referrer + f"#{str(section)}"
         except BadRequestKeyError:
             url = request.referrer
-        return redirect(url)
+    else:
+        url = request.referrer
+    return redirect(url)
             
 
 # Creates user account and adds to the database
@@ -395,7 +398,7 @@ def sign_up():
             return redirect(url_for("account", action="sign_in"))
         else:
             flash("That username already exists", "info")
-            return redirect(request.referrer)
+        return redirect(request.referrer)
 
 
 # Activates user session if user sucessfuly logs in
@@ -415,7 +418,7 @@ def sign_in():
         else:
             session["user_id"] = user_info[0]
             flash(f"Logged in successfully as {username}", "info")
-            return redirect(url_for("home"))
+    return redirect(url_for("home"))
 
 
 # Filter posts
@@ -443,8 +446,13 @@ def delete():
     if request.method == "POST":
         id = request.form.get("id")
         type = request.form.get("type")
+        if type == "u":
+            session.pop("id", None)
+            url = url_for("home")
+        else:
+            url = request.referrer
         delete_entry(type, id)
-        return redirect(request.referrer)
+    return redirect(url)
 
 
 

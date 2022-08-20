@@ -10,11 +10,6 @@
     <p>
         Joined : {{ user_info[4][6:] }} / {{ user_info[4][4:6] }} / {{ user_info[4][:4] }}
     </p>
-    {% if id == session["user_id"] %}
-    <p>
-        Delete account
-    </p>
-    {% endif %}
 </div>
 <div>
     Posts:
@@ -24,19 +19,26 @@
             <li>
                 <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
                 {% if id == session["user_id"] %}
-                <p>
-                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
-                        <input type="hidden" name="id" value="{{ post[0] }}">
-                        <input type="hidden" name="type" value="post">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <input type="submit" value="Delete Post">
-                    </form>
-                </p>
+                <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded" class="delete">
+                    <input type="hidden" name="id" value="{{ post[0] }}">
+                    <input type="hidden" name="type" value="p">
+                    <input type="submit" value="Delete Post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                </form>
                 {% endif %}
             </li>
             {% endfor %}
         </ul>
     </div>
 </div>
-
+<div class="delete">
+    {% if id == session["user_id"] %}
+        <form action="{{ url_for('delete') }}" method="POST"n enctype="application/x-www-form-urlencoded">
+            <input type="submit" value="Delete Account">
+            <input type="hidden" name="id" value="{{ user_id }}">
+            <input type="hidden" name="type" value="u">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        </form>
+    {% endif %}
+</div>
 {% endblock %}
