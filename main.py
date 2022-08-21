@@ -447,13 +447,12 @@ def delete():
         id = request.form.get("id")
         type = request.form.get("type")
         if type == "u":
-            session.pop("id", None)
+            session.pop("user_id", None)
             url = url_for("home")
         else:
             url = request.referrer
         delete_entry(type, id)
     return redirect(url)
-
 
 
 # Close database once app is closed.
