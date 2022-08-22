@@ -1,33 +1,103 @@
 /* Index */
 
-html {
-    scroll-behavior: smooth;
-    font-family: 'Libre Baskerville', serif;
-}
-
-nav {
-    margin: 0;
-    top: 0;
-    background-color: #171717;
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    padding-top: 25px;
-    padding-bottom: 25px;
-}
-
-header {
-    margin-top: 100px;
-    color:#ecce00ff;
-    text-align: center;
-    font-size: 4.5em;
-}
-
 /* Dark mode */
 body {
+    scroll-behavior: smooth;
+    font-family: 'Libre Baskerville', serif;
     color: #ffffffff;
     background-color: #050505;
+    padding: 0;
+    margin: 0;
 }
+
+#top {
+    top: 0;
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Title */
+header {
+    background-color: #050505;
+    color:#ecce00ff;
+    text-align: center;
+    font-size: 5em;
+    font-weight: 2000;
+}
+
+/* 
+Nav Bar 
+*/
+
+nav {
+    background-color: #171717;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+nav li {
+    display: inline;
+}
+
+nav a {
+    font-family: inherit;
+    float: none;
+    display: inline-block;
+    margin: auto;
+    font-weight: 500;
+    text-align: center;
+    animation: none;
+    padding: 25px 1.5em 25px 1.5em;
+    border-bottom: 2px solid transparent;
+}
+
+nav a:hover {
+    animation: nav-hover 0.3s;
+    -webkit-animation: nav-hover 0.3s;
+    -moz-animation: nav-hover 0.3s;
+    -o-animation: nav-hover 0.3s;
+    /* fill modes */
+    animation-fill-mode: forwards;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    -o-animation-fill-mode: forwards;
+}
+
+/* 
+    Main Page 
+*/
+
+main {
+    margin-top: 8%;
+}
+/* Scroll bar */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #101010;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ecce00ff;
+    border-radius: 10px;
+}
+
+
 
 /* Remove Colour from links */
 a, a:hover, a:visited, a:active {
@@ -39,6 +109,11 @@ a, a:hover, a:visited, a:active {
 ul {
     list-style-type: none;
     padding: 0;
+}
+
+/* Forms for posting and commenting */
+textarea {
+    resize: none;
 }
 
 /* 
@@ -53,7 +128,7 @@ Home page
 }
 
 
- /* Create post form */
+/* Create post/comment form */
 .create {
     margin: 0 auto;
     text-align: center;
@@ -62,6 +137,9 @@ Home page
     row-gap: 50px;
 }
 
+.create * {
+    font-family: inherit;
+}
 
 .create input[type=button],
 .create input[type=submit],
@@ -74,11 +152,29 @@ Home page
     border: none;
     min-width: 300px;
     padding: 10px;
-    color: white;
+    color: inherit;
     background-color: #1c1c1c;
     outline: none;
 }
 
+/* Hover indicator */
+.create button {
+    border-bottom: 2px solid transparent;
+}
+
+.create button:hover {
+    animation: button-hover 0.3;
+    -webkit-animation: button-hover 0.3;
+    -moz-animation: button-hover 0.3;
+    -o-animation: button-hover 0.3;
+    /* Animation fill */
+    animation-fill-mode: forwards;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    -o-animation-fill-mode: forwards;
+}
+
+/* Create post form */
 .create input[type=text]:focus, 
 .create textarea:focus, 
 .create select:focus {
@@ -93,12 +189,17 @@ Home page
     margin-top: 2px;
 }
 
-/* Sort buttones */
+/* Sort buttons */
+
 .sort {
     margin: auto;
     width: 40%;
     text-align: center;
     margin: 0 auto;
+}
+
+.sort * {
+    font-family: inherit;
 }
 
 .sort select {
@@ -110,11 +211,25 @@ Home page
     color: white;
     background-color: #1c1c1c;
     outline: none;
+    border-bottom: 2px solid transparent;
 }
+
+.sort select:hover {
+    animation: button-hover 0.3;
+    -webkit-animation: button-hover 0.3;
+    -moz-animation: button-hover 0.3;
+    -o-animation: button-hover 0.3;
+    /* Animation fill */
+    animation-fill-mode: forwards;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    -o-animation-fill-mode: forwards;
+}
+
 
 .sort input[type=submit] {
     box-sizing: border-box;
-
+    
 }
 
 /* The posts */
@@ -132,6 +247,8 @@ Home page
 .post:hover {
     box-shadow: 0px 0px 5px 2px #ecce00ff;
 }
+
+/* Post elements */
 
 #post_title {
     font-size: 3em;
@@ -164,16 +281,32 @@ Home page
     padding-top: 20px;
 }
 
-/* Like/dislike button one row */
-form.grade {
+form.grade_content {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* Like/dislike buttons */
+form.grade_content {
     display: flex;
     flex-direction: row;
 }
 
-/* Forms for posting and commenting */
+form.grade_content input[type=submit] {
+    color: inherit;
+    background-color: #252525;
+    padding: 0.7em;
+    padding-left: 2em;
+    padding-right: 2em;
+    border: 2px solid #ecce00ff;
+    border-radius: 20px;
+    margin-right: 10px;
+}
 
-textarea {
-    resize: none;
+form.grade_content input[type=submit]:hover {
+    box-shadow: 0px 0px 5px 2px #ecce00ff;
+    cursor: pointer;
+    
 }
 
 
@@ -181,7 +314,62 @@ textarea {
 Page
 */
 
+
 /* Replies */
 .reply {
     padding-left: 5%;
+}
+
+/* 
+Animations
+*/
+
+/* Nav bar */
+@keyframes nav-hover {
+    from  {background-color: #171717;
+           border-bottom: 2px solid transparent;}
+    to    {background-color: #252525;
+           border-bottom: 2px solid #ecce00ff;}
+}
+
+@-webkit-keyframes nav-hover {
+    from  {background-color: #171717;
+        border-bottom: 2px solid transparent;}
+    to    {background-color: #252525;
+        border-bottom: 2px solid #ecce00ff;}
+}
+
+@-moz-keyframes nav-hover {
+    from  {background-color: #171717;
+        border-bottom: 2px solid transparent;}
+    to    {background-color: #252525;
+        border-bottom: 2px solid #ecce00ff;}
+}
+
+@-o-keyframes nav-hover {
+    from  {background-color: #171717;
+        border-bottom: 2px solid transparent;}
+    to    {background-color: #252525;
+        border-bottom: 2px solid #ecce00ff;}
+}
+
+/* Button animations */
+@keyframes button-hover {
+    from {border-bottom: 2px solid #1c1c1c;}
+    to   {border-bottom: 2px solid #ecce00ff;}
+}
+
+@-webkit-keyframes button-hover {
+    from {border-bottom: 2px solid #1c1c1c;}
+    to   {border-bottom: 2px solid #ecce00ff;}
+}
+
+@-moz-keyframes button-hover {
+    from {border-bottom: 2px solid #1c1c1c;}
+    to   {border-bottom: 2px solid #ecce00ff;}
+}
+
+@-o-keyframes button-hover {
+    from {border-bottom: 2px solid #1c1c1c;}
+    to   {border-bottom: 2px solid #ecce00ff;}
 }

@@ -108,7 +108,7 @@
                         <div id="post_foot">
                             Likes : {{ post[7] }}<br>
                             Dislikes : {{ post[6] }}<br>
-                            <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded" class="grade_content">
+                            <form class="grade_content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
                                 <input type="hidden" name="table" value="p">
                                 <input type="hidden" name="section" value="{{ section.value }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

@@ -12,21 +12,24 @@
         <title>{{ title }} | The Roundtable Hold</title>
     </head>
     <body>
-        <nav>
-            <a href="{{ url_for('home') }}">HOME</a>
-            <a href="{{ url_for('about') }}">ABOUT</a>
-            {% if session["user_id"] is defined %}
-                <a href="{{ url_for('dashboard', id=session['user_id']) }}">MY ACCOUNT</a>
-                <a href="{{ url_for('sign_out') }} ">LOG OUT</a>
-            {% else %}
-                <a href="{{ url_for('account', action='sign_in') }}">LOG IN</a>
-                <a href="{{ url_for('account', action='sign_up') }}">CREATE ACCOUNT</a>
-            {% endif %}
-        </nav>
-        <div class="main">
-        <header>
-            THE ROUNDTABLE HOLD
-        </header>
+        <div id="top">
+            <header>
+                THE ROUNDTABLE HOLD
+            </header>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">HOME</a></li>
+                    <li><a href="{{ url_for('about') }}">ABOUT</a></li>
+                    {% if session["user_id"] is defined %}
+                        <li><a href="{{ url_for('dashboard', id=session['user_id']) }}">MY ACCOUNT</a></li>
+                        <li><a href="{{ url_for('sign_out') }} ">LOG OUT</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('account', action='sign_in') }}">LOG IN</a></li>
+                        <li><a href="{{ url_for('account', action='sign_up') }}">CREATE ACCOUNT</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
         <main>
             {% block content %}{% endblock %}
         </main>
@@ -35,5 +38,3 @@
         </footer>
     </body>
 </html>
-
-<!-- Proper Conventions -->
