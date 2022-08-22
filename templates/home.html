@@ -105,7 +105,7 @@
                         {# post content #}
                         <p id="content">{{ post[3] }}</p>
                         <!-- likes and dislikes -->
-                        <div id="post_foot">
+                        <div id="post-foot">
                             Likes : {{ post[7] }}<br>
                             Dislikes : {{ post[6] }}<br>
                             <form class="grade_content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">

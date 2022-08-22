@@ -16,63 +16,43 @@
         9 : comment
         10: grade
 #}
-<div class="page_head">
-    <h1>
-        {# title #}
-        {{ post[2] }}
-    </h1>
-    <h2>
-        {# type #}
-        {{ post[1] }}
-    </h2>
+<div class="page-head">
+    {# title #}
+    <h1>{{ post[2] }}</h1>
+    {# type #}
+    <h2>{{ post[1] }}</h2>
     {# user_id, username, date #}
     <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
 </div>
-<div class="page_body">
-    <p>
-        {# content #}
-        {{ post[3] }}
-    </p>
+<div class="page-body">
+    {# content #}
+    <p>{{ post[3] }}</p>
 </div>
-{% if post[10] == 1 %}
-    Likes : {{ post[7] }}
-    Dislikes : {{ post[6] }}
-    <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+<div id="post-grade-page">
+    Likes : {{ post[7] }}<br>
+    Dislikes : {{ post[6] }}<br>
+    <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded" class="grade_content">
         <input type="hidden" name="table" value="p">
         <input type="hidden" name="section" value="{{ section.value }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        Liked
-        {# Dislike Post #}
-        <input type="submit" name="grade" value="Dislike">
+        {% if post[9] == 1 %}
+            Liked
+            {# Dislike Post #}
+            <input type="submit" name="grade" value="Dislike">
+        {% elif post[9] == -1 %}
+            Disliked
+            {# Like Post #}
+            <input type="submit" name="grade" value="Like">
+        {% else %}
+            {# likes #}
+            <input type="submit" name="grade" value="Like">
+            {# dislikes #}
+            <input type="submit" name="grade" value="Dislike">
+        {% endif %}
     </form>
-{% elif post[10] == -1 %}
-    Likes : {{ post[7] }}
-    Dislikes : {{ post[6] }}
-    <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-        <input type="hidden" name="table" value="p">
-        <input type="hidden" name="section" value="{{ section.value }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        Disliked
-        {# Like Post #}
-        <input type="submit" name="grade" value="Like">
-    </form>
-{% else %}
-    Likes : {{ post[7] }}
-    Dislikes : {{ post[6] }}
-    <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-        <input type="hidden" name="table" value="p">
-        <input type="hidden" name="section" value="{{ section.value }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        {# likes #}
-        <input type="submit" name="grade" value="Like">
-        {# dislikes #}
-        <input type="submit" name="grade" value="Dislike">
-    </form>
-{% endif %}
-<div class="page_foot"></div>
-    <h3>
-        Comments
-    </h3>
+</div>
+<div class="page-foot"></div>
+    <h3>Comments</h3>
     {% if session["user_id"] is defined %}
         <div id="comment_form">
             <form action="{{ url_for('create_comment') }}" method="POST" enctype="application/x-www-form-urlencoded">    
@@ -102,7 +82,7 @@
                 <div class="comment">
                     <a href="{{ url_for('dashboard', id=comment[1])}}">{{ comment[8] }}</a> ● {{ comment[5][6:] }} / {{ comment[5][4:6] }} / {{ comment[5][:4] }}<br>
                     {{ comment[4] }}<br>
-                    <div id="post_foot">
+                    <div id="comment-grade">
                         Likes : {{ comment[7] }}<br>
                         Dislikes : {{ comment[6] }}<br>
                         <form class="grade" action="{{ url_for('grade', id=comment[0]) }}" method="POST" enctype="application/x-www-form-urlencoded" class="grade_content">
@@ -111,11 +91,11 @@
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             {% if comment[9] == 1 %}
                                 Liked
-                                {# Dislike Post #}
+                                {# Dislike Comment #}
                                 <input type="submit" name="grade" value="Dislike">
                             {% elif comment[9] == -1 %}
                                 Disliked
-                                {# Like Post #}
+                                {# Like Comment #}
                                 <input type="submit" name="grade" value="Like">
                             {% else %}
                                 {# likes #}
@@ -142,7 +122,7 @@
                                 <li id="{{ section.value }}">
                                     <a href="{{ url_for('dashboard', id=reply[1])}}">{{ reply[8] }}</a> ● {{ reply[5][6:] }} / {{ reply[5][4:6] }} / {{ reply[5][:4] }}<br>
                                     {{ reply[4] }}<br>
-                                    <div id="post_foot">
+                                    <div id="reply-grade">
                                         Likes : {{ reply[7] }}<br>
                                         Dislikes : {{ reply[6] }}<br>
                                         <form class="grade" action="{{ url_for('grade', id=reply[0]) }}" method="POST" enctype="application/x-www-form-urlencoded" class="grade_content">
@@ -151,11 +131,11 @@
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             {% if reply[9] == 1 %}
                                                 Liked
-                                                {# Dislike Post #}
+                                                {# Dislike Reply #}
                                                 <input type="submit" name="grade" value="Dislike">
                                             {% elif reply[9] == -1 %}
                                                 Disliked
-                                                {# Like Post #}
+                                                {# Like Reply #}
                                                 <input type="submit" name="grade" value="Like">
                                             {% else %}
                                                 {# likes #}

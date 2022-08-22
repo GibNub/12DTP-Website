@@ -19,6 +19,7 @@ body {
 
 /* Title */
 header {
+    padding: 20px 0 20px;
     background-color: #050505;
     color:#ecce00ff;
     text-align: center;
@@ -76,7 +77,7 @@ nav a:hover {
 */
 
 main {
-    margin-top: 8%;
+    margin-top: 250px;
 }
 /* Scroll bar */
 ::-webkit-scrollbar {
@@ -276,7 +277,7 @@ Home page
     text-align: justify;
 }
 
-#post_foot {
+#post-foot {
     border-top: 2px solid #ecce00ff;
     padding-top: 20px;
 }
@@ -314,6 +315,8 @@ form.grade_content input[type=submit]:hover {
 Page
 */
 
+/* Title */
+.page-head
 
 /* Replies */
 .reply {
