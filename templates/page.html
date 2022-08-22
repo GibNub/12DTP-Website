@@ -18,11 +18,13 @@
 #}
 <div class="page-head">
     {# title #}
-    <h1>{{ post[2] }}</h1>
+    <h1>{{ post[2] }}</h1><br>
     {# type #}
-    <h2>{{ post[1] }}</h2>
+    <h2>{{ post[1] }}</h2><br>
     {# user_id, username, date #}
-    <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
+    <div id="page-info">
+        <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
+    </div>
 </div>
 <div class="page-body">
     {# content #}

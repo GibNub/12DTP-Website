@@ -60,21 +60,13 @@ nav a {
     border-bottom: 2px solid transparent;
 }
 
-nav a:hover {
-    animation: nav-hover 0.3s;
-    -webkit-animation: nav-hover 0.3s;
-    -moz-animation: nav-hover 0.3s;
-    -o-animation: nav-hover 0.3s;
-    /* fill modes */
-    animation-fill-mode: forwards;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    -o-animation-fill-mode: forwards;
-}
-
 /* 
     Main Page 
 */
+
+.flash {
+    text-align: center;
+}
 
 main {
     margin-top: 250px;
@@ -156,24 +148,13 @@ Home page
     color: inherit;
     background-color: #1c1c1c;
     outline: none;
-}
+    }
 
 /* Hover indicator */
 .create button {
     border-bottom: 2px solid transparent;
 }
 
-.create button:hover {
-    animation: button-hover 0.3;
-    -webkit-animation: button-hover 0.3;
-    -moz-animation: button-hover 0.3;
-    -o-animation: button-hover 0.3;
-    /* Animation fill */
-    animation-fill-mode: forwards;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    -o-animation-fill-mode: forwards;
-}
 
 /* Create post form */
 .create input[type=text]:focus, 
@@ -215,18 +196,6 @@ Home page
     border-bottom: 2px solid transparent;
 }
 
-.sort select:hover {
-    animation: button-hover 0.3;
-    -webkit-animation: button-hover 0.3;
-    -moz-animation: button-hover 0.3;
-    -o-animation: button-hover 0.3;
-    /* Animation fill */
-    animation-fill-mode: forwards;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    -o-animation-fill-mode: forwards;
-}
-
 
 .sort input[type=submit] {
     box-sizing: border-box;
@@ -243,7 +212,6 @@ Home page
     margin-top: 2em;
     margin-bottom: 2em;
 }
-
 
 .post:hover {
     box-shadow: 0px 0px 5px 2px #ecce00ff;
@@ -265,12 +233,13 @@ Home page
     padding-bottom: 20px;
 }
 
-#category {
+/* Included in page */
+#category, .page-head h2{
     display: inline-block;
     background-color: #252525;
     padding: 10px;
-    border-bottom: 1px solid #ecce00ff;
-    border-radius: 2px;
+    border: 1px solid #ecce00ff;
+    border-radius: 5px;
 }
 
 #content {
@@ -307,7 +276,6 @@ form.grade_content input[type=submit] {
 form.grade_content input[type=submit]:hover {
     box-shadow: 0px 0px 5px 2px #ecce00ff;
     cursor: pointer;
-    
 }
 
 
@@ -315,8 +283,28 @@ form.grade_content input[type=submit]:hover {
 Page
 */
 
+.page-head {
+    margin: 0 auto;
+    width: 40%;
+    padding: 0 20px 20px 50px;
+    border-bottom: 2px solid #ecce00ff;
+}
+
 /* Title */
-.page-head
+.page-head h1 {
+    text-align: center;
+    font-size: 5em;
+}
+/* info (username, date) */
+#page-info {
+    display: inline-block;
+    padding: 20px 0 20px;
+}
+
+#page-info a {
+    padding: 10px;
+    background-color: #1c1c1c;
+}
 
 /* Replies */
 .reply {
@@ -324,55 +312,52 @@ Page
 }
 
 /* 
+Create account and log in
+*/
+
+/* 
 Animations
 */
 
-/* Nav bar */
+
+/* navbar, sort buttons, username button */
+nav a:hover, .create button:hover, #page-info a:hover, .sort select:hover {
+    animation: nav-hover 0.3s;
+    -webkit-animation: nav-hover 0.3s;
+    -moz-animation: nav-hover 0.3s;
+    -o-animation: nav-hover 0.3s;
+    /* fill modes */
+    animation-fill-mode: forwards;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    -o-animation-fill-mode: forwards;
+}
+
+
 @keyframes nav-hover {
-    from  {background-color: #171717;
+    from  {background-color: #1c1c1c;
            border-bottom: 2px solid transparent;}
     to    {background-color: #252525;
            border-bottom: 2px solid #ecce00ff;}
 }
 
 @-webkit-keyframes nav-hover {
-    from  {background-color: #171717;
+    from  {background-color: #1c1c1c;
         border-bottom: 2px solid transparent;}
     to    {background-color: #252525;
         border-bottom: 2px solid #ecce00ff;}
 }
 
 @-moz-keyframes nav-hover {
-    from  {background-color: #171717;
+    from  {background-color: #1c1c1c;
         border-bottom: 2px solid transparent;}
     to    {background-color: #252525;
         border-bottom: 2px solid #ecce00ff;}
 }
 
 @-o-keyframes nav-hover {
-    from  {background-color: #171717;
+    from  {background-color: #1c1c1c;
         border-bottom: 2px solid transparent;}
     to    {background-color: #252525;
         border-bottom: 2px solid #ecce00ff;}
-}
-
-/* Button animations */
-@keyframes button-hover {
-    from {border-bottom: 2px solid #1c1c1c;}
-    to   {border-bottom: 2px solid #ecce00ff;}
-}
-
-@-webkit-keyframes button-hover {
-    from {border-bottom: 2px solid #1c1c1c;}
-    to   {border-bottom: 2px solid #ecce00ff;}
-}
-
-@-moz-keyframes button-hover {
-    from {border-bottom: 2px solid #1c1c1c;}
-    to   {border-bottom: 2px solid #ecce00ff;}
-}
-
-@-o-keyframes button-hover {
-    from {border-bottom: 2px solid #1c1c1c;}
-    to   {border-bottom: 2px solid #ecce00ff;}
 }

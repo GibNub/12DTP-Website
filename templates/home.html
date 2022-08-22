@@ -1,12 +1,14 @@
 {% extends "index.html" %}
 {% block content %}
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-    {% for m in messages %}
-        <p>{{m}}</p>
-    {% endfor %}
-{% endif %}
-{% endwith %}
+<div class="flash">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for m in messages %}
+            <p>{{m}}</p>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
 {# Each entry will have an assinged id for page section redirect #}
 {% set section = namespace(value=0) %}
 <div class="create">
@@ -98,7 +100,7 @@
                     <div class="post">
                         {# id, title #}
                         <h1 id="post_title">{{ post[2] }}</h1>
-                        {# user_id, username, date #}
+                        {# username, date #}
                         <p id="user_date">{{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p>
                         {# type #}
                         <p id="category">{{ post[1] }}</p>
