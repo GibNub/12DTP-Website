@@ -1,8 +1,10 @@
 /* Index */
+html {
+    scroll-behavior: smooth;
+}
 
 /* Dark mode */
 body {
-    scroll-behavior: smooth;
     font-family: 'Libre Baskerville', serif;
     color: #ffffffff;
     background-color: #050505;
@@ -109,11 +111,18 @@ textarea {
     resize: none;
 }
 
+/* Form highlight */
+form *:focus {
+    border: 2px solid #ecce00ff;
+    box-shadow: 0px 0px 2px 1px #ecce00ff;
+
+}
+
 /* 
 Home page 
 */
 
-.main_page {
+.main-page {
     width: 30%;
     min-width: 500px;
     margin: 0 auto;
@@ -167,7 +176,7 @@ Home page
     padding-bottom: 20%;
 }
 
-#form_post * {
+#form-post * {
     margin-top: 2px;
 }
 
@@ -219,14 +228,18 @@ Home page
 
 /* Post elements */
 
-#post_title {
+#post-title {
     font-size: 3em;
     background-color: #252525;
     padding: 10px;
     border-radius: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
 }
 
-#user_date {
+#user-date {
     border-top: 2px solid #ecce00ff;
     border-bottom: 2px solid #ecce00ff;
     padding-top: 20px;
@@ -244,6 +257,7 @@ Home page
 
 #content {
     text-align: justify;
+    word-wrap: break-word
 }
 
 #post-foot {
@@ -251,18 +265,18 @@ Home page
     padding-top: 20px;
 }
 
-form.grade_content {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
 
 /* Like/dislike buttons */
-form.grade_content {
+
+form.grade-content {
     display: flex;
     flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-items: center
 }
 
-form.grade_content input[type=submit] {
+form.grade-content input[type=submit] {
     color: inherit;
     background-color: #252525;
     padding: 0.7em;
@@ -273,9 +287,16 @@ form.grade_content input[type=submit] {
     margin-right: 10px;
 }
 
-form.grade_content input[type=submit]:hover {
+form.grade-content input[type=submit]:hover {
     box-shadow: 0px 0px 5px 2px #ecce00ff;
     cursor: pointer;
+}
+
+
+form.grade-content p {
+    display: inline-block;
+    vertical-align: auto;
+    margin-right: 10px;
 }
 
 
@@ -293,7 +314,9 @@ Page
 /* Title */
 .page-head h1 {
     text-align: center;
-    font-size: 5em;
+    font-size: 3em;
+    word-wrap: break-word;
+
 }
 /* info (username, date) */
 #page-info {
@@ -304,6 +327,52 @@ Page
 #page-info a {
     padding: 10px;
     background-color: #1c1c1c;
+}
+
+/* page content */
+#page-body {
+    padding: 20px;
+    margin: 0 auto;
+    width: 45%;
+}
+
+#page-body p {
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* like dislike */
+#post-grade-page {
+    padding: 20px 20px 20px 50px;
+    border-top: 2px solid #ecce00ff;
+    margin: 0 auto;
+    width: 40%;
+}
+
+/* comments */
+.page-foot {
+    margin: 0 auto;
+    width: 45%;
+}
+
+.page-foot h3 {
+    font-size: 2em;
+}
+
+.comment-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 300px;
+    padding: 10px;
+    color: inherit;
+    outline: none;
+    border: none;
+    background-color: #1c1c1c;
+    border: 2px solid transparent;
+}
+
+.comment-form textarea:hover {
+    border-bottom: 2px solid #ecce00ff;
 }
 
 /* Replies */

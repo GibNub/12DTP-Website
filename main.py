@@ -296,23 +296,25 @@ def dashboard(id):
     return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1], user_id=user_id)
 
 
-# csrf error 
+# 400 error 
 @app.errorhandler(CSRFError)
-def csrf_error(error):
+def validation_error(e):
     flash("We have encountered a problem when trying to validate your submission, try again later.", "info")
-    return render_template("error.html", title="Error") 
+    return render_template("400.html"), 400 
 
 
 # 404 error
 @app.errorhandler(404)
 def page_not_found(e):
     flash("The page you are looking for could not be found")
-    return render_template("error.html"), 404
+    return render_template("404.html"), 404
 
 
+# 500 error
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template("500.html"), 500
+
 
 # Gets the form values from the home page,
 # The variables get updated to the database.
@@ -475,4 +477,4 @@ def teardown_db(_):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port="8000")
+    app.run(debug=True, host="0.0.0.0", port="8000")

@@ -26,23 +26,23 @@
         <a href="{{ url_for('dashboard', id=post[4])}}">{{ post[8] }}</a> ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}
     </div>
 </div>
-<div class="page-body">
+<div id="page-body">
     {# content #}
     <p>{{ post[3] }}</p>
 </div>
 <div id="post-grade-page">
     Likes : {{ post[7] }}<br>
     Dislikes : {{ post[6] }}<br>
-    <form class="grade" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded" class="grade_content">
+    <form class="grade-content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded" class="grade_content">
         <input type="hidden" name="table" value="p">
         <input type="hidden" name="section" value="{{ section.value }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        {% if post[9] == 1 %}
-            Liked
+        {% if post[10] == 1 %}
+            <p>Liked</p>
             {# Dislike Post #}
             <input type="submit" name="grade" value="Dislike">
-        {% elif post[9] == -1 %}
-            Disliked
+        {% elif post[10] == -1 %}
+            <p>Disliked</p>
             {# Like Post #}
             <input type="submit" name="grade" value="Like">
         {% else %}
@@ -53,11 +53,11 @@
         {% endif %}
     </form>
 </div>
-<div class="page-foot"></div>
+<div class="page-foot">
     <h3>Comments</h3>
     {% if session["user_id"] is defined %}
         <div id="comment_form">
-            <form action="{{ url_for('create_comment') }}" method="POST" enctype="application/x-www-form-urlencoded">    
+            <form class="comment-form" action="{{ url_for('create_comment') }}" method="POST" enctype="application/x-www-form-urlencoded">    
                 <textarea name="comment_content" cols="30" rows="10" placeholder="Your comment" required></textarea><br>
                 <input type="hidden" name="post_id" value="{{ post[0] }}">
                 <input type="submit" value="Post">
@@ -87,16 +87,16 @@
                     <div id="comment-grade">
                         Likes : {{ comment[7] }}<br>
                         Dislikes : {{ comment[6] }}<br>
-                        <form class="grade" action="{{ url_for('grade', id=comment[0]) }}" method="POST" enctype="application/x-www-form-urlencoded" class="grade_content">
+                        <form class="grade-content" action="{{ url_for('grade', id=comment[0]) }}" method="POST" enctype="application/x-www-form-urlencoded" class="grade_content">
                             <input type="hidden" name="table" value="c">
                             <input type="hidden" name="section" value="{{ section.value }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             {% if comment[9] == 1 %}
-                                Liked
+                                <p>Liked</p>
                                 {# Dislike Comment #}
                                 <input type="submit" name="grade" value="Dislike">
                             {% elif comment[9] == -1 %}
-                                Disliked
+                                <p>Disliked</p>
                                 {# Like Comment #}
                                 <input type="submit" name="grade" value="Like">
                             {% else %}
@@ -132,11 +132,11 @@
                                             <input type="hidden" name="section" value="{{ section.value }}">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             {% if reply[9] == 1 %}
-                                                Liked
+                                                <p>Liked</p>
                                                 {# Dislike Reply #}
                                                 <input type="submit" name="grade" value="Dislike">
                                             {% elif reply[9] == -1 %}
-                                                Disliked
+                                                <p>Disliked</p>
                                                 {# Like Reply #}
                                                 <input type="submit" name="grade" value="Like">
                                             {% else %}

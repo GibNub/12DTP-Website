@@ -16,7 +16,7 @@
     <button onclick="hideForm()" id="create_post">
         Create Post
     </button><br>
-    <form action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" id="form_post">
+    <form action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" id="form-post">
         <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
         oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')"><br>
         <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea><br>
@@ -76,7 +76,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
 </div>
-<div class="main_page">
+<div class="main-page">
     <ul>
         {#
             Reference
@@ -99,9 +99,9 @@
                 <a href="{{ url_for('page', id=post[0]) }}">
                     <div class="post">
                         {# id, title #}
-                        <h1 id="post_title">{{ post[2] }}</h1>
+                        <h1 id="post-title">{{ post[2] }}</h1>
                         {# username, date #}
-                        <p id="user_date">{{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p>
+                        <p id="user-date">{{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p>
                         {# type #}
                         <p id="category">{{ post[1] }}</p>
                         {# post content #}
@@ -110,16 +110,16 @@
                         <div id="post-foot">
                             Likes : {{ post[7] }}<br>
                             Dislikes : {{ post[6] }}<br>
-                            <form class="grade_content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <form class="grade-content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
                                 <input type="hidden" name="table" value="p">
                                 <input type="hidden" name="section" value="{{ section.value }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 {% if post[10] == 1 %}
-                                    Liked
+                                    <p>Liked</p>
                                     {# Dislike Post #}
                                     <input type="submit" name="grade" value="Dislike">
                                 {% elif post[10] == -1 %}
-                                    Disliked
+                                    <p>Disliked</p>
                                     {# Like Post #}
                                     <input type="submit" name="grade" value="Like">
                                 {% else %}
@@ -138,7 +138,7 @@
     </ul>
 </div>
 <script>
-    var show = document.getElementById("form_post");
+    var show = document.getElementById("form-post");
     show.style.display = "none"
     function hideForm() {
         if (show.style.display == "none"){
