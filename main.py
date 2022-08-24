@@ -299,14 +299,12 @@ def dashboard(id):
 # 400 error 
 @app.errorhandler(CSRFError)
 def validation_error(e):
-    flash("We have encountered a problem when trying to validate your submission, try again later.", "info")
     return render_template("400.html"), 400 
 
 
 # 404 error
 @app.errorhandler(404)
 def page_not_found(e):
-    flash("The page you are looking for could not be found")
     return render_template("404.html"), 404
 
 
@@ -364,7 +362,7 @@ def grade(id):
         "Dislike" : -1
     }
     if not session.get("user_id", None ):
-        flash("Create an account to like or dislike")
+        flash("Create an account to like or dislike", "info")
         return redirect(url_for("account", action="sign_up"))
     
     if request.method == "POST":
@@ -404,7 +402,7 @@ def sign_up():
         date = today()
         # Check for invalid characters
         if not all(u_letter in USERNAME_WHITELIST for u_letter in username):
-            flash("Usernames can only contain A-Z, 0-9, and '_'")
+            flash("Usernames can only contain A-Z, 0-9, and '_'", error)
         # Get existing usernames then converts result into list without single element tuples
         existing_usernames = [i[0] for i in call_database("SELECT username FROM User")]
         if username not in existing_usernames:
@@ -412,7 +410,7 @@ def sign_up():
             flash("Account created, log in to access your account", "info")
             return redirect(url_for("account", action="sign_in"))
         else:
-            flash("That username already exists", "info")
+            flash("That username already exists", "error")
         return redirect(request.referrer)
 
 
@@ -424,11 +422,11 @@ def sign_in():
         password = request.form.get("password")
         user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,)) 
         if not user_info:
-            flash("Username or password is incorrect")
+            flash("Username or password is incorrect", "error")
             return redirect(request.referrer)
         user_info = user_info[0]
         if not check_password_hash(user_info[2], password):
-            flash("Username or password is incorrect")
+            flash("Username or password is incorrect", "error")
             return redirect(request.referrer)
         else:
             session["user_id"] = user_info[0]
