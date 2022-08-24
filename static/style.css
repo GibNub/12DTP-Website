@@ -106,6 +106,12 @@ ul {
     padding: 0;
 }
 
+/* small font size on user post info */
+.post-info {
+    font-size: 0.8em;
+    color: #9c9c9c;
+}
+
 /* Forms for posting and commenting */
 textarea {
     resize: none;
@@ -276,7 +282,10 @@ form.grade-content {
     align-items: center
 }
 
-form.grade-content input[type=submit] {
+
+/* include reply to comment button */
+form.grade-content input[type=submit],
+#reply-form input {
     color: inherit;
     background-color: #252525;
     padding: 0.7em;
@@ -287,7 +296,9 @@ form.grade-content input[type=submit] {
     margin-right: 10px;
 }
 
-form.grade-content input[type=submit]:hover {
+form.grade-content input[type=submit]:hover,
+.create input[type=submit]:hover,
+#reply-form input:hover {
     box-shadow: 0px 0px 5px 2px #ecce00ff;
     cursor: pointer;
 }
@@ -307,8 +318,10 @@ Page
 .page-head {
     margin: 0 auto;
     width: 40%;
-    padding: 0 20px 20px 50px;
+    padding: 20px 20px 20px 50px;
+    background-color: #1c1c1c;
     border-bottom: 2px solid #ecce00ff;
+    border-top: 2px solid #ecce00ff;
 }
 
 /* Title */
@@ -331,13 +344,14 @@ Page
 
 /* page content */
 #page-body {
-    padding: 20px;
+    padding: 20px 20px 20px 50px;
     margin: 0 auto;
-    width: 45%;
+    width: 40%;
+    background-color: #1c1c1c;
 }
 
 #page-body p {
-    text-align: center;
+    text-align: justify;
     word-wrap: break-word;
 }
 
@@ -345,18 +359,28 @@ Page
 #post-grade-page {
     padding: 20px 20px 20px 50px;
     border-top: 2px solid #ecce00ff;
+    border-bottom: 2px solid #ecce00ff;
     margin: 0 auto;
     width: 40%;
+    background-color: #1c1c1c;
 }
 
 /* comments */
 .page-foot {
     margin: 0 auto;
     width: 45%;
+    margin-top: 20px;
 }
 
 .page-foot h3 {
     font-size: 2em;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 2px solid #ecce00ff;
+}
+
+.comment-form, .comment-form input[type=submit] {
+    width: 100%;
 }
 
 .comment-form textarea {
@@ -375,14 +399,30 @@ Page
     border-bottom: 2px solid #ecce00ff;
 }
 
+.comment {
+    background-color: #1c1c1c;
+    padding: 15px;
+    border-radius: 20px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
 /* Replies */
 .reply {
-    padding-left: 5%;
+    background-color: #1c1c1c;
+    margin-left: 10%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 20px;
+
 }
 
 /* 
 Create account and log in
 */
+
+
+
 
 /* 
 Animations

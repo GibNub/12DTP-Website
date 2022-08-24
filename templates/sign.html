@@ -42,6 +42,8 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-    <a href="{{ url_for('account', action='sign_in') }}">Already have an account? Sign in</a>    
+    <a href="{{ url_for('account', action='sign_in') }}">Already have an account? Sign in</a>
+{% else %}
+<script>window.location.href = "{{ url_for('home') }}";</script>
 {% endif %}
 {% endblock %}  

@@ -15,11 +15,11 @@
     {% if session["user_id"] is defined %}
     <button onclick="hideForm()" id="create_post">
         Create Post
-    </button><br>
+    </button>
     <form action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" id="form-post">
         <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
-        oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')"><br>
-        <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea><br>
+        oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')">
+        <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea>
         <select name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
             <option value="">--Select Category--</option>
             <option value="General">General</option>
@@ -27,7 +27,7 @@
             <option value="Lore">Lore</option>
             <option value="Humor">Humor</option>
             <option value="News">News</option>
-        </select><br>
+        </select>
         <input type="submit" value="Post">
         <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -101,25 +101,25 @@
                         {# id, title #}
                         <h1 id="post-title">{{ post[2] }}</h1>
                         {# username, date #}
-                        <p id="user-date">{{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p>
+                        <p id="user-date" class="user-info">Posted by {{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p>
                         {# type #}
                         <p id="category">{{ post[1] }}</p>
                         {# post content #}
                         <p id="content">{{ post[3] }}</p>
                         <!-- likes and dislikes -->
                         <div id="post-foot">
-                            Likes : {{ post[7] }}<br>
-                            Dislikes : {{ post[6] }}<br>
+                            <p class="post-info">Likes : {{ post[7] }}</p>
+                            <p class="post-info">Dislikes : {{ post[6] }}</p>
                             <form class="grade-content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
                                 <input type="hidden" name="table" value="p">
                                 <input type="hidden" name="section" value="{{ section.value }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 {% if post[10] == 1 %}
-                                    <p>Liked</p>
+                                    <p class="post-info">Liked</p>
                                     {# Dislike Post #}
                                     <input type="submit" name="grade" value="Dislike">
                                 {% elif post[10] == -1 %}
-                                    <p>Disliked</p>
+                                    <p class="post-info">Disliked</p>
                                     {# Like Post #}
                                     <input type="submit" name="grade" value="Like">
                                 {% else %}
@@ -129,7 +129,7 @@
                                     <input type="submit" name="grade" value="Dislike">
                                 {% endif %}
                             </form>
-                            Comments : {{ post[9] }}
+                            <p class="post-info">Comments : {{ post[9] }}</p>
                         </div>
                     </div>
                 </a>
