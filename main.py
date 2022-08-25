@@ -402,7 +402,7 @@ def sign_up():
         date = today()
         # Check for invalid characters
         if not all(u_letter in USERNAME_WHITELIST for u_letter in username):
-            flash("Usernames can only contain A-Z, 0-9, and '_'", error)
+            flash("Usernames can only contain A-Z, 0-9, and '_'", "error")
         # Get existing usernames then converts result into list without single element tuples
         existing_usernames = [i[0] for i in call_database("SELECT username FROM User")]
         if username not in existing_usernames:

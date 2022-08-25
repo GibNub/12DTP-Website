@@ -21,7 +21,7 @@
             <input type="submit" value="Sign In">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         </form>
-        <a href="{{ url_for('account', action='sign_up') }}">Don't have an account? Sign up</a>
+        <a class="sign-redirect" href="{{ url_for('account', action='sign_up') }}">Don't have an account? Sign up</a>
     </div>
 {% elif page == 'sign_up' %}
     <div class="account-form">
@@ -53,7 +53,7 @@
             </script>
             <input type="submit" value="Create Account">
         </form>
-        <a href="{{ url_for('account', action='sign_in') }}">Already have an account? Sign in</a>
+        <a class="sign-redirect" href="{{ url_for('account', action='sign_in') }}">Already have an account? Sign in</a>
     </div>
 {% else %}
 <script>window.location.href = "{{ url_for('home') }}";</script>

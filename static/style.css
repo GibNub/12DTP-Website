@@ -122,8 +122,6 @@ form *:focus {
     border: 2px solid #ecce00ff;
     box-shadow: 0px 0px 2px 1px #ecce00ff;
 }
-
-input:auto
   
 
 /* flash messages */
@@ -189,7 +187,10 @@ Home page
 
 /* Hover indicator */
 .create button {
+    padding-top: 30px;
+    padding-bottom: 30px;
     border-bottom: 2px solid transparent;
+    font-size: 1.3em;
 }
 
 
@@ -460,13 +461,49 @@ Create account and log in
     padding: 20px 35px 20px 35px;
     background-color:#1c1c1c;
     border: none;
+    border-radius: 10PX;
     border-bottom: 1px solid #ecce00ff;
+    font-family: inherit;
+    font-size: 1.2em;
 }
 
 .account-form input:focus {
-
+    outline: none;
 }
 
+/* redirect */
+.sign-redirect {
+    display: block;
+    margin: 0 auto;
+    width: 20%;
+    background-color: #1c1c1c;
+    border-radius: 5px;
+    padding: 15px 5px 15px 5px;
+    border-bottom: 1px solid #ecce00ff;
+}
+
+
+/* 
+Error page
+*/
+
+.error-page {
+    margin: 0 auto;
+    margin-top: 10%;
+    width: 50%;
+    text-align: center;
+}
+
+.error-page a {
+    display: block;
+    width: 40%;
+    margin: 0 auto;
+    margin-top: 40px;
+    background-color: #252525;
+    padding: 20px;
+    border: 3px solid #ecce00ff;
+    border-radius: 10px;
+}
 
 /* 
 Animations
@@ -485,6 +522,7 @@ nav a:hover, .create button:hover, #page-info a:hover, .sort select:hover {
     -moz-animation-fill-mode: forwards;
     -o-animation-fill-mode: forwards;
 }
+
 
 
 @keyframes nav-hover {
