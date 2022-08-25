@@ -15,7 +15,7 @@
             {% endif %}
             {% endwith %}
         </div>
-        <form action="{{ url_for('sign_in') }}" method="POST" enctype="application/x-www-form-urlencoded">
+        <form action="{{ url_for('sign_in') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
             <input type="text" name="username" placeholder="Username" required><br>
             <input type="password" name="password" placeholder="Password" required><br>
             <input type="submit" value="Sign In">
@@ -37,7 +37,7 @@
             {% endif %}
             {% endwith %}
         </div>
-        <form action="{{ url_for('sign_up') }}" method="POST" enctype="application/x-www-form-urlencoded">
+        <form action="{{ url_for('sign_up') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
             <input type="text" name="username" placeholder="Username" required minlength="4" maxlength="20"><br>
             <input type="password" name="password" placeholder="Password" id="password" required minlength="3"><br>
             <input type="password" name="confirm_password" placeholder="Confirm Password" required minlength="3" id="confirm_password" oninput="confirm(this)"><br>

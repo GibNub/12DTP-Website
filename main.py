@@ -420,7 +420,7 @@ def sign_in():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        user_info = call_database("""SELECT id, username, password_hash FROM User WHERE username = ?""", (username,)) 
+        user_info = call_database("SELECT id, username, password_hash FROM User WHERE username = ?", (username,)) 
         if not user_info:
             flash("Username or password is incorrect", "error")
             return redirect(request.referrer)

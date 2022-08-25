@@ -18,7 +18,7 @@
     <button onclick="hideForm()" id="create_post">
         Create Post
     </button>
-    <form action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" id="form-post">
+    <form action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" id="form-post" autocomplete="off">
         <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
         oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')">
         <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea>
