@@ -13,18 +13,20 @@ Index : Column
     6 : dislike
     7 : date
 #}
-{% if session["user_id"] is defined %}
-    <h3>Reply To:</h3>
-    <p>{{ comment[4] }}</p>
-    <form action="/reply" method="POST" enctype="application/x-www-form-urlencoded">
-        <textarea name="content" cols="30" rows="10" placeholder="Your reply" required></textarea><br>
-        <input type="hidden" name="post_id" value="{{ comment[2] }}">
-        <input type="hidden" name="comment_id" value="{{ comment[0] }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="submit" value="Post">
-    </form>
-{% else %}
-    <h3>You must be logged in to reply to this comment</h3>
-    <a href="{{ url_for('home') }}">Back to home page</a>
-{% endif %}
+<div class="reply-form">
+    {% if session["user_id"] is defined %}
+        <h1>Reply To:</h1>
+        <p>{{ comment[4] }}</p>
+        <form class="create" action="{{ url_for('reply') }}" method="POST" enctype="application/x-www-form-urlencoded">
+            <textarea name="content" cols="30" rows="10" placeholder="Your reply" required></textarea><br>
+            <input type="hidden" name="post_id" value="{{ comment[2] }}">
+            <input type="hidden" name="comment_id" value="{{ comment[0] }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="submit" value="Post">
+        </form>
+    {% else %}
+        <h3>You must be logged in to reply to this comment</h3>
+        <a href="{{ url_for('home') }}">Back to home page</a>
+    {% endif %}
+</div>
 {% endblock %}

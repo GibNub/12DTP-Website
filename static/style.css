@@ -482,7 +482,6 @@ Create account and log in
     border-bottom: 1px solid #ecce00ff;
 }
 
-
 /* 
 Error page
 */
@@ -506,6 +505,57 @@ Error page
 }
 
 /* 
+Reply to page
+*/
+
+.reply-form {
+    display: block;
+    margin: 0 auto;
+    width: 40%; 
+}
+
+.reply-form h1 {
+    font-size: 3em;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecce00ff;
+}
+
+.reply-form p {
+    background-color: #1c1c1c;
+    border-radius: 20px;
+    padding: 15px;
+}
+
+.reply-form form * {
+    font-family: inherit;
+    display: block;
+    box-sizing: border-box;
+    border-bottom-right-radius: 2px solid transparent;
+}
+
+.reply-form textarea {
+    width: 100%;
+    min-width: 300px;
+    padding: 10px;
+    color: inherit;
+    outline: none;
+    border: none;
+    background-color: #1c1c1c;
+    padding-bottom: 25%;
+}
+
+.reply-form textarea:focus {
+    outline: none;
+}
+
+.reply-form input[type=submit] {
+    color: #ffffffff;
+    width: 100%;
+    background-color: #1c1c1c;
+    padding: 10px 20px 10px 20px;
+}
+
+/* 
 Animations
 */
 
@@ -522,7 +572,6 @@ nav a:hover, .create button:hover, #page-info a:hover, .sort select:hover {
     -moz-animation-fill-mode: forwards;
     -o-animation-fill-mode: forwards;
 }
-
 
 
 @keyframes nav-hover {

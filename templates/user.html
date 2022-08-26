@@ -1,35 +1,27 @@
 {% extends "index.html" %}
 {% block content %}
 <div>
-    <h2>
-        {{ user_info[1] }}
-    </h2>
-    <p>
-        Credits : {{ user_info[2] }}
-    </p>
-    <p>
-        Joined : {{ user_info[4][6:] }} / {{ user_info[4][4:6] }} / {{ user_info[4][:4] }}
-    </p>
+    <h1>{{ user_info[1] }}</h1>
+    <p>Credits : {{ user_info[2] }}</p>
+    <p>Joined : {{ user_info[4][6:] }} / {{ user_info[4][4:6] }} / {{ user_info[4][:4] }}</p>
 </div>
 <div>
-    Posts:
-    <div>
-        <ul>
-            {% for post in user_post %}
-            <li>
-                <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
-                {% if id == session["user_id"] %}
-                <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded" class="delete">
-                    <input type="hidden" name="id" value="{{ post[0] }}">
-                    <input type="hidden" name="type" value="p">
-                    <input type="submit" value="Delete Post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                </form>
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
+    <h2>Posts:</h2>
+    <ul>
+        {% for post in user_post %}
+        <li>
+            <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
+            {% if id == session["user_id"] %}
+            <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded" class="delete">
+                <input type="hidden" name="id" value="{{ post[0] }}">
+                <input type="hidden" name="type" value="p">
+                <input type="submit" value="Delete Post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            </form>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
 </div>
 <div class="delete">
     {% if id == session["user_id"] %}
