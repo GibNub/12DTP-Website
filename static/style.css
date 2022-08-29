@@ -68,6 +68,7 @@ nav a {
 
 .flash {
     text-align: center;
+
 }
 
 main {
@@ -133,6 +134,8 @@ form *:focus {
     border-radius: 5px;
     margin: 0 auto;
     width: 30%;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .error {
@@ -142,6 +145,8 @@ form *:focus {
     border-radius: 5px;
     margin: 0 auto;
     width: 30%;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 /* 
@@ -319,7 +324,9 @@ form.grade-content input[type=submit],
 
 form.grade-content input[type=submit]:hover,
 .create input[type=submit]:hover,
-#reply-form input:hover {
+#reply-form input:hover
+.account-user-posts li:hover
+.delete input[type=submit]:hover {
     box-shadow: 0px 0px 5px 2px #ecce00ff;
     cursor: pointer;
 }
@@ -590,6 +597,22 @@ User page
     padding: 10px;
     background-color: #252525;
     border-bottom: 2px solid #ecce00ff;   
+}
+
+.delete input[type=submit] {
+    cursor: pointer;
+    color: #ffffff;
+    font-family: inherit;
+    padding: 10px 5px 10px 5px;
+    background-color: #252525;
+    border: 2px solid #ecce00ff
+        
+}
+
+
+.delete-post {
+    display: block;
+    text-align: right;
 }
 
 /* 

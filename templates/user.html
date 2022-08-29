@@ -1,9 +1,20 @@
 {% extends "index.html" %}
 {% block content %}
+<div class="flash">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+            {% for c, m in messages %}
+                <li class="{{c}}">{{m}}</li>   
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+</div>
 <div class="account-user-info">
     <h1>{{ user_info[1] }}</h1>
     <p>Credits : {{ user_credit }}</p>
-    <p>Joined : {{ user_info[4][6:] }} / {{ user_info[4][4:6] }} / {{ user_info[4][:4] }}</p>
+    <p>Joined : {{ user_info[3][6:] }} / {{ user_info[3][4:6] }} / {{ user_info[3][:4] }}</p>
 </div>
 <div class="account-user-posts">
     <h2>Posts:</h2>
@@ -13,13 +24,16 @@
             <a href="{{ url_for('page', id=post[0]) }}">
                 <li>
                     <p>{{ post[2] }}</p>
+                    <p style="color: gray;">Posted by {{ user_info[1] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}</p>
                     {% if id == session["user_id"] %}
-                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded" class="delete">
-                        <input type="hidden" name="id" value="{{ post[0] }}">
-                        <input type="hidden" name="type" value="p">
-                        <input type="submit" value="Delete Post">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    </form>
+                    <div class="delete delete-post">
+                        <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="id" value="{{ post[0] }}">
+                            <input type="hidden" name="type" value="p">
+                            <input type="submit" value="Delete Post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        </form>
+                    </div>
                     {% endif %}
                 </li>
             </a>

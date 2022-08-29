@@ -162,8 +162,8 @@ def create_user(username, date, password_hash):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""INSERT INTO User
-                (username, credit, is_admin, join_date, password_hash)
-                VALUES (?, 0, False, ?, ?)""",
+                (username, is_admin, join_date, password_hash)
+                VALUES (?, False, ?, ?)""",
                 (username, date, password_hash))
     conn.commit()
 
@@ -400,6 +400,7 @@ def sign_up():
         # Check for invalid characters
         if not all(u_letter in USERNAME_WHITELIST for u_letter in username):
             flash("Usernames can only contain A-Z, 0-9, and '_'", "error")
+            return redirect(request.referrer)
         # Get existing usernames then converts result into list without single element tuples
         existing_usernames = [i[0] for i in call_database("SELECT username FROM User")]
         if username not in existing_usernames:
@@ -408,7 +409,7 @@ def sign_up():
             return redirect(url_for("account", action="sign_in"))
         else:
             flash("That username already exists", "error")
-        return redirect(request.referrer)
+            return redirect(request.referrer)
 
 
 # Activates user session if user sucessfuly logs in
@@ -417,7 +418,7 @@ def sign_in():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        user_info = call_database("SELECT id, username, password_hash FROM User WHERE username = ?", (username,)) 
+        user_info = call_database("SELECT id, username, password_hash, is_admin FROM User WHERE username = ?", (username,)) 
         if not user_info:
             flash("Username or password is incorrect", "error")
             return redirect(request.referrer)
@@ -427,7 +428,10 @@ def sign_in():
             return redirect(request.referrer)
         else:
             session["user_id"] = user_info[0]
+            session["admin"] = user_info[3]
             flash(f"Logged in successfully as {username}", "info")
+            if session.get("admin", None) == 1:
+                flash("You account has admin privileges", "info")
     return redirect(url_for("home"))
 
 
@@ -446,6 +450,7 @@ def sort(type):
 @app.route("/sign_out")
 def sign_out():
     session.pop("user_id", None)
+    session.pop("admin", None)
     flash("Successfully logged out", "info")
     return redirect(url_for("home"))
 
@@ -456,11 +461,13 @@ def delete():
     if request.method == "POST":
         id = request.form.get("id")
         type = request.form.get("type")
+        url = request.referrer
         if type == "u":
             session.pop("user_id", None)
             url = url_for("home")
-        else:
-            url = request.referrer
+            flash("Account has been deleted successfuly", "info")
+        elif type == "p":
+            flash("Post has been deleted", "info")
         delete_entry(type, id)
     return redirect(url)
 

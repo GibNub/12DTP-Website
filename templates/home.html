@@ -132,6 +132,16 @@
                                 {% endif %}
                             </form>
                             <p class="post-info">Comments : {{ post[9] }}</p>
+                            {% if post[4] == session["user_id"] or session["admin"] == 1 %}
+                                <div class="delete delete-post">
+                                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                                        <input type="hidden" name="id" value="{{ post[0] }}">
+                                        <input type="hidden" name="type" value="p">
+                                        <input type="submit" value="Delete Post">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    </form>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </a>
