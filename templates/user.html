@@ -1,27 +1,33 @@
 {% extends "index.html" %}
 {% block content %}
-<div>
+<div class="account-user-info">
     <h1>{{ user_info[1] }}</h1>
-    <p>Credits : {{ user_info[2] }}</p>
+    <p>Credits : {{ user_credit }}</p>
     <p>Joined : {{ user_info[4][6:] }} / {{ user_info[4][4:6] }} / {{ user_info[4][:4] }}</p>
 </div>
-<div>
+<div class="account-user-posts">
     <h2>Posts:</h2>
+    {% if user_post[0] is defined %}
     <ul>
         {% for post in user_post %}
-        <li>
-            <a href="{{ url_for('page', id=post[0]) }}">{{ post[2] }}</a>
-            {% if id == session["user_id"] %}
-            <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded" class="delete">
-                <input type="hidden" name="id" value="{{ post[0] }}">
-                <input type="hidden" name="type" value="p">
-                <input type="submit" value="Delete Post">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            </form>
-            {% endif %}
-        </li>
+            <a href="{{ url_for('page', id=post[0]) }}">
+                <li>
+                    <p>{{ post[2] }}</p>
+                    {% if id == session["user_id"] %}
+                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded" class="delete">
+                        <input type="hidden" name="id" value="{{ post[0] }}">
+                        <input type="hidden" name="type" value="p">
+                        <input type="submit" value="Delete Post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    </form>
+                    {% endif %}
+                </li>
+            </a>
         {% endfor %}
     </ul>
+    {% else %}
+    <p>This user has not posted anything</p>
+    {% endif %}
 </div>
 <div class="delete">
     {% if id == session["user_id"] %}

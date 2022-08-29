@@ -205,12 +205,8 @@ def update_credit(user_id):
                 FROM CommentGrade WHERE user_id = ?""",
                 (user_id,))
     comment_credit = cur.fetchone()[0]
-    print(comment_credit)
-    print(post_credit)
-    total_credit = int(post_credit or 0) + int(comment_credit or 0)
-    print(total_credit)
-    cur.execute("UPDATE User SET credit = ? WHERE id = ?", (total_credit, user_id))
-    conn.commit()
+    return int(post_credit or 0) + int(comment_credit or 0)
+    
 
 
 """
@@ -291,9 +287,10 @@ def dashboard(id):
     user_id = session.get("user_id", None)
     user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (id,))
     user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
+    user_credit = update_credit(id)
     # if user is deleted, redirect error
     update_credit(id)
-    return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1], user_id=user_id)
+    return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1], user_id=user_id, user_credit=user_credit)
 
 
 # 400 error 

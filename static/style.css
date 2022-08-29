@@ -556,9 +556,45 @@ Reply to page
 }
 
 /* 
-Animations
+User page
 */
 
+.account-user-info {
+    margin: 0 auto;
+    width: 30%;
+    background-color: #1c1c1c;
+    text-align: justify;
+    padding: 40px 20px 40px 20px;
+    border-radius: 20px;
+    margin-bottom: 60px;
+}
+
+.account-user-info * {
+    display: block;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecce00ff;
+}
+
+.account-user-posts {
+    display: block;
+    margin: 0 auto;
+    width: 40%;
+    background-color: #1c1c1c;
+    padding: 20px 20px 50px 20px;
+    border-radius: 20px;
+}
+
+.account-user-posts li {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    padding: 10px;
+    background-color: #252525;
+    border-bottom: 2px solid #ecce00ff;   
+}
+
+/* 
+Animations
+*/
 
 /* navbar, sort buttons, username button */
 nav a:hover, .create button:hover, #page-info a:hover, .sort select:hover {
