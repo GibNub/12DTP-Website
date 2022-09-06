@@ -223,7 +223,7 @@ app.secret_key = SECRET_KEY
 # This is to create HTML posts for each entry in the post table.
 @app.route("/")
 def home():
-    # raise Exception("idot")
+    # raise Exception("idot") # test 500 error
     user_id = session.get("user_id", None)
     selected_category = session.get("category", None)
     selected_order = session.get("order", None)
