@@ -20,7 +20,7 @@ body {
 }
 
 /* Title */
-header {
+header{
     padding: 20px 0 20px;
     background-color: #050505;
     color:#ecce00ff;
@@ -65,6 +65,12 @@ nav a {
 /* 
     Main Page 
 */
+
+.sub-title {
+    text-align: center;
+    color: #ecce00ff;
+    font-size: 1.2em;
+}
 
 .flash {
     text-align: center;
@@ -600,12 +606,16 @@ User page
 }
 
 .delete input[type=submit] {
+    display: block;
+    margin: 0 auto;
+    margin-top: 50px;
     cursor: pointer;
     color: #ffffff;
     font-family: inherit;
     padding: 10px 5px 10px 5px;
     background-color: #252525;
     border: 2px solid #ecce00ff
+    
         
 }
 

@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequestKeyError
 
 
-SECRET_KEY = "\xd4\xd9`~\x002\x03\xe4f\xa8\xd3Q\xb0\xbc\xf4w\xd5\x8e\xa6\xd5\x940\xf5\x8d\xbd\xefH\xf2\x8cPQ$\x04\xea\xc7cWA\xc7\xf6Rn6\xa8\x89\x92\xbf%*\xcd\x03j\x1e\x8ei?x>\n:~+(Z"
+SECRET_KEY = "d780a9cw7379b1993158bb7251c5d83b23d97068abe96f2f747deb94e5ff1fc6d93f3905c1ac90042ae502d8f256a301366fc779309a3aca5a428e18221b7438af50ab7cc5621e7"
 USERNAME_WHITELIST = set(ascii_letters + digits + "_")
 CATEGORIES = {
     "1" : "General",
@@ -61,56 +61,68 @@ def call_database(query, parameter=None):
 DO NOT USE WITH CUSTOM USER INPUT
 """
 # Create query to present data
-def build_query(type, user_id, category="", order="", reply=None, post_id=None):
+def build_query(type, user_id, condition="", order="", reply=None, post_id=None):
     if type == "p":
         if user_id:
-            graded_post = f"LEFT JOIN PostGrade AS UserGrade ON UserGrade.post_id = Post.id AND UserGrade.user_id = {user_id}"
-            user_grade = "UserGrade.grade"
+            query, parameter = f"""SELECT Post.*,
+            SUM(CASE WHEN PostGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
+            SUM(CASE WHEN PostGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
+            User.username,
+            (SELECT COUNT(Comment.id) FROM Comment WHERE Comment.post_id = Post.id) AS comment_count,
+            UserGrade.grade
+            FROM Post
+            INNER JOIN User ON Post.user_id = User.id
+            LEFT JOIN PostGrade ON PostGrade.post_id = Post.id
+            LEFT JOIN PostGrade AS UserGrade ON UserGrade.post_id = Post.id AND UserGrade.user_id = ?
+            {condition} GROUP BY Post.id {order};""", [user_id]
         else:
-            graded_post = ""
-            user_grade = "NULL"
-        final_query = f"""
-        SELECT Post.*,
-        SUM(CASE WHEN PostGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
-        SUM(CASE WHEN PostGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
-        User.username,
-        (SELECT COUNT(Comment.id) FROM Comment WHERE Comment.post_id = Post.id) AS comment_count,
-        {user_grade}
-        FROM Post
-        INNER JOIN User ON Post.user_id = User.id
-        LEFT JOIN PostGrade ON PostGrade.post_id = Post.id {graded_post} 
-        {category} GROUP BY Post.id {order};"""
+            query, parameter = f"""SELECT Post.*,
+            SUM(CASE WHEN PostGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
+            SUM(CASE WHEN PostGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
+            User.username,
+            (SELECT COUNT(Comment.id) FROM Comment WHERE Comment.post_id = Post.id) AS comment_count,
+            FROM Post
+            INNER JOIN User ON Post.user_id = User.id
+            LEFT JOIN PostGrade ON PostGrade.post_id = Post.id
+            {condition} GROUP BY Post.id {order};""", []
     elif type == "c":
-        if user_id:
-            graded_post = f"LEFT JOIN CommentGrade AS UserGrade ON UserGrade.comment_id = Comment.id AND UserGrade.user_id = {user_id}"
-            user_grade = "UserGrade.grade"
-        else:
-            graded_post = ""
-            user_grade = "NULL"
         if reply:
             reply = " AND Comment.parent_comment_id IS NOT NULL"
         else:
             reply = " AND Comment.parent_comment_id IS NULL"
-        final_query = f"""
-        SELECT Comment.*,
-        SUM(CASE WHEN CommentGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
-        SUM(CASE WHEN CommentGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
-        User.username,
-        {user_grade}
-        FROM Comment
-        INNER JOIN User ON Comment.user_id = User.id
-        LEFT JOIN CommentGrade ON CommentGrade.comment_id = Comment.id {graded_post} 
-        WHERE Comment.post_id = ? {reply}
-        GROUP BY Comment.id;"""
+        if user_id: 
+            query, parameter = f"""SELECT Comment.*,
+            SUM(CASE WHEN CommentGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
+            SUM(CASE WHEN CommentGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
+            User.username,
+            UserGrade.grade
+            FROM Comment
+            INNER JOIN User ON Comment.user_id = User.id
+            LEFT JOIN CommentGrade ON CommentGrade.comment_id = Comment.id 
+            LEFT JOIN CommentGrade AS UserGrade ON UserGrade.comment_id = Comment.id AND UserGrade.user_id = ?
+            WHERE Comment.post_id = ?
+            {reply}
+            GROUP BY Comment.id;""", [user_id]
+        else:
+            query, parameter = f"""SELECT Comment.*,
+            SUM(CASE WHEN CommentGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
+            SUM(CASE WHEN CommentGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
+            User.username
+            FROM Comment
+            INNER JOIN User ON Comment.user_id = User.id
+            LEFT JOIN CommentGrade ON CommentGrade.comment_id = Comment.id 
+            WHERE Comment.post_id = ? 
+            {reply}
+            GROUP BY Comment.id;""", []
     else:
         raise Exception(f"type {type} is invalid, must be 'c' or 'p'")
     if post_id:
-        parameter = (post_id,)
-    else:
-        parameter = tuple()
+        parameter.append(post_id)
+    parameter = tuple(parameter)
     conn = get_db()
+    conn.set_trace_callback(print)
     cur = conn.cursor()
-    cur.execute(final_query, parameter)
+    cur.execute(query, parameter)
     result = cur.fetchall()
     return result
 
@@ -192,30 +204,28 @@ def add_grade(user_id, type, type_id, grade, replace=None):
 
 
 # Update user credit when displayed
-def update_credit(user_id):
+def user_credit(user_id):
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("""SELECT
-                SUM(CASE WHEN PostGrade.grade IS NULL THEN 0 ELSE PostGrade.grade END) AS post_credit
-                FROM PostGrade WHERE user_id = ?""",
+    cur.execute("""SELECT Post.id AS post_id, SUM(PostGrade.grade) FROM Post
+                INNER JOIN PostGrade ON PostGrade.post_id = Post.id
+                WHERE Post.user_id = ?;""",
                 (user_id,))
-    post_credit = cur.fetchone()[0]
-    cur.execute("""SELECT
-                SUM(CASE WHEN CommentGrade.grade IS NULL THEN 0 ELSE CommentGrade.grade END) AS comment_credit
-                FROM CommentGrade WHERE user_id = ?""",
+    post_credit = cur.fetchone()[1]
+    cur.execute("""SELECT Comment.id AS comment_id, SUM(CommentGrade.grade) FROM Comment
+                INNER JOIN CommentGrade ON CommentGrade.comment_id = Comment.id
+                WHERE Comment.user_id = ?;""",
                 (user_id,))
-    comment_credit = cur.fetchone()[0]
+    comment_credit = cur.fetchone()[1]
     return int(post_credit or 0) + int(comment_credit or 0)
-    
 
 
 """
-Flask app starts below
+Flask app beings below
 """
 
 
 app = Flask(__name__)
-CSRFProtect().init_app(app)
 app.secret_key = SECRET_KEY
 
 
@@ -225,18 +235,18 @@ app.secret_key = SECRET_KEY
 def home():
     # raise Exception("idot") # test 500 error
     user_id = session.get("user_id", None)
-    selected_category = session.get("category", None)
-    selected_order = session.get("order", None)
+    condition = session.get("category", None)
+    order_by = session.get("order", None)
     # Check for sorting
-    if selected_category:
-        where = f"WHERE Post.type = '{CATEGORIES[selected_category]}'"
+    if condition:
+        condition = f"WHERE Post.type = '{CATEGORIES[condition]}'"
     else:
-        where = ""
-    if selected_order:
-        order_by = f"ORDER BY {SORT[selected_order]} DESC"
+        condition = ""
+    if order_by:
+        order_by = (f"ORDER BY {SORT[order_by]} DESC")
     else:
         order_by = f"ORDER BY id DESC"
-    post = build_query("p", user_id, where, order_by)
+    post = build_query("p", user_id, condition, order_by)
     return render_template("home.html", post=post, title="Home")
 
 
@@ -246,9 +256,9 @@ def home():
 @app.route("/page/<int:id>")
 def page(id):
     user_id = session.get("user_id", None)
-    post = build_query(user_id=user_id, type="p", category="WHERE Post.id = ?", post_id=id)[0]
-    comment = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NULL", post_id=id)
-    reply = build_query(user_id=user_id, type="c", category="WHERE post_id = ? AND parent_comment_id IS NOT NULL", post_id=id, reply=True)
+    post = build_query("p", user_id, condition="WHERE Post.id = ?", post_id=id)[0]
+    comment = build_query("c", user_id, post_id=id)
+    reply = build_query("c", user_id, post_id=id, reply=True)
     return render_template("page.html",
                            post=post,
                            comment=comment,
@@ -287,10 +297,14 @@ def dashboard(id):
     user_id = session.get("user_id", None)
     user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (id,))
     user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
-    user_credit = update_credit(id)
     # if user is deleted, redirect error
-    update_credit(id)
-    return render_template("user.html", user_info=user_info, user_post=user_post, id=id, title=user_info[1], user_id=user_id, user_credit=user_credit)
+    return render_template("user.html",
+                            user_info=user_info,
+                            user_post=user_post,
+                            id=id,
+                            title=user_info[1],
+                            user_id=user_id,
+                            user_credit=user_credit(id))
 
 
 # 400 error 
@@ -479,4 +493,5 @@ def teardown_db(_):
 
 
 if __name__ == "__main__":
+    CSRFProtect().init_app(app)
     app.run(debug=True, host="0.0.0.0", port="8000")
