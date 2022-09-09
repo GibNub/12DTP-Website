@@ -80,7 +80,7 @@ def build_query(type, user_id, condition="", order="", reply=None, post_id=None)
             SUM(CASE WHEN PostGrade.grade = -1 THEN 1 ELSE 0 END) AS dislike,
             SUM(CASE WHEN PostGrade.grade = 1 THEN 1 ELSE 0 END) AS like,
             User.username,
-            (SELECT COUNT(Comment.id) FROM Comment WHERE Comment.post_id = Post.id) AS comment_count,
+            (SELECT COUNT(Comment.id) FROM Comment WHERE Comment.post_id = Post.id) AS comment_count
             FROM Post
             INNER JOIN User ON Post.user_id = User.id
             LEFT JOIN PostGrade ON PostGrade.post_id = Post.id
@@ -119,6 +119,7 @@ def build_query(type, user_id, condition="", order="", reply=None, post_id=None)
     if post_id:
         parameter.append(post_id)
     parameter = tuple(parameter)
+    print(query)
     conn = get_db()
     conn.set_trace_callback(print)
     cur = conn.cursor()
