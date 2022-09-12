@@ -116,8 +116,8 @@
                     </div>
                     <ul>
                         {# Check if the reply "comment_id" id is the same as the comment "id" #}
-                        {# This checks if the reply is with the corresponsing comment #}
                         {% for reply in reply %}
+                        {# Check if the reply is with the corresponsing comment #}
                             {% if reply[3] == comment[0] %}
                                 {% set section.value = section.value + 1 %}
                                 <li id="{{ section.value }}" class="reply">

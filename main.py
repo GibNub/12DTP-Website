@@ -1,5 +1,8 @@
+"""
+The Roundtable Hold a forum for Elden Ring players, by an Elden Ring player
+A Website for a 12DTP project
+"""
 import sqlite3
-
 from string import ascii_letters, digits
 from datetime import datetime
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash
@@ -8,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequestKeyError
 
 
-SECRET_KEY = "d780a9cw7379b1993158bb7251c5d83b23d97068abe96f2f747deb94e5ff1fc6d93f3905c1ac90042ae502d8f256a301366fc779309a3aca5a428e18221b7438af50ab7cc5621e7"
+SECRET_KEY = "d780a9cw7379b1993158bb7251c5d83b23d97068abe90042ae502d8f256a301366fc78af50ab7cc5621e7"
 USERNAME_WHITELIST = set(ascii_letters + digits + "_")
 CATEGORIES = {
     "1" : "General",
@@ -23,19 +26,19 @@ SORT = {
 }
 
 
-# Store database connection in a variable
 def get_db():
+    """Store database connection in a variable"""
     if "db" not in g:
         g.db = sqlite3.connect("forum_database.db")
     return g.db
 
 
-# Easy function to get today's date
 def today():
+    """Easy function to get today's date"""
     # Format is YYYYMMDD with leading zeros for months and days
     # This allows for easy sort by date and string splicing
-    today = datetime.today().strftime("%Y%m%d")
-    return today
+    post_date = datetime.today().strftime("%Y%m%d")
+    return post_date
 
 
 # Gather the information for forum posts from the database.
@@ -43,25 +46,28 @@ def today():
 # All results will be stored as a tuple in a list
 # For single item lists, specify with a index of 0
 def call_database(query, parameter=None):
+    """Simple function to get database"""
     conn = get_db()
     cur = conn.cursor()
     # Can't have option arguments in .execute function
     # May use string building in the future
     try:
         cur.execute(query, parameter)
-    except (sqlite3.Warning) as e:
+    except sqlite3.Warning:
         cur.executescript(query)
-    except (sqlite3.ProgrammingError, ValueError) as e:
+    except sqlite3.ProgrammingError:
+        cur.execute(query)
+    except ValueError:
         cur.execute(query)
     result = cur.fetchall()
     return result
 
 
-"""
-DO NOT USE WITH CUSTOM USER INPUT
-"""
 # Create query to present data
 def build_query(type, user_id, condition="", order="", reply=None, post_id=None):
+    """
+    DO NOT USE WITH CUSTOM USER INPUT
+    """
     if type == "p":
         if user_id:
             query, parameter = f"""SELECT Post.*,
@@ -129,17 +135,17 @@ def build_query(type, user_id, condition="", order="", reply=None, post_id=None)
 
 
 # Delete entry in database function
-"""
-DO NOT USE FOR USER INPUT
-"""
-def delete_entry(type, id):
+def delete_entry(delete_type, id):
+    """
+    DO NOT USE FOR USER INPUT
+    """
     conn = get_db()
     cur = conn.cursor()
-    if type == "p":
+    if delete_type == "p":
         first = "DELETE FROM Post"
-    elif type == "c":
+    elif delete_type == "c":
         first = "DELETE FROM Comment"
-    elif type == "u":
+    elif delete_type == "u":
         first = "DELETE FROM User"
     else:
         raise Exception(f"{type} is an invalid type")
@@ -219,11 +225,6 @@ def user_credit(user_id):
                 (user_id,))
     comment_credit = cur.fetchone()[1]
     return int(post_credit or 0) + int(comment_credit or 0)
-
-
-"""
-Flask app beings below
-"""
 
 
 app = Flask(__name__)
