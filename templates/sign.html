@@ -39,7 +39,7 @@
         </div>
         <form action="{{ url_for('sign_up') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
             <input type="text" name="username" placeholder="Username" required minlength="4" maxlength="20"><br>
-            <input type="password" name="password" placeholder="Password" id="password" required minlength="3"><br>
+            <input type="password" name="password" placeholder="Password" id="password" required minlength="8"><br>
             <input type="password" name="confirm_password" placeholder="Confirm Password" required minlength="3" id="confirm_password" oninput="confirm(this)"><br>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <script language="javascript">
