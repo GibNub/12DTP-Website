@@ -125,7 +125,6 @@ def build_query(type, user_id, condition="", order="", reply=None, post_id=None)
     if post_id:
         parameter.append(post_id)
     parameter = tuple(parameter)
-    print(query)
     conn = get_db()
     conn.set_trace_callback(print)
     cur = conn.cursor()
@@ -312,7 +311,7 @@ def dashboard(id):
 # 400 error 
 @app.errorhandler(CSRFError)
 def validation_error(e):
-    return render_template("400.html"), 400 
+    return render_template("400.html"), 400
 
 
 # 404 error
@@ -338,7 +337,9 @@ def create_post():
         date = today()
         update_post(type, title, content, date, session.get("user_id"))
         # Go back to home page so users can easily see their new post
-    return redirect(request.referrer)
+        return redirect(request.referrer)
+    else:
+        return redirect(url_for("home"))
 
 
 # Gets values from each created comment
@@ -351,7 +352,9 @@ def create_comment():
         post_id = request.form.get("post_id")
         date = today()
         update_comment(session.get("user_id"), post_id, content, date)
-    return redirect(request.referrer)
+        return redirect(request.referrer)
+    else:
+        return redirect(url_for("home"))
 
 
 # Update database with reply    
@@ -364,7 +367,8 @@ def reply():
         date = today()
         update_comment(session.get("user_id"), post_id, content, date, comment_id)
         return redirect(url_for("page", id=post_id))
-    return request.referrer
+    else:
+        return redirect(url_for("home"))
 
 
 # Update post or comment with like or dislike.
@@ -382,6 +386,9 @@ def grade(id):
         user_id = session.get("user_id", None)
         table = request.form.get("table")
         grade = grade_to_int.get(request.form.get("grade"))
+        if grade == None:
+            return redirect(request.referrer)
+        print(grade)
         # Find if user already liked or disliked post/comment
         if table == "p":
             query = "SELECT grade FROM PostGrade WHERE user_id = ? AND post_id = ?"
@@ -400,9 +407,9 @@ def grade(id):
             url = request.referrer + f"#{str(section)}"
         except BadRequestKeyError:
             url = request.referrer
+        return redirect(url)
     else:
-        url = request.referrer
-    return redirect(url)
+        return redirect(url_for("home"))
             
 
 # Creates user account and adds to the database
@@ -426,6 +433,8 @@ def sign_up():
         else:
             flash("That username already exists", "error")
             return redirect(request.referrer)
+    else:
+        return redirect(url_for("home"))
 
 
 # Activates user session if user sucessfuly logs in
@@ -448,7 +457,9 @@ def sign_in():
             flash(f"Logged in successfully as {username}", "info")
             if session.get("admin", None) == 1:
                 flash("You account has admin privileges", "info")
-    return redirect(url_for("home"))
+        return redirect(url_for("home"))
+    else:
+        return redirect(url_for("home"))
 
 
 # Filter posts
@@ -459,7 +470,9 @@ def sort(type):
             session["category"] = request.form.get("type")
         elif type == "order":
             session["order"] = request.form.get("order")
-    return redirect(request.referrer)
+        return redirect(request.referrer)
+    else:
+        return redirect(url_for("home"))
 
 
 # Log user out
@@ -485,7 +498,9 @@ def delete():
         elif type == "p":
             flash("Post has been deleted", "info")
         delete_entry(type, id)
-    return redirect(url)
+        return redirect(url)
+    else:
+        return redirect(url_for("home"))
 
 
 # Close database once app is closed.
@@ -496,4 +511,4 @@ def teardown_db(_):
 
 if __name__ == "__main__":
     CSRFProtect().init_app(app)
-    app.run(debug=True, host="0.0.0.0", port="8000")
+    app.run(debug=False, host="0.0.0.0", port="8000")
