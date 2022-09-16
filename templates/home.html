@@ -79,77 +79,71 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
 </div>
-<div class="main-page">
-    <ul>
-        {#
-            Reference
-            Index : Column Name
-                0 : id
-                1 : type
-                2 : title
-                3 : content
-                4 : user_id
-                5 : date
-                6 : dislike
-                7 : like
-                8 : username
-                9 : comment
-                10: grade
-        #}
-        {% for post in post %}
-            {% set section.value = section.value + 1 %}
-            <li id="{{ section.value }}">
-                <a href="{{ url_for('page', id=post[0]) }}">
-                    <div class="post">
-                        {# id, title #}
-                        <h1 id="post-title">{{ post[2] }}</h1>
-                        {# username, date #}
-                        <p id="user-date" class="user-info">Posted by {{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p>
-                        {# type #}
-                        <p id="category">{{ post[1] }}</p>
-                        {# post content #}
-                        <p id="content">{{ post[3] }}</p>
-                        <!-- likes and dislikes -->
-                        <div id="post-foot">
-                            <p class="post-info">Likes : {{ post[7] }}</p>
-                            <p class="post-info">Dislikes : {{ post[6] }}</p>
-                            <form class="grade-content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
-                                <input type="hidden" name="table" value="p">
-                                <input type="hidden" name="section" value="{{ section.value }}">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                {% if post[10] == 1 %}
-                                    <p class="post-info">Liked</p>
-                                    {# Dislike Post #}
-                                    <input type="submit" name="grade" value="Dislike">
-                                {% elif post[10] == -1 %}
-                                    <p class="post-info">Disliked</p>
-                                    {# Like Post #}
-                                    <input type="submit" name="grade" value="Like">
-                                {% else %}
-                                    {# likes #}
-                                    <input type="submit" name="grade" value="Like">
-                                    {# dislikes #}
-                                    <input type="submit" name="grade" value="Dislike">
-                                {% endif %}
-                            </form>
-                            <p class="post-info">Comments : {{ post[9] }}</p>
-                            {% if post[4] == session["user_id"] or session["admin"] == 1 %}
-                                <div class="delete delete-post">
-                                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
-                                        <input type="hidden" name="id" value="{{ post[0] }}">
-                                        <input type="hidden" name="type" value="p">
-                                        <input type="submit" value="Delete Post">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    </form>
-                                </div>
-                            {% endif %}
-                        </div>
+<ul class="post-container">
+    {#
+        Reference
+        Index : Column Name
+            0 : id
+            1 : type
+            2 : title
+            3 : content
+            4 : user_id
+            5 : date
+            6 : dislike
+            7 : like
+            8 : username
+            9 : comment
+            10: grade
+    #}
+    {% for post in post %}
+        {% set section.value = section.value + 1 %}
+        <a href="{{ url_for('page', id=post[0]) }}">
+            <li class="post post-element-container" id="{{ section.value }}">
+                {# id, title #}
+                <h1 class="post-element post-title">{{ post[2] }}</h1>
+                {# username, date #}
+                <p class="post-element post-user" class="user-info">Posted by {{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p>
+                {# type #}
+                <p class="post-element post-category">{{ post[1] }}</p>
+                {# post content #}
+                <p class="post-element post-content">{{ post[3] }}</p>
+                {# likes and dislikes #}
+                <p class="post-element post-grade post-info">Likes : {{ post[7] }}</p>
+                <p class="post-element post-grade post-info">Dislikes : {{ post[6] }}</p>
+                <form class="post-element grade-content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                    <input type="hidden" name="table" value="p">
+                    <input type="hidden" name="section" value="{{ section.value }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% if post[10] == 1 %}
+                        <p class="post-elemet post-info">Liked</p>
+                        {# Dislike Post #}
+                        <input type="submit" name="grade" value="Dislike">
+                    {% elif post[10] == -1 %}
+                        <p class="post-element post-info">Disliked</p>
+                        {# Like Post #}
+                        <input type="submit" name="grade" value="Like">
+                    {% else %}
+                        {# likes #}
+                        <input type="submit" name="grade" value="Like">
+                        {# dislikes #}
+                        <input type="submit" name="grade" value="Dislike">
+                    {% endif %}
+                </form>
+                <p class="post-elememnt post-info">Comments : {{ post[9] }}</p>
+                {% if post[4] == session["user_id"] or session["admin"] == 1 %}
+                    <div class="delete delete-post">
+                        <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="id" value="{{ post[0] }}">
+                            <input type="hidden" name="type" value="p">
+                            <input type="submit" value="Delete Post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        </form>
                     </div>
-                </a>
+                {% endif %}
             </li>
-        {% endfor %}
-    </ul>
-</div>
+        </a>
+    {% endfor %}
+</ul>
 <script>
     var show = document.getElementById("form-post");
     show.style.display = "none"

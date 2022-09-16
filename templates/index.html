@@ -12,24 +12,22 @@
         <title>{{ title }} | The Roundtable Hold</title>
     </head>
     <body>
-        <div id="top">
-            <header>
-                THE ROUNDTABLE HOLD
-            </header>
-            <nav>
-                <ul>
-                    <li><a href="{{ url_for('home') }}">HOME</a></li> 
-                    <li><a href="{{ url_for('about') }}">ABOUT</a></li>
-                    {% if session["user_id"] is defined %}
-                        <li><a href="{{ url_for('dashboard', id=session['user_id']) }}">MY ACCOUNT</a></li>
-                        <li><a href="{{ url_for('sign_out') }} ">LOG OUT</a></li>
-                    {% else %}
-                        <li><a href="{{ url_for('account', action='sign_in') }}">LOG IN</a></li>
-                        <li><a href="{{ url_for('account', action='sign_up') }}">CREATE ACCOUNT</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+        <header>
+            THE ROUNDTABLE HOLD
+        </header>
+        <nav>
+            <ul>
+                <li><a class="hover-animate" href="{{ url_for('home') }}">HOME</a></li> 
+                <li><a class="hover-animate" href="{{ url_for('about') }}">ABOUT</a></li>
+                {% if session["user_id"] is defined %}
+                    <li><a class="hover-animate" href="{{ url_for('dashboard', id=session['user_id']) }}">MY ACCOUNT</a></li>
+                    <li><a class="hover-animate" href="{{ url_for('sign_out') }} ">LOG OUT</a></li>
+                {% else %}
+                    <li><a class="hover-animate" href="{{ url_for('account', action='sign_in') }}">LOG IN</a></li>
+                    <li><a class="hover-animate" href="{{ url_for('account', action='sign_up') }}">CREATE ACCOUNT</a></li>
+                {% endif %}
+            </ul>
+        </nav>
         <main>
             {% block content %}{% endblock %}
         </main>
