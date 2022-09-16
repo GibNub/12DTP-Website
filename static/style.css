@@ -18,26 +18,100 @@ a {
     text-decoration: none;
 }
 
+/* Scroll bar */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #101010;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ecce00ff;
+    border-radius: 10px;
+}
+
+html {
+    min-width: fit-content;
+}
+
 /* Body */
 body {
     font-family: 'Libre Baskerville', serif;
     color: var(--white);
     background-color: var(--background);
+    min-width: fit-content;
 }
 
+.yellow-border {
+    border: 2px solid;
+    border-color: var(--yellow);
+}
+
+.flash {
+    text-align: center;
+}
+
+.flash .info {
+    text-shadow: 1px 1px 6px #000000;
+    padding: 10px 20px 10px 20px;
+    background-color: darkgreen;
+    border-radius: 5px;
+    margin: 0 auto;
+    width: 30%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.flash .error {
+    text-shadow: 1px 1px 6px #000000;
+    padding: 10px 20px 10px 20px;
+    background-color: darkred;
+    border-radius: 5px;
+    margin: 0 auto;
+    width: 30%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Headers */
+header {
+    word-wrap: normal;
+    font-size: 4em;
+    text-align: center;
+    color: var(--yellow);
+}
+
+#subtitle {
+    text-align: center;
+    font-size: 1em;
+    color: var(--yellow);
+    /* display: inline-block; */
+}
 /* Nav bar */
 nav {
-    text-align: center;
     background-color: var(--dark-gray);
     position: -webkit-sticky; 
     position: sticky;
+    top: 0;
+    min-width: 100px;
+    margin: 0;
+    padding: 0;
+    /* overflow: hidden; */
+    
 }
 
 nav ul {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    top: 0;
+    text-align: center;
 }
 
 nav li {
@@ -52,27 +126,131 @@ nav a {
     padding-right: 20px;
 }
 
-/* Posts */
+/* Home buttons */
+.home-container {
+    overflow: hidden;
+    box-sizing: border-box;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items: center;
+    /* width: 100%; */
+    height: auto;
+}
+
+.home-element {
+    width: 800px;
+    min-height: 50px;
+    margin-top: 50px;
+    color: white;
+    font-family: inherit;
+    text-align: center;
+    background-color: var(--dark-gray);
+}
+
+
+a.home-element {
+    line-height: 50px;
+}
+
+select.home-element, button.home-element {
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+}
+
+#form-post {
+    margin-top: 0;
+    background-color: var(--background);
+}
+
+form.home-element {
+    background-color: var(--background);
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Create content forms */
+form * {
+    color: white;
+    border: none;
+    background-color: var(--dark-gray);
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: 5px;
+    border-bottom: 2px solid transparent;
+}
+
+form textarea {
+    resize: none;
+    padding-bottom: 30%;
+}
+
+form *:focus {
+    outline: none;
+    border-bottom: 2px solid var(--yellow);
+    /* box-shadow: 0px 0px 4px 1px var(ye); */
+}
+
+.page-post .post-user {
+    background-color: var(--gray);
+    display: inline-block;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom: 2px solid transparent;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.page-post .post-user:hover {
+    border-bottom: 2px solid var(--yellow);
+}
+
+
+
+/* Posts and comments */
+
 .post-container {
     display: flex;
+    /* overflow: hidden; */
     flex-wrap: wrap;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    flex-shrink: 1;
 }
 
 .post {
     width: 800px;
-    min-width: 150px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    min-width: 100px;
+    margin-top: 40px;
+    margin-bottom: 4px;
     background-color: var(--dark-gray);
     border-radius: 20px;
     padding: 30px;
 }
 
+
+.post:hover {
+    box-shadow: 0px 0px 5px 2px var(--yellow);
+}
+
+
+.post-title {
+    font-size: 2em;
+    padding-bottom: 30px;
+    border-bottom: 4px solid var(--yellow);
+}
+
 .post-content{
     word-wrap: break-word;
+    padding-bottom: 30px;
+    border-bottom: 4px solid var(--yellow);
 }
 
 .post-info {
@@ -80,17 +258,90 @@ nav a {
 }
 
 .post-category {
-    display: inline;
+    display: inline-block;
     background-color: var(--gray);
     padding: 10px;
     border-radius: 5px;
+    border: 2px solid var(--yellow);
 }
+
+/* page */
+
+.post.page-post {
+    width: 1000px;
+}
+
+.post.page-post:hover, .post.comment:hover, .post.reply:hover {
+    box-shadow: none;
+}
+
+.page-post .post-element {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.page-post .post-category {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+
+/* Grade buttons */
+input[name=grade] {
+    color: white;
+    background-color: var(--gray);
+    padding: 10px 15px;
+    margin-right: 20px;
+    /* border: 2px solid var(--yellow); */
+    border: none;
+    border-radius: 3px;
+}
+
+input[name=grade]:hover {
+    box-shadow: 0px 0px 5px 2px var(--yellow);
+    cursor: pointer;
+}
+
+/* Page post */
+.comment-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* I need this it wont auto fit in div */
+.comment-form textarea, .comment-form input {
+    font-family: inherit;
+    width: 1000px;
+}
+
+.comment-form {
+    width: 1000px;
+}
+
+.comment-form h3 {
+    font-size: 2em;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--yellow);
+}
+
+.comment {
+    width: 1000px;
+}
+
+/* Reply */
+
+.reply {
+    margin-left: auto;
+}
+
 
 /* Animations */
 
-.hover-animate {
+.hover-animate, select.hover-animate{
     animation: none;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
 }
 
 .hover-animate:hover {
@@ -98,7 +349,7 @@ nav a {
     -webkit-animation: hover-element 0.3s;
     -moz-animation: hover-element 0.3s;
     -o-animation: hover-element 0.3s;
-    /* Fill mode */
+    /* Fill */
     animation-fill-mode: forwards;
     -webkit-animation-fill-mode: forwards;
     -moz-animation-fill-mode: forwards;
@@ -106,29 +357,37 @@ nav a {
 }
 
 @keyframes hover-element {
-    from  {background-color: var(--dark-gray);
-           border-bottom: 2px solid transparent;}
+    from  {background-color: inherit;
+           border-color: transparent;}
     to    {background-color: var(--gray);
-           border-bottom: 2px solid var(--yellow);}
+           border-color: var(--yellow);}
 }
 
 @-webkit-keyframes hover-element {
-    from  {background-color: var(--dark-gray);
-        border-bottom: 2px solid transparent;}
+    from  {background-color: inherit;
+        border-color: transparent;}
     to    {background-color: var(--gray);
-        border-bottom: 2px solid var(--yellow);}
+        border-color: var(--yellow);}
 }
 
 @-moz-keyframes hover-element {
-    from  {background-color: var(--dark-gray);
-        border-bottom: 2px solid transparent;}
+    from  {background-color: inherit;
+        border-color: transparent;}
     to    {background-color: var(--gray);
-        border-bottom: 2px solid var(--yellow);}
+        border-color: var(--yellow);}
 }
 
 @-o-keyframes hover-element {
-    from  {background-color: var(--dark-gray);
-        border-bottom: 2px solid transparent;}
+    from  {background-color: inherit;
+        border-color: transparent;}
     to    {background-color: var(--gray);
-        border-bottom: 2px solid var(--yellow);}
+        border-color: var(--yellow);}
 }
+
+/* Debug */
+
+/* * {
+    background: #000 !important;
+    color: red !important;
+    outline: solid yellow 1px !important;
+  }  */

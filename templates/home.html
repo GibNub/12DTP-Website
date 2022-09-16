@@ -1,6 +1,5 @@
 {% extends "index.html" %}
 {% block content %}
-<p class="sub-title">The Unofficial Forum For The Video Game Elden Ring</p>
 <div class="flash">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -14,39 +13,35 @@
 </div>
 {# Each entry will have an assinged id for page section redirect #}
 {% set section = namespace(value=0) %}
-<div class="create">
+<div class="home-container">
     {% if session["user_id"] is defined %}
-    <button onclick="hideForm()" id="create_post">
-        Create Post
-    </button>
-    <form action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" id="form-post" autocomplete="off">
-        <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
-        oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')">
-        <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="2000"></textarea>
-        <select name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
-            <option value="">--Select Category--</option>
-            <option value="General">General</option>
-            <option value="Help">Help</option>
-            <option value="Lore">Lore</option>
-            <option value="Humor">Humor</option>
-            <option value="News">News</option>
-        </select>
-        <input type="submit" value="Post">
-        <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    </form>
+    <button class="home-element hover-animate" onclick="hideForm()">Create Post</button>
+    <div class="home-element" id="form-post">
+        <form class="home-element" action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
+            <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
+            oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')">
+            <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="4000"></textarea>
+            <select name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
+                <option value="">--Select Category--</option>
+                <option value="General">General</option>
+                <option value="Help">Help</option>
+                <option value="Lore">Lore</option>
+                <option value="Humor">Humor</option>
+                <option value="News">News</option>
+            </select>
+            <input type="submit" value="Post">
+            <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        </form>
+    </div>
     {# Shows or hide the form when the user clicks the button
         This button is only visible to logged in users #}
     {% else %}
-    <a href="{{ url_for('account', action='sign_in')}}">
-        <button style="text-align:center;">Log in to start creating posts</button>
-    </a>        
+    <a class="hover-animate home-element" href="{{ url_for('account', action='sign_in')}}">Log in to start creating posts</a>
     {% endif %}
-</div><br>
-{# Sorting #}
-<div class="sort">
+    {# Sorting #}
     <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
-        <select name="type" required onchange="this.form.submit()">
+        <select class="home-element hover-animate" name="type" required onchange="this.form.submit()">
             {#categories = {
             "1":"general",
             "2":"help",
@@ -63,9 +58,9 @@
         </select>
         <!-- <input type="submit" value="Sort"> -->
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    </form><br>
+    </form>
     <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
-        <select name="order" required onchange="this.form.submit()">
+        <select class="home-element hover-animate" name="order" required onchange="this.form.submit()">
             {# order = {
             "1":"id",
             "2":"like",
@@ -98,7 +93,7 @@
     {% for post in post %}
         {% set section.value = section.value + 1 %}
         <a href="{{ url_for('page', id=post[0]) }}">
-            <li class="post post-element-container" id="{{ section.value }}">
+            <li class="post" id="{{ section.value }}">
                 {# id, title #}
                 <h1 class="post-element post-title">{{ post[2] }}</h1>
                 {# username, date #}
@@ -129,7 +124,7 @@
                         <input type="submit" name="grade" value="Dislike">
                     {% endif %}
                 </form>
-                <p class="post-elememnt post-info">Comments : {{ post[9] }}</p>
+                <p class="post-elememnt post-info">{{ post[9] }} Comments</p>
                 {% if post[4] == session["user_id"] or session["admin"] == 1 %}
                     <div class="delete delete-post">
                         <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
@@ -146,6 +141,7 @@
 </ul>
 <script>
     var show = document.getElementById("form-post");
+    console.log(show);
     show.style.display = "none"
     function hideForm() {
         if (show.style.display == "none"){
