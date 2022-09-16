@@ -21,7 +21,7 @@
         {# id, title #}
         <h1 class="post-element post-title">{{ post[2] }}</h1>
         {# username, date #}
-        <a href="{{ url_for('dashboard', id=post[4]) }}"><p class="page-element post-user" class="user-info">Posted by {{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p></a><br>
+        <a class="post-user" href="{{ url_for('dashboard', id=post[4]) }}"><p class="page-element" class="user-info">Posted by {{ post[8] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }} </p></a><br>
         {# type #}
         <p class="post-element post-category">{{ post[1] }}</p>
         {# post content #}
@@ -49,7 +49,7 @@
             {% endif %}
         </form>
         {% if post[4] == session["user_id"] or session["admin"] == 1 %}
-            <div class="delete delete-post">
+            <div class="interact">
                 <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" name="id" value="{{ post[0] }}">
                     <input type="hidden" name="type" value="p">
@@ -60,14 +60,14 @@
         {% endif %}
     </div>
 </div>
-<div class="post-container">
+<div class="post-container page-post">
     <div class="comment-form">
         <h3>Comments</h3>
         {% if session["user_id"] is defined %}
             <form action="{{ url_for('create_comment') }}" method="POST" enctype="application/x-www-form-urlencoded">
                 <textarea name="comment_content" cols="30" rows="10" placeholder="Your comment" required></textarea><br>
                 <input type="hidden" name="post_id" value="{{ post[0] }}">
-                <input type="submit" value="Post">
+                <input class="hover-button" type="submit" value="Post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             </form>
         {% endif %}
@@ -90,7 +90,7 @@
             {% set section.value = section.value + 1 %}
             <li id="{{ section.value }}"> 
                 <div class="comment post">
-                    <p class="post-info"><a href="{{ url_for('dashboard', id=comment[1])}}">Posted by {{ comment[8] }}</a> ● {{ comment[5][6:] }} / {{ comment[5][4:6] }} / {{ comment[5][:4] }}</p><br>
+                    <a class="post-user" href="{{ url_for('dashboard', id=comment[1])}}"><p>Posted by {{ comment[8] }} ● {{ comment[5][6:] }} / {{ comment[5][4:6] }} / {{ comment[5][:4] }}</p></a><br>
                     {{ comment[4] }}<br>
                     <p class="post-info">Likes : {{ comment[7] }}</p>
                     <p class="post-info"> Dislikes : {{ comment[6] }}</p>
@@ -115,10 +115,18 @@
                     </form>
                     {# reply to comment #}
                     {% if session["user_id"] is defined %}
-                    <form action="{{ url_for('reply_to', post_id=post[0], comment_id=comment[0]) }}">
-                        <input type="submit" value="Reply to comment">
-                    </form>
+                    <a class="interact" href="{{ url_for('reply_to', post_id=post[0], comment_id=comment[0]) }}">Reply to comment</a><br>
                     {% endif %}
+                    {% if post[4] == session["user_id"] or session["admin"] == 1 %}
+                    <div class="interact">
+                        <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                            <input type="hidden" name="id" value="{{ post[0] }}">
+                            <input type="hidden" name="type" value="p">
+                            <input type="submit" value="Delete Post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        </form>
+                    </div>
+                {% endif %}
                 </div>
                 <ul>
                 {# Check if the reply "comment_id" id is the same as the comment "id" #}
@@ -127,7 +135,7 @@
                     {% if reply[3] == comment[0] %}
                         {% set section.value = section.value + 1 %}
                         <li id="{{ section.value }}" class="reply post">
-                            <p class="post-info"><a href="{{ url_for('dashboard', id=reply[1])}}">Posted by {{ reply[8] }}</a> ● {{ reply[5][6:] }} / {{ reply[5][4:6] }} / {{ reply[5][:4] }}</p><br>
+                            <a class="post-user" href="{{ url_for('dashboard', id=reply[1])}}"><p>Posted by {{ reply[8] }} ● {{ reply[5][6:] }} / {{ reply[5][4:6] }} / {{ reply[5][:4] }}</p></a><br>
                             <p>{{ reply[4] }}</p>
                             <p class="post-info">Likes : {{ reply[7] }}</p>
                             <p class="post-info">Dislikes : {{ reply[6] }}</p>
@@ -150,6 +158,16 @@
                                     <input type="submit" name="grade" value="Dislike">
                                 {% endif %}
                             </form>
+                            {% if post[4] == session["user_id"] or session["admin"] == 1 %}
+                            <div class="interact">
+                                <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                                    <input type="hidden" name="id" value="{{ post[0] }}">
+                                    <input type="hidden" name="type" value="p">
+                                    <input type="submit" value="Delete Post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                </form>
+                            </div>
+                            {% endif %}
                         </li>
                     {% endif %}
                 {% endfor %}

@@ -15,13 +15,13 @@
 {% set section = namespace(value=0) %}
 <div class="home-container">
     {% if session["user_id"] is defined %}
-    <button class="home-element hover-animate" onclick="hideForm()">Create Post</button>
+    <button class="home-element hover-button" onclick="hideForm()">Create Post</button>
     <div class="home-element" id="form-post">
         <form class="home-element" action="{{ url_for('create_post') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
-            <input type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
+            <input class="hover-input" type="text" name="title" placeholder="An intriguing title" maxlength="50" minlength="1" required
             oninvalid="this.setCustomValidity('A title is required')" oninput="this.setCustomValidity('')">
-            <textarea name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="4000"></textarea>
-            <select name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
+            <textarea class="hover-input" name="content" cols="30" rows="10" placeholder="Your text (optional)" maxlength="4000"></textarea>
+            <select class="hover-input" name="type" required oninvalid="this.setCustomValidity('Select a category')" oninput="this.setCustomValidity('')">
                 <option value="">--Select Category--</option>
                 <option value="General">General</option>
                 <option value="Help">Help</option>
@@ -29,7 +29,7 @@
                 <option value="Humor">Humor</option>
                 <option value="News">News</option>
             </select>
-            <input type="submit" value="Post">
+            <input class="hover-button" type="submit" value="Post">
             <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         </form>
@@ -37,11 +37,11 @@
     {# Shows or hide the form when the user clicks the button
         This button is only visible to logged in users #}
     {% else %}
-    <a class="hover-animate home-element" href="{{ url_for('account', action='sign_in')}}">Log in to start creating posts</a>
+    <a class="hover-button home-element" href="{{ url_for('account', action='sign_in')}}">Log in to start creating posts</a>
     {% endif %}
     {# Sorting #}
     <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
-        <select class="home-element hover-animate" name="type" required onchange="this.form.submit()">
+        <select class="home-element hover-button" name="type" required onchange="this.form.submit()">
             {#categories = {
             "1":"general",
             "2":"help",
@@ -60,7 +60,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
     <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
-        <select class="home-element hover-animate" name="order" required onchange="this.form.submit()">
+        <select class="home-element hover-button" name="order" required onchange="this.form.submit()">
             {# order = {
             "1":"id",
             "2":"like",
@@ -126,7 +126,7 @@
                 </form>
                 <p class="post-elememnt post-info">{{ post[9] }} Comments</p>
                 {% if post[4] == session["user_id"] or session["admin"] == 1 %}
-                    <div class="delete delete-post">
+                    <div class="interact">
                         <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
                             <input type="hidden" name="id" value="{{ post[0] }}">
                             <input type="hidden" name="type" value="p">

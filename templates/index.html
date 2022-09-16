@@ -18,14 +18,14 @@
         <p id="subtitle">The Unofficial Forum For The Video Game Elden Ring</p> 
         <nav>
             <ul>
-                <li><a class="hover-animate" href="{{ url_for('home') }}">HOME</a></li> 
-                <li><a class="hover-animate" href="{{ url_for('about') }}">ABOUT</a></li>
+                <li><a class="hover-button" href="{{ url_for('home') }}">HOME</a></li> 
+                <li><a class="hover-button" href="{{ url_for('about') }}">ABOUT</a></li>
                 {% if session["user_id"] is defined %}
-                    <li><a class="hover-animate" href="{{ url_for('dashboard', id=session['user_id']) }}">MY ACCOUNT</a></li>
-                    <li><a class="hover-animate" href="{{ url_for('sign_out') }} ">LOG OUT</a></li>
+                    <li><a class="hover-button" href="{{ url_for('dashboard', id=session['user_id']) }}">MY ACCOUNT</a></li>
+                    <li><a class="hover-button" href="{{ url_for('sign_out') }} ">LOG OUT</a></li>
                 {% else %}
-                    <li><a class="hover-animate" href="{{ url_for('account', action='sign_in') }}">LOG IN</a></li>
-                    <li><a class="hover-animate" href="{{ url_for('account', action='sign_up') }}">CREATE ACCOUNT</a></li>
+                    <li><a class="hover-button" href="{{ url_for('account', action='sign_in') }}">LOG IN</a></li>
+                    <li><a class="hover-button" href="{{ url_for('account', action='sign_up') }}">CREATE ACCOUNT</a></li>
                 {% endif %}
             </ul>
         </nav>

@@ -8,6 +8,7 @@
     --yellow: #ecce00ff;
 }
 
+/* Remove built in style */
 ul {
     list-style-type: none;
     padding-left: 0;
@@ -37,11 +38,12 @@ a {
     border-radius: 10px;
 }
 
+
+/* Body */
 html {
     min-width: fit-content;
 }
 
-/* Body */
 body {
     font-family: 'Libre Baskerville', serif;
     color: var(--white);
@@ -49,11 +51,14 @@ body {
     min-width: fit-content;
 }
 
-.yellow-border {
-    border: 2px solid;
-    border-color: var(--yellow);
+h1 {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 4px solid var(--yellow);
 }
 
+
+/* Flash messages */
 .flash {
     text-align: center;
 }
@@ -95,6 +100,7 @@ header {
     /* display: inline-block; */
 }
 /* Nav bar */
+/* Background */
 nav {
     background-color: var(--dark-gray);
     position: -webkit-sticky; 
@@ -140,6 +146,7 @@ nav a {
     height: auto;
 }
 
+
 .home-element {
     width: 800px;
     min-height: 50px;
@@ -161,11 +168,13 @@ select.home-element, button.home-element {
     border: none;
 }
 
+/* Create post button */
 #form-post {
     margin-top: 0;
     background-color: var(--background);
 }
 
+/* Create content and account forms */
 form.home-element {
     background-color: var(--background);
     margin-top: 0;
@@ -173,7 +182,7 @@ form.home-element {
     flex-direction: column;
 }
 
-/* Create content forms */
+
 form * {
     color: white;
     border: none;
@@ -195,26 +204,16 @@ form *:focus {
     /* box-shadow: 0px 0px 4px 1px var(ye); */
 }
 
-.page-post .post-user {
+form input[type=submit]:hover, form select:hover {
+    cursor: pointer;
+}
+
+form input:focus {
     background-color: var(--gray);
-    display: inline-block;
-    padding-bottom: 20px;
-    padding-top: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-bottom: 2px solid transparent;
-    border-radius: 10px;
-    margin-bottom: 10px;
 }
-
-.page-post .post-user:hover {
-    border-bottom: 2px solid var(--yellow);
-}
-
 
 
 /* Posts and comments */
-
 .post-container {
     display: flex;
     /* overflow: hidden; */
@@ -235,7 +234,7 @@ form *:focus {
     padding: 30px;
 }
 
-
+/* Post elements */
 .post:hover {
     box-shadow: 0px 0px 5px 2px var(--yellow);
 }
@@ -265,8 +264,29 @@ form *:focus {
     border: 2px solid var(--yellow);
 }
 
-/* page */
+/* Post interact and delete */
 
+.interact {
+    display: inline-block;
+    background-color: var(--gray);
+    padding: 10px 15px;
+}
+
+.interact input[type=submit] {
+    margin: 0;
+    background-color: var(--gray);
+}
+
+a.interact {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.reply .interact {
+    margin-top: 15px;
+}
+
+/* page specific */
 .post.page-post {
     width: 1000px;
 }
@@ -285,6 +305,22 @@ form *:focus {
     margin-bottom: 20px;
 }
 
+/* Username on post page */
+.page-post .post-user {
+    background-color: var(--gray);
+    display: inline-block;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom: 2px solid transparent;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.page-post .post-user:hover {
+    border-bottom: 2px solid var(--yellow);
+}
 
 /* Grade buttons */
 input[name=grade] {
@@ -297,7 +333,7 @@ input[name=grade] {
     border-radius: 3px;
 }
 
-input[name=grade]:hover {
+input[name=grade]:hover, .interact:hover {
     box-shadow: 0px 0px 5px 2px var(--yellow);
     cursor: pointer;
 }
@@ -310,11 +346,12 @@ input[name=grade]:hover {
     justify-content: center;
 }
 
-/* I need this it wont auto fit in div */
+/* I need these it wont auto fit in div */
 .comment-form textarea, .comment-form input {
     font-family: inherit;
     width: 1000px;
 }
+
 
 .comment-form {
     width: 1000px;
@@ -330,25 +367,57 @@ input[name=grade]:hover {
     width: 1000px;
 }
 
-/* Reply */
+/* Reply indent */
 
 .reply {
     margin-left: auto;
 }
 
+/* Reply and account forms */
+
+.create-form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.create-form input {
+    font-family: inherit;
+    font-size: 1.2em;
+    display: block;
+    width: 800px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.sign-redirect {
+    margin-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: var(--dark-gray);
+    display: block;
+    text-align: center;
+}
+
+/* Error pages */
+.error-page {
+    
+}
 
 /* Animations */
+/* Hover over button */
 
-.hover-animate, select.hover-animate{
+.hover-button, select.hover-button{
     animation: none;
     border-bottom: 3px solid transparent;
 }
 
-.hover-animate:hover {
-    animation: hover-element 0.3s;
-    -webkit-animation: hover-element 0.3s;
-    -moz-animation: hover-element 0.3s;
-    -o-animation: hover-element 0.3s;
+.hover-button:hover {
+    animation: hover-button 0.3s;
+    -webkit-animation: hover-button 0.3s;
+    -moz-animation: hover-button 0.3s;
+    -o-animation: hover-button 0.3s;
     /* Fill */
     animation-fill-mode: forwards;
     -webkit-animation-fill-mode: forwards;
@@ -356,33 +425,71 @@ input[name=grade]:hover {
     -o-animation-fill-mode: forwards;
 }
 
-@keyframes hover-element {
+@keyframes hover-button {
     from  {background-color: inherit;
            border-color: transparent;}
     to    {background-color: var(--gray);
            border-color: var(--yellow);}
 }
 
-@-webkit-keyframes hover-element {
+@-webkit-keyframes hover-button {
     from  {background-color: inherit;
         border-color: transparent;}
     to    {background-color: var(--gray);
         border-color: var(--yellow);}
 }
 
-@-moz-keyframes hover-element {
+@-moz-keyframes hover-button {
     from  {background-color: inherit;
         border-color: transparent;}
     to    {background-color: var(--gray);
         border-color: var(--yellow);}
 }
 
-@-o-keyframes hover-element {
+@-o-keyframes hover-button {
     from  {background-color: inherit;
         border-color: transparent;}
     to    {background-color: var(--gray);
         border-color: var(--yellow);}
 }
+
+input.hover-input {
+    animation: none;
+}
+
+.hover-input:hover {
+    animation: hover-input 0.1s;
+    -webkit-animation: hover-input 0.1s;
+    -moz-animation: hover-input 0.1s;
+    -o-animation: hover-element 0.1s;
+    /* Fill */
+    animation-fill-mode: forwards;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    -o-animation-fill-mode: forwards;
+}
+
+/* Hover over input */
+@keyframes hover-input {
+    from {background-color: inherit;}
+    to {background-color: var(--gray);}
+}
+
+@-webkit-keyframes hover-input {
+    from {background-color: inherit;}
+    to {background-color: var(--gray);}
+}
+
+@-moz-keyframes hover-input {
+    from {background-color: inherit;}
+    to {background-color: var(--gray);}
+}
+
+@-o-keyframes hover-input {
+    from {background-color: inherit;}
+    to {background-color: var(--gray);}
+}
+
 
 /* Debug */
 
