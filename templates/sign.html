@@ -1,61 +1,63 @@
 {% extends "index.html" %}
 {% block content %}
 {# Switch between forms if the user clicks on link #}
-{% if page == 'sign_in' %}
-    <div class="account-form">
-        <h1>Log In</h1>
-        <div class="flash">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul>
-                    {% for c, m in messages %}
-                        <li class="{{c}}">{{m}}</li>   
-                    {% endfor %}
-                </ul>
-            {% endif %}
-            {% endwith %}
+<div class="create-form-container">
+    {% if page == 'sign_in' %}
+        <div class="create-form">
+            <h1>Log In</h1>
+            <div class="flash">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul>
+                        {% for c, m in messages %}
+                            <li class="{{c}}">{{m}}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% endwith %}
+            </div>
+            <form action="{{ url_for('sign_in') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
+                <input class="hover-input" type="text" name="username" placeholder="Username" required><br>
+                <input class="hover-input" type="password" name="password" placeholder="Password" required><br>
+                <input class="hover-button" type="submit" value="Sign In">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            </form>
+            <a class="sign-redirect hover-button" href="{{ url_for('account', action='sign_up') }}">Don't have an account? Sign up</a>
         </div>
-        <form action="{{ url_for('sign_in') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
-            <input type="text" name="username" placeholder="Username" required><br>
-            <input type="password" name="password" placeholder="Password" required><br>
-            <input type="submit" value="Sign In">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        </form>
-        <a class="sign-redirect" href="{{ url_for('account', action='sign_up') }}">Don't have an account? Sign up</a>
-    </div>
-{% elif page == 'sign_up' %}
-    <div class="account-form">
-        <h1>Create Account</h1>
-        <div class="flash">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul>
-                    {% for c, m in messages %}
-                        <li class="{{c}}">{{m}}</li>   
-                    {% endfor %}
-                </ul>
-            {% endif %}
-            {% endwith %}
-        </div>
-        <form action="{{ url_for('sign_up') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
-            <input type="text" name="username" placeholder="Username" required minlength="4" maxlength="20"><br>
-            <input type="password" name="password" placeholder="Password" id="password" required minlength="8"><br>
-            <input type="password" name="confirm_password" placeholder="Confirm Password" required minlength="3" id="confirm_password" oninput="confirm(this)"><br>
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <script language="javascript">
-                function confirm(input) {
-                    if (input.value != document.getElementById("password").value) {
-                        input.setCustomValidity("Passwords do not match")
-                    } else {
-                        input.setCustomValidity("")
+    {% elif page == 'sign_up' %}
+        <div class="create-form">
+            <h1>Create Account</h1>
+            <div class="flash">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul>
+                        {% for c, m in messages %}
+                            <li class="{{c}}">{{m}}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% endwith %}
+            </div>
+            <form action="{{ url_for('sign_up') }}" method="POST" enctype="application/x-www-form-urlencoded" autocomplete="off">
+                <input class="hover-input" type="text" name="username" placeholder="Username" required minlength="4" maxlength="20"><br>
+                <input class="hover-input" type="password" name="password" placeholder="Password" id="password" required minlength="8"><br>
+                <input class="hover-input" type="password" name="confirm_password" placeholder="Confirm Password" required minlength="3" id="confirm_password" oninput="confirm(this)"><br>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <script language="javascript">
+                    function confirm(input) {
+                        if (input.value != document.getElementById("password").value) {
+                            input.setCustomValidity("Passwords do not match")
+                        } else {
+                            input.setCustomValidity("")
+                        }
                     }
-                }
-            </script>
-            <input type="submit" value="Create Account">
-        </form>
-        <a class="sign-redirect" href="{{ url_for('account', action='sign_in') }}">Already have an account? Sign in</a>
-    </div>
-{% else %}
+                </script>
+                <input class="hover-button" type="submit" value="Create Account">
+            </form>
+            <a class="sign-redirect hover-button" href="{{ url_for('account', action='sign_in') }}">Already have an account? Sign in</a>
+        </div>
+    {% else %}
+</div>
 <script>window.location.href = "{{ url_for('home') }}";</script>
 {% endif %}
 {% endblock %}

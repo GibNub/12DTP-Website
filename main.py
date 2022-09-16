@@ -5,7 +5,7 @@ A Website for a 12DTP project
 import sqlite3
 from string import ascii_letters, digits
 from datetime import datetime
-from flask import Flask, render_template, redirect, url_for, g, session, request, flash
+from flask import Flask, render_template, redirect, url_for, g, session, request, flash, abort
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequestKeyError
@@ -126,7 +126,6 @@ def build_query(type, user_id, condition="", order="", reply=None, post_id=None)
         parameter.append(post_id)
     parameter = tuple(parameter)
     conn = get_db()
-    conn.set_trace_callback(print)
     cur = conn.cursor()
     cur.execute(query, parameter)
     result = cur.fetchall()
@@ -204,7 +203,6 @@ def add_grade(user_id, type, type_id, grade, replace=None):
         elif type == "c":
             query = "UPDATE CommentGrade SET grade = ? WHERE user_id = ? AND comment_id = ?"
         parameter = (grade, user_id, type_id)
-    print(query)
     cur.execute(query, parameter)
     conn.commit()
 
@@ -257,7 +255,10 @@ def home():
 @app.route("/page/<int:id>")
 def page(id):
     user_id = session.get("user_id", None)
-    post = build_query("p", user_id, condition="WHERE Post.id = ?", post_id=id)[0]
+    try:
+        post = build_query("p", user_id, condition="WHERE Post.id = ?", post_id=id)[0]
+    except IndexError:
+        abort(404)
     comment = build_query("c", user_id, post_id=id)
     reply = build_query("c", user_id, post_id=id, reply=True)
     return render_template("page.html",
@@ -270,10 +271,13 @@ def page(id):
 # Page where user replies to a comment.
 @app.route("/page/reply_to/<int:post_id>/<int:comment_id>")
 def reply_to(post_id, comment_id):
-    reffered_comment = call_database("""SELECT * FROM Comment
-                                     WHERE id = ?
-                                     AND post_id = ?""",
-                                     (comment_id, post_id))[0]
+    try:
+        reffered_comment = call_database("""SELECT * FROM Comment
+                                        WHERE id = ?
+                                        AND post_id = ?""",
+                                        (comment_id, post_id))[0]
+    except IndexError:
+        abort(404)
     return render_template("reply.html", comment=reffered_comment, title="Reply To")
 
 
@@ -287,7 +291,10 @@ def about():
 @app.route("/account/<action>")
 def account(action):
     # Capitalise first letter and remove underscore
-    page_title = f"{action[0].upper()}{action[1:4]} {action[5].upper()}{action[6:]}"
+    try:
+        page_title = f"{action[0].upper()}{action[1:4]} {action[5].upper()}{action[6:]}"
+    except IndexError:
+        abort(404)
     return render_template("sign.html", page=action, title=page_title)
 
 
@@ -297,7 +304,10 @@ def account(action):
 def dashboard(id):
     user_id = session.get("user_id", None)
     user_post = call_database("SELECT * FROM Post WHERE user_id = ?", (id,))
-    user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
+    try:
+        user_info = call_database("SELECT * FROM User WHERE id = ?", (id,))[0]
+    except IndexError:
+        abort(404)
     # if user is deleted, redirect error
     return render_template("user.html",
                             user_info=user_info,
@@ -388,7 +398,6 @@ def grade(id):
         grade = grade_to_int.get(request.form.get("grade"))
         if grade == None:
             return redirect(request.referrer)
-        print(grade)
         # Find if user already liked or disliked post/comment
         if table == "p":
             query = "SELECT grade FROM PostGrade WHERE user_id = ? AND post_id = ?"
@@ -511,4 +520,4 @@ def teardown_db(_):
 
 if __name__ == "__main__":
     CSRFProtect().init_app(app)
-    app.run(debug=False, host="0.0.0.0", port="8000")
+    app.run(debug=True, host="0.0.0.0", port="8000")

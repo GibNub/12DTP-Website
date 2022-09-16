@@ -1,85 +1,24 @@
-/* Index */
-html {
-    scroll-behavior: smooth;
+/* Colours */
+:root {
+    --white: #ffffff;
+    --light-gray: #8c8c8c;
+    --dark-gray: #171717;
+    --gray: #2c2c2c;
+    --background: #050505;
+    --yellow: #ecce00ff;
 }
 
-/* Dark mode */
-body {
-    font-family: 'Libre Baskerville', serif;
-    color: #ffffffff;
-    background-color: #050505;
-    padding: 0;
-    margin: 0;
-}
-
-#top {
-    top: 0;
-    position: fixed;
-    width: 100%;
-    overflow: hidden;
-}
-
-/* Title */
-header{
-    padding: 20px 0 20px;
-    background-color: #050505;
-    color:#ecce00ff;
-    text-align: center;
-    font-size: 5em;
-    font-weight: 2000;
-}
-
-/* 
-Nav Bar 
-*/
-
-nav {
-    background-color: #171717;
-    text-align: center;
-}
-
-nav ul {
+/* Remove built in style */
+ul {
     list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    white-space: nowrap;
+    padding-left: 0;
 }
 
-nav li {
-    display: inline;
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
-nav a {
-    font-family: inherit;
-    float: none;
-    display: inline-block;
-    margin: auto;
-    font-weight: 500;
-    text-align: center;
-    animation: none;
-    padding: 25px 1.5em 25px 1.5em;
-    border-bottom: 2px solid transparent;
-}
-
-/* 
-    Main Page 
-*/
-
-.sub-title {
-    text-align: center;
-    color: #ecce00ff;
-    font-size: 1.2em;
-}
-
-.flash {
-    text-align: center;
-
-}
-
-main {
-    margin-top: 250px;
-}
 /* Scroll bar */
 ::-webkit-scrollbar {
     width: 5px;
@@ -100,40 +39,32 @@ main {
 }
 
 
-
-/* Remove Colour from links */
-a, a:hover, a:visited, a:active {
-    color: inherit;
-    text-decoration: none;
+/* Body */
+html, body {
+    min-width: fit-content;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
-/* No bullet point*/
-ul {
-    list-style-type: none;
-    padding: 0;
+body {
+    font-family: 'Libre Baskerville', serif;
+    color: var(--white);
+    background-color: var(--background);
 }
 
-/* small font size on user post info */
-.post-info {
-    font-size: 0.8em;
-    color: #9c9c9c;
+h1 {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 4px solid var(--yellow);
 }
 
-/* Forms for posting and commenting */
-textarea {
-    resize: none;
+
+/* Flash messages */
+.flash {
+    text-align: center;
 }
 
-/* Form highlight */
-form *:focus {
-    border: 2px solid #ecce00ff;
-    box-shadow: 0px 0px 2px 1px #ecce00ff;
-}
-  
-
-/* flash messages */
-
-.info {
+.flash .info {
     text-shadow: 1px 1px 6px #000000;
     padding: 10px 20px 10px 20px;
     background-color: darkgreen;
@@ -144,7 +75,7 @@ form *:focus {
     margin-bottom: 20px;
 }
 
-.error {
+.flash .error {
     text-shadow: 1px 1px 6px #000000;
     padding: 10px 20px 10px 20px;
     background-color: darkred;
@@ -155,518 +86,486 @@ form *:focus {
     margin-bottom: 20px;
 }
 
-/* 
-Home page 
-*/
-
-.main-page {
-    width: 30%;
-    min-width: 500px;
-    margin: 0 auto;
-    padding: 10px;
-}
-
-
-/* Create post/comment form */
-.create {
-    margin: 0 auto;
+/* Headers */
+header {
+    word-wrap: normal;
+    font-size: 4em;
     text-align: center;
-    margin-bottom: 50px;
-    margin-top: 50px;
-    row-gap: 50px;
+    color: var(--yellow);
 }
 
-.create * {
-    font-family: inherit;
-}
-
-.create input[type=button],
-.create input[type=submit],
-.create input[type=text],
-.create textarea,
-.create button,
-.create select {
-    width: 50%;
-    box-sizing: border-box;
-    border: none;
-    min-width: 300px;
-    padding: 10px;
-    color: inherit;
-    background-color: #1c1c1c;
-    outline: none;
-    }
-
-/* Hover indicator */
-.create button {
-    padding-top: 30px;
-    padding-bottom: 30px;
-    border-bottom: 2px solid transparent;
-    font-size: 1.3em;
-}
-
-
-/* Create post form */
-.create input[type=text]:focus, 
-.create textarea:focus, 
-.create select:focus {
-    border: 2px solid #ecce00ff;
-}
-
-.create textarea {
-    padding-bottom: 20%;
-}
-
-#form-post * {
-    margin-top: 2px;
-}
-
-/* Sort buttons */
-
-.sort {
-    margin: auto;
-    width: 40%;
+#subtitle {
     text-align: center;
-    margin: 0 auto;
+    font-size: 1em;
+    color: var(--yellow);
+    /* display: inline-block; */
 }
-
-.sort * {
-    font-family: inherit;
-}
-
-.sort select {
-    width: 80%;
-    box-sizing: border-box;
-    border: none;
-    min-width: 300px;
-    padding: 10px;
-    color: white;
-    background-color: #1c1c1c;
-    outline: none;
-    border-bottom: 2px solid transparent;
-}
-
-
-.sort input[type=submit] {
-    box-sizing: border-box;
+/* Nav bar */
+/* Background */
+nav {
+    background-color: var(--dark-gray);
+    position: -webkit-sticky; 
+    position: sticky;
+    top: 0;
+    min-width: 100px;
+    margin: 0;
+    padding: 0;
+    /* overflow: hidden; */
     
 }
 
-/* The posts */
-.post {
-    background-color: #1c1c1c;
-    border-radius: 1em;
-    padding: 2em;
-    margin-top: 2em;
-    margin-bottom: 2em;
-}
-
-.post:hover {
-    box-shadow: 0px 0px 5px 2px #ecce00ff;
-}
-
-/* Post elements */
-
-#post-title {
-    font-size: 1.5em;
-    background-color: #252525;
-    padding: 10px;
-    border-radius: 10px;
+nav ul {
+    margin: 0;
+    padding: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
+    text-align: center;
 }
 
-#user-date {
-    border-top: 2px solid #ecce00ff;
-    border-bottom: 2px solid #ecce00ff;
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
-
-/* Included in page */
-#category, .page-head h2{
+nav li {
     display: inline-block;
-    background-color: #252525;
-    padding: 10px;
-    border: 1px solid #ecce00ff;
-    border-radius: 5px;
 }
 
-#content {
-    text-align: justify;
-    word-wrap: break-word
+nav a {
+    display: block;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
-#post-foot {
-    border-top: 2px solid #ecce00ff;
-    padding-top: 20px;
-}
-
-
-/* Like/dislike buttons */
-
-form.grade-content {
+/* Home buttons */
+.home-container {
+    overflow: hidden;
+    box-sizing: border-box;
+    margin-top: 30px;
+    margin-bottom: 30px;
     display: flex;
-    flex-direction: row;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    align-items: center
+    flex-direction: column;
+    justify-content:center;
+    align-items: center;
+    /* width: 100%; */
+    height: auto;
 }
 
 
-/* includes reply to comment button */
-form.grade-content input[type=submit],
-#reply-form input {
-    color: inherit;
-    background-color: #252525;
-    padding: 0.7em;
-    padding-left: 2em;
-    padding-right: 2em;
-    border: 2px solid #ecce00ff;
-    border-radius: 20px;
-    margin-right: 10px;
+.home-element {
+    width: 800px;
+    min-height: 50px;
+    margin-top: 50px;
+    color: white;
+    font-family: inherit;
+    text-align: center;
+    background-color: var(--dark-gray);
 }
 
-form.grade-content input[type=submit]:hover,
-.create input[type=submit]:hover,
-#reply-form input:hover
-.account-user-posts li:hover
-.delete input[type=submit]:hover {
-    box-shadow: 0px 0px 5px 2px #ecce00ff;
+
+a.home-element {
+    line-height: 50px;
+}
+
+select.home-element, button.home-element {
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+}
+
+/* Create post button */
+#form-post {
+    margin-top: 0;
+    background-color: var(--background);
+}
+
+/* Create content and account forms */
+form.home-element {
+    background-color: var(--background);
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+
+form * {
+    color: white;
+    border: none;
+    background-color: var(--dark-gray);
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: 5px;
+    border-bottom: 2px solid transparent;
+}
+
+form textarea {
+    resize: none;
+    padding-bottom: 30%;
+}
+
+form *:focus {
+    outline: none;
+    border-bottom: 2px solid var(--yellow);
+    /* box-shadow: 0px 0px 4px 1px var(ye); */
+}
+
+form input[type=submit]:hover, form select:hover {
     cursor: pointer;
 }
 
+form input:focus {
+    background-color: var(--gray);
+}
 
-form.grade-content p {
-    display: inline-block;
-    vertical-align: auto;
-    margin-right: 10px;
+input, textarea {
+    font-family: inherit;
+    width: 100%;
+}
+
+/* Posts and comments */
+.post-container {
+    display: flex;
+    /* overflow: hidden; */
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 1;
+}
+
+.post {
+    width: 800px;
+    min-width: 100px;
+    margin-top: 40px;
+    margin-bottom: 4px;
+    background-color: var(--dark-gray);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+/* Post elements */
+.post:hover {
+    box-shadow: 0px 0px 5px 2px var(--yellow);
 }
 
 
-/* 
-Page
-*/
-
-.page-head {
-    margin: 0 auto;
-    width: 40%;
-    padding: 20px 20px 20px 50px;
-    background-color: #1c1c1c;
-    border-bottom: 2px solid #ecce00ff;
-    border-top: 2px solid #ecce00ff;
-}
-
-/* Title */
-.page-head h1 {
-    text-align: center;
-    font-size: 3em;
-    word-wrap: break-word;
-}
-
-/* info (username, date) */
-#page-info {
-    display: inline-block;
-    padding: 20px 0 20px;
-}
-
-#page-info a {
-    padding: 10px;
-    background-color: #1c1c1c;
-}
-
-/* page content */
-#page-body {
-    padding: 20px 20px 20px 50px;
-    margin: 0 auto;
-    width: 40%;
-    background-color: #1c1c1c;
-}
-
-#page-body p {
-    text-align: justify;
-    word-wrap: break-word;
-}
-
-/* like dislike */
-#post-grade-page {
-    padding: 20px 20px 20px 50px;
-    border-top: 2px solid #ecce00ff;
-    border-bottom: 2px solid #ecce00ff;
-    margin: 0 auto;
-    width: 40%;
-    background-color: #1c1c1c;
-}
-
-/* comments */
-.page-foot {
-    margin: 0 auto;
-    width: 45%;
-    margin-top: 20px;
-}
-
-.page-foot h3 {
+.post-title {
     font-size: 2em;
+    padding-bottom: 30px;
+    border-bottom: 4px solid var(--yellow);
+}
+
+.post-content{
+    word-wrap: break-word;
+    padding-bottom: 30px;
+    border-bottom: 4px solid var(--yellow);
+}
+
+.post-info {
+    color: var(--light-gray);
+}
+
+.post-category {
+    display: inline-block;
+    background-color: var(--gray);
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid var(--yellow);
+}
+
+/* Post interact and delete */
+
+.interact {
+    display: inline-block;
+    background-color: var(--gray);
+    padding: 10px 15px;
+    margin-bottom: 5px;
+}
+
+.interact input[type=submit] {
+    margin: 0;
+    background-color: var(--gray);
+}
+
+a.interact {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.reply .interact {
+    margin-top: 15px;
+}
+
+/* page specific */
+.post.page-post {
+    width: 1000px;
+}
+
+.post.page-post:hover, .post.comment:hover, .post.reply:hover {
+    box-shadow: none;
+}
+
+.page-post .post-element {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.page-post .post-category {
+    margin-top: 20px;
     margin-bottom: 20px;
-    padding: 10px;
-    border-bottom: 2px solid #ecce00ff;
 }
 
-.comment-form, .comment-form input[type=submit] {
-    width: 100%;
+/* Username on post page */
+.page-post .post-user {
+    background-color: var(--gray);
+    display: inline-block;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom: 2px solid transparent;
+    border-radius: 10px;
+    margin-bottom: 10px;
 }
 
-.comment-form textarea {
-    width: 100%;
-    box-sizing: border-box;
-    min-width: 300px;
-    padding: 10px;
-    color: inherit;
-    outline: none;
+.page-post .post-user:hover {
+    border-bottom: 2px solid var(--yellow);
+}
+
+/* Grade buttons */
+input[name=grade] {
+    color: white;
+    background-color: var(--gray);
+    padding: 10px 15px;
+    margin-right: 20px;
+    /* border: 2px solid var(--yellow); */
     border: none;
-    background-color: #1c1c1c;
-    border: 2px solid transparent;
+    border-radius: 3px;
+    width: 10%;
 }
 
-.comment-form textarea:hover {
-    border-bottom: 2px solid #ecce00ff;
+input[name=grade]:hover, .interact:hover {
+    box-shadow: 0px 0px 5px 2px var(--yellow);
+    cursor: pointer;
+}
+
+/* Page post */
+.comment-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* I need these it wont auto fit in div */
+.comment-form textarea, .comment-form input {
+    font-family: inherit;
+    width: 1000px;
+}
+
+
+.comment-form {
+    width: 1000px;
+}
+
+.comment-form h3 {
+    font-size: 2em;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--yellow);
 }
 
 .comment {
-    background-color: #1c1c1c;
-    padding: 15px;
-    border-radius: 20px;
-    margin-top: 30px;
-    margin-bottom: 30px;
+    width: 1000px;
 }
 
-/* Replies */
+/* Reply indent */
+
 .reply {
-    background-color: #1c1c1c;
-    margin-left: 10%;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding: 15px;
-    border-radius: 20px;
-
+    margin-left: auto;
 }
 
-/* 
-Create account and log in
-*/
+/* Reply and account forms */
 
-.account-form {
-    text-align: center;
-    margin-bottom: 20px;
+.create-form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.account-form h1 {
-    font-size: 3.5em;
-}
+.create-form {
+    width: 800px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    }
 
-.account-form input {
-    margin: 0 auto;
-    width: 40%;
-    box-sizing: border-box;
-    color: white;
-    margin-bottom: 15px;
-    padding: 20px 35px 20px 35px;
-    background-color:#1c1c1c;
-    border: none;
-    border-radius: 10PX;
-    border-bottom: 1px solid #ecce00ff;
+.create-form input {
     font-family: inherit;
     font-size: 1.2em;
-}
-
-.account-form input:focus {
-    outline: none;
-}
-
-/* redirect */
-.sign-redirect {
     display: block;
-    margin: 0 auto;
-    width: 20%;
-    background-color: #1c1c1c;
-    border-radius: 5px;
-    padding: 15px 5px 15px 5px;
-    border-bottom: 1px solid #ecce00ff;
+}
+        
+.sign-redirect {
+    margin-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: var(--dark-gray);
+    display: block;
+    text-align: center;
 }
 
-/* 
-Error page
-*/
-
+/* Error pages */
 .error-page {
     margin: 0 auto;
-    margin-top: 10%;
-    width: 50%;
-    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 .error-page a {
     display: block;
-    width: 40%;
-    margin: 0 auto;
+    text-align: center;
+    background-color: var(--dark-gray);
+    padding: 20px 15px;
+}
+
+.reply-to {
+    padding-bottom: 30px;
+    border-bottom: 3px solid var(--yellow);
+}
+
+/* Account */
+.account-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.account-element {
+    width: 800px;
+}
+
+.account-user-info {
+    background-color: var(--dark-gray);
     margin-top: 40px;
-    background-color: #252525;
-    padding: 20px;
-    border: 3px solid #ecce00ff;
+    padding: 30px;
     border-radius: 10px;
 }
 
-/* 
-Reply to page
-*/
-
-.reply-form {
-    display: block;
-    margin: 0 auto;
-    width: 40%; 
-}
-
-.reply-form h1 {
-    font-size: 3em;
+.account-user-posts h2 {
     padding-bottom: 10px;
-    border-bottom: 2px solid #ecce00ff;
+    border-bottom: 3px solid var(--yellow);
 }
 
-.reply-form p {
-    background-color: #1c1c1c;
-    border-radius: 20px;
-    padding: 15px;
-}
-
-.reply-form form * {
-    font-family: inherit;
-    display: block;
-    box-sizing: border-box;
-    border-bottom-right-radius: 2px solid transparent;
-}
-
-.reply-form textarea {
-    width: 100%;
-    min-width: 300px;
-    padding: 10px;
-    color: inherit;
-    outline: none;
-    border: none;
-    background-color: #1c1c1c;
-    padding-bottom: 25%;
-}
-
-.reply-form textarea:focus {
-    outline: none;
-}
-
-.reply-form input[type=submit] {
-    color: #ffffffff;
-    width: 100%;
-    background-color: #1c1c1c;
-    padding: 10px 20px 10px 20px;
-}
-
-/* 
-User page
-*/
-
-.account-user-info {
-    margin: 0 auto;
-    width: 30%;
-    background-color: #1c1c1c;
-    text-align: justify;
-    padding: 40px 20px 40px 20px;
-    border-radius: 20px;
-    margin-bottom: 60px;
-}
-
-.account-user-info * {
-    display: block;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ecce00ff;
-}
-
-.account-user-posts {
-    display: block;
-    margin: 0 auto;
-    width: 40%;
-    background-color: #1c1c1c;
-    padding: 20px 20px 50px 20px;
-    border-radius: 20px;
+.account-user-posts h3 {
+    font-size: 2em;
 }
 
 .account-user-posts li {
-    margin-top: 40px;
-    margin-bottom: 40px;
-    padding: 10px;
-    background-color: #252525;
-    border-bottom: 2px solid #ecce00ff;   
+    padding: 10px 30px;
+    background-color: var(--dark-gray);
 }
 
-.delete input[type=submit] {
+.account-user-posts li:hover {
+    box-shadow: 0px 0px 3px 1px var(--yellow);
+}
+
+.account-user-posts a {
     display: block;
-    margin: 0 auto;
-    margin-top: 50px;
-    cursor: pointer;
-    color: #ffffff;
-    font-family: inherit;
-    padding: 10px 5px 10px 5px;
-    background-color: #252525;
-    border: 2px solid #ecce00ff
-    
-        
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 
-.delete-post {
-    display: block;
-    text-align: right;
+/* Animations */
+/* Hover over button */
+
+.hover-button, select.hover-button{
+    animation: none;
+    border-bottom: 3px solid transparent;
 }
 
-/* 
-Animations
-*/
-
-/* navbar, sort buttons, username button */
-nav a:hover, .create button:hover, #page-info a:hover, .sort select:hover {
-    animation: nav-hover 0.3s;
-    -webkit-animation: nav-hover 0.3s;
-    -moz-animation: nav-hover 0.3s;
-    -o-animation: nav-hover 0.3s;
-    /* fill modes */
+.hover-button:hover {
+    animation: hover-button 0.3s;
+    -webkit-animation: hover-button 0.3s;
+    -moz-animation: hover-button 0.3s;
+    -o-animation: hover-button 0.3s;
+    /* Fill */
     animation-fill-mode: forwards;
     -webkit-animation-fill-mode: forwards;
     -moz-animation-fill-mode: forwards;
     -o-animation-fill-mode: forwards;
 }
 
-
-@keyframes nav-hover {
-    from  {background-color: #1c1c1c;
-           border-bottom: 2px solid transparent;}
-    to    {background-color: #252525;
-           border-bottom: 2px solid #ecce00ff;}
+@keyframes hover-button {
+    from  {background-color: inherit;
+           border-color: transparent;}
+    to    {background-color: var(--gray);
+           border-color: var(--yellow);}
 }
 
-@-webkit-keyframes nav-hover {
-    from  {background-color: #1c1c1c;
-        border-bottom: 2px solid transparent;}
-    to    {background-color: #252525;
-        border-bottom: 2px solid #ecce00ff;}
+@-webkit-keyframes hover-button {
+    from  {background-color: inherit;
+        border-color: transparent;}
+    to    {background-color: var(--gray);
+        border-color: var(--yellow);}
 }
 
-@-moz-keyframes nav-hover {
-    from  {background-color: #1c1c1c;
-        border-bottom: 2px solid transparent;}
-    to    {background-color: #252525;
-        border-bottom: 2px solid #ecce00ff;}
+@-moz-keyframes hover-button {
+    from  {background-color: inherit;
+        border-color: transparent;}
+    to    {background-color: var(--gray);
+        border-color: var(--yellow);}
 }
 
-@-o-keyframes nav-hover {
-    from  {background-color: #1c1c1c;
-        border-bottom: 2px solid transparent;}
-    to    {background-color: #252525;
-        border-bottom: 2px solid #ecce00ff;}
+@-o-keyframes hover-button {
+    from  {background-color: inherit;
+        border-color: transparent;}
+    to    {background-color: var(--gray);
+        border-color: var(--yellow);}
 }
+
+input.hover-input {
+    animation: none;
+}
+
+.hover-input:hover {
+    animation: hover-input 0.1s;
+    -webkit-animation: hover-input 0.1s;
+    -moz-animation: hover-input 0.1s;
+    -o-animation: hover-element 0.1s;
+    /* Fill */
+    animation-fill-mode: forwards;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    -o-animation-fill-mode: forwards;
+}
+
+/* Hover over input */
+@keyframes hover-input {
+    from {background-color: inherit;}
+    to {background-color: var(--gray);}
+}
+
+@-webkit-keyframes hover-input {
+    from {background-color: inherit;}
+    to {background-color: var(--gray);}
+}
+
+@-moz-keyframes hover-input {
+    from {background-color: inherit;}
+    to {background-color: var(--gray);}
+}
+
+@-o-keyframes hover-input {
+    from {background-color: inherit;}
+    to {background-color: var(--gray);}
+}
+
+
+/* Debug */
+
+/* * {
+    background: #000 !important;
+    color: red !important;
+    outline: solid yellow 1px !important;
+  }  */
