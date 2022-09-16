@@ -126,7 +126,6 @@ def build_query(type, user_id, condition="", order="", reply=None, post_id=None)
         parameter.append(post_id)
     parameter = tuple(parameter)
     conn = get_db()
-    conn.set_trace_callback(print)
     cur = conn.cursor()
     cur.execute(query, parameter)
     result = cur.fetchall()
@@ -204,7 +203,6 @@ def add_grade(user_id, type, type_id, grade, replace=None):
         elif type == "c":
             query = "UPDATE CommentGrade SET grade = ? WHERE user_id = ? AND comment_id = ?"
         parameter = (grade, user_id, type_id)
-    print(query)
     cur.execute(query, parameter)
     conn.commit()
 
@@ -400,7 +398,6 @@ def grade(id):
         grade = grade_to_int.get(request.form.get("grade"))
         if grade == None:
             return redirect(request.referrer)
-        print(grade)
         # Find if user already liked or disliked post/comment
         if table == "p":
             query = "SELECT grade FROM PostGrade WHERE user_id = ? AND post_id = ?"

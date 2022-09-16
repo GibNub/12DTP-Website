@@ -122,7 +122,7 @@
                         <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
                             <input type="hidden" name="id" value="{{ post[0] }}">
                             <input type="hidden" name="type" value="p">
-                            <input type="submit" value="Delete Post">
+                            <input type="submit" value="Delete Comment">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         </form>
                     </div>
@@ -163,7 +163,7 @@
                                 <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
                                     <input type="hidden" name="id" value="{{ post[0] }}">
                                     <input type="hidden" name="type" value="p">
-                                    <input type="submit" value="Delete Post">
+                                    <input type="submit" value="Delete Reply">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 </form>
                             </div>

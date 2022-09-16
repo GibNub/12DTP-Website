@@ -40,15 +40,16 @@ a {
 
 
 /* Body */
-html {
+html, body {
     min-width: fit-content;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 body {
     font-family: 'Libre Baskerville', serif;
     color: var(--white);
     background-color: var(--background);
-    min-width: fit-content;
 }
 
 h1 {
@@ -212,6 +213,10 @@ form input:focus {
     background-color: var(--gray);
 }
 
+input, textarea {
+    font-family: inherit;
+    width: 100%;
+}
 
 /* Posts and comments */
 .post-container {
@@ -270,6 +275,7 @@ form input:focus {
     display: inline-block;
     background-color: var(--gray);
     padding: 10px 15px;
+    margin-bottom: 5px;
 }
 
 .interact input[type=submit] {
@@ -331,6 +337,7 @@ input[name=grade] {
     /* border: 2px solid var(--yellow); */
     border: none;
     border-radius: 3px;
+    width: 10%;
 }
 
 input[name=grade]:hover, .interact:hover {
@@ -382,15 +389,18 @@ input[name=grade]:hover, .interact:hover {
     align-items: center;
 }
 
+.create-form {
+    width: 800px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    }
+
 .create-form input {
     font-family: inherit;
     font-size: 1.2em;
     display: block;
-    width: 800px;
-    padding-top: 30px;
-    padding-bottom: 30px;
 }
-
+        
 .sign-redirect {
     margin-top: 20px;
     padding-top: 10px;
@@ -402,8 +412,69 @@ input[name=grade]:hover, .interact:hover {
 
 /* Error pages */
 .error-page {
-    
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
+
+.error-page a {
+    display: block;
+    text-align: center;
+    background-color: var(--dark-gray);
+    padding: 20px 15px;
+}
+
+.reply-to {
+    padding-bottom: 30px;
+    border-bottom: 3px solid var(--yellow);
+}
+
+/* Account */
+.account-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.account-element {
+    width: 800px;
+}
+
+.account-user-info {
+    background-color: var(--dark-gray);
+    margin-top: 40px;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.account-user-posts h2 {
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--yellow);
+}
+
+.account-user-posts h3 {
+    font-size: 2em;
+}
+
+.account-user-posts li {
+    padding: 10px 30px;
+    background-color: var(--dark-gray);
+}
+
+.account-user-posts li:hover {
+    box-shadow: 0px 0px 3px 1px var(--yellow);
+}
+
+.account-user-posts a {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 
 /* Animations */
 /* Hover over button */
