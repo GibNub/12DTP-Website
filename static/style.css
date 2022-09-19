@@ -44,6 +44,8 @@ html, body {
     min-width: fit-content;
     max-width: 100%;
     overflow-x: hidden;
+    margin: 0;
+    /* padding: 0; */
 }
 
 body {
@@ -105,8 +107,8 @@ header {
 nav {
     background-color: var(--dark-gray);
     position: -webkit-sticky; 
-    position: sticky;
     top: 0;
+    position: sticky;
     min-width: 100px;
     margin: 0;
     padding: 0;
@@ -475,6 +477,38 @@ input[name=grade]:hover, .interact:hover {
     margin-bottom: 20px;
 }
 
+/* Footer */
+footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    border-top: 2px solid var(--gray);
+}
+
+footer ul {
+    margin: 0;
+    background-color: var(--dark-gray);
+    display: flex;
+    justify-content: center;
+
+}
+
+footer li {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    font-size: 0.5em;
+    color: var(--light-gray);
+    text-align: center;
+}
+
+/* About */
+.about {
+    margin: 0 auto;
+    width: 50%;
+}
+
 
 /* Animations */
 /* Hover over button */
@@ -560,7 +594,6 @@ input.hover-input {
     from {background-color: inherit;}
     to {background-color: var(--gray);}
 }
-
 
 /* Debug */
 
