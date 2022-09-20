@@ -1,11 +1,20 @@
 /* Colours */
 :root {
-    --white: #ffffff;
-    --light-gray: #8c8c8c;
-    --dark-gray: #171717;
-    --gray: #2c2c2c;
+    --text-colour: #ffffff;
     --background: #050505;
-    --yellow: #ecce00ff;
+    --first-layer: #171717;
+    --second-layer: #3c3c3c;
+    --hover: #8c8c8c;
+    --accent: #ecce00ff;
+}
+
+[data-theme="light"] {
+    --text-colour: #000000;
+    --background: #ffffff;
+    --first-layer: #f4f4f4;
+    --second-layer: #bcbcbc;
+    --hover: #9f9f9f;
+    --accent: #ecce00ff;
 }
 
 /* Remove built in style */
@@ -50,14 +59,14 @@ html, body {
 
 body {
     font-family: 'Libre Baskerville', serif;
-    color: var(--white);
+    color: var(--text-colour);
     background-color: var(--background);
 }
 
 h1 {
     padding-top: 10px;
     padding-bottom: 10px;
-    border-bottom: 4px solid var(--yellow);
+    border-bottom: 4px solid var(--accent);
 }
 
 
@@ -93,19 +102,19 @@ header {
     word-wrap: normal;
     font-size: 4em;
     text-align: center;
-    color: var(--yellow);
+    color: var(--accent);
 }
 
 #subtitle {
     text-align: center;
     font-size: 1em;
-    color: var(--yellow);
+    color: var(--accent);
     /* display: inline-block; */
 }
 /* Nav bar */
 /* Background */
 nav {
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
     position: -webkit-sticky; 
     top: 0;
     position: sticky;
@@ -113,7 +122,9 @@ nav {
     margin: 0;
     padding: 0;
     /* overflow: hidden; */
-    
+    display: flex;
+    justify-content: center;
+    align-content: center;
 }
 
 nav ul {
@@ -127,12 +138,18 @@ nav li {
     display: inline-block;
 }
 
-nav a {
+nav a, nav div {
     display: block;
     padding-top: 30px;
     padding-bottom: 30px;
     padding-left: 20px;
     padding-right: 20px;
+}
+
+/* Toggle theme */
+.toggle-theme-wrapper {
+    display: flex;
+    justify-content: center;
 }
 
 /* Home buttons */
@@ -154,10 +171,10 @@ nav a {
     width: 800px;
     min-height: 50px;
     margin-top: 50px;
-    color: white;
+    color: var(--text-colour);
     font-family: inherit;
     text-align: center;
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
 }
 
 
@@ -187,9 +204,9 @@ form.home-element {
 
 
 form * {
-    color: white;
+    color: var(--text-colour);
     border: none;
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
     padding-top: 15px;
     padding-bottom: 15px;
     margin-top: 5px;
@@ -203,7 +220,7 @@ form textarea {
 
 form *:focus {
     outline: none;
-    border-bottom: 2px solid var(--yellow);
+    border-bottom: 2px solid var(--accent);
     /* box-shadow: 0px 0px 4px 1px var(ye); */
 }
 
@@ -212,7 +229,7 @@ form input[type=submit]:hover, form select:hover {
 }
 
 form input:focus {
-    background-color: var(--gray);
+    background-color: var(--second-layer);
 }
 
 input, textarea {
@@ -236,53 +253,53 @@ input, textarea {
     min-width: 100px;
     margin-top: 40px;
     margin-bottom: 4px;
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
     border-radius: 20px;
     padding: 30px;
 }
 
 /* Post elements */
 .post:hover {
-    box-shadow: 0px 0px 5px 2px var(--yellow);
+    box-shadow: 0px 0px 5px 2px var(--accent);
 }
 
 
 .post-title {
     font-size: 2em;
     padding-bottom: 30px;
-    border-bottom: 4px solid var(--yellow);
+    border-bottom: 4px solid var(--accent);
 }
 
 .post-content{
     word-wrap: break-word;
     padding-bottom: 30px;
-    border-bottom: 4px solid var(--yellow);
+    border-bottom: 4px solid var(--accent);
 }
 
 .post-info {
-    color: var(--light-gray);
+    color: var(--text-colour);
 }
 
 .post-category {
     display: inline-block;
-    background-color: var(--gray);
+    background-color: var(--second-layer);
     padding: 10px;
     border-radius: 5px;
-    border: 2px solid var(--yellow);
+    border: 2px solid var(--accent);
 }
 
 /* Post interact and delete */
 
 .interact {
     display: inline-block;
-    background-color: var(--gray);
+    background-color: var(--second-layer);
     padding: 10px 15px;
     margin-bottom: 5px;
 }
 
 .interact input[type=submit] {
     margin: 0;
-    background-color: var(--gray);
+    background-color: var(--second-layer);
 }
 
 a.interact {
@@ -315,7 +332,7 @@ a.interact {
 
 /* Username on post page */
 .page-post .post-user {
-    background-color: var(--gray);
+    background-color: var(--second-layer);
     display: inline-block;
     padding-bottom: 20px;
     padding-top: 20px;
@@ -327,23 +344,22 @@ a.interact {
 }
 
 .page-post .post-user:hover {
-    border-bottom: 2px solid var(--yellow);
+    border-bottom: 2px solid var(--accent);
 }
 
 /* Grade buttons */
 input[name=grade] {
-    color: white;
-    background-color: var(--gray);
+    color: var(--white);
+    background-color: var(--second-layer);
     padding: 10px 15px;
     margin-right: 20px;
-    /* border: 2px solid var(--yellow); */
     border: none;
     border-radius: 3px;
     width: 10%;
 }
 
 input[name=grade]:hover, .interact:hover {
-    box-shadow: 0px 0px 5px 2px var(--yellow);
+    box-shadow: 0px 0px 5px 2px var(--accent);
     cursor: pointer;
 }
 
@@ -369,7 +385,7 @@ input[name=grade]:hover, .interact:hover {
 .comment-form h3 {
     font-size: 2em;
     padding-bottom: 20px;
-    border-bottom: 2px solid var(--yellow);
+    border-bottom: 2px solid var(--accent);
 }
 
 .comment {
@@ -407,7 +423,7 @@ input[name=grade]:hover, .interact:hover {
     margin-top: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
     display: block;
     text-align: center;
 }
@@ -425,13 +441,13 @@ input[name=grade]:hover, .interact:hover {
 .error-page a {
     display: block;
     text-align: center;
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
     padding: 20px 15px;
 }
 
 .reply-to {
     padding-bottom: 30px;
-    border-bottom: 3px solid var(--yellow);
+    border-bottom: 3px solid var(--accent);
 }
 
 /* Account */
@@ -447,7 +463,7 @@ input[name=grade]:hover, .interact:hover {
 }
 
 .account-user-info {
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
     margin-top: 40px;
     padding: 30px;
     border-radius: 10px;
@@ -455,7 +471,7 @@ input[name=grade]:hover, .interact:hover {
 
 .account-user-posts h2 {
     padding-bottom: 10px;
-    border-bottom: 3px solid var(--yellow);
+    border-bottom: 3px solid var(--accent);
 }
 
 .account-user-posts h3 {
@@ -464,11 +480,11 @@ input[name=grade]:hover, .interact:hover {
 
 .account-user-posts li {
     padding: 10px 30px;
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
 }
 
 .account-user-posts li:hover {
-    box-shadow: 0px 0px 3px 1px var(--yellow);
+    box-shadow: 0px 0px 3px 1px var(--accent);
 }
 
 .account-user-posts a {
@@ -482,12 +498,12 @@ footer {
     position: fixed;
     width: 100%;
     bottom: 0;
-    border-top: 2px solid var(--gray);
+    border-top: 2px solid var(--second-layer);
 }
 
 footer ul {
     margin: 0;
-    background-color: var(--dark-gray);
+    background-color: var(--first-layer);
     display: flex;
     justify-content: center;
 
@@ -499,7 +515,7 @@ footer li {
     margin-left: 10px;
     margin-right: 10px;
     font-size: 0.5em;
-    color: var(--light-gray);
+    color: var(--second-layer);
     text-align: center;
 }
 
@@ -533,29 +549,29 @@ footer li {
 @keyframes hover-button {
     from  {background-color: inherit;
            border-color: transparent;}
-    to    {background-color: var(--gray);
-           border-color: var(--yellow);}
+    to    {background-color: var(--second-layer);
+           border-color: var(--accent);}
 }
 
 @-webkit-keyframes hover-button {
     from  {background-color: inherit;
         border-color: transparent;}
-    to    {background-color: var(--gray);
-        border-color: var(--yellow);}
+    to    {background-color: var(--second-layer);
+        border-color: var(--accent);}
 }
 
 @-moz-keyframes hover-button {
     from  {background-color: inherit;
         border-color: transparent;}
-    to    {background-color: var(--gray);
-        border-color: var(--yellow);}
+    to    {background-color: var(--second-layer);
+        border-color: var(--accent);}
 }
 
 @-o-keyframes hover-button {
     from  {background-color: inherit;
         border-color: transparent;}
-    to    {background-color: var(--gray);
-        border-color: var(--yellow);}
+    to    {background-color: var(--second-layer);
+        border-color: var(--accent);}
 }
 
 input.hover-input {
@@ -577,22 +593,22 @@ input.hover-input {
 /* Hover over input */
 @keyframes hover-input {
     from {background-color: inherit;}
-    to {background-color: var(--gray);}
+    to {background-color: var(--second-layer);}
 }
 
 @-webkit-keyframes hover-input {
     from {background-color: inherit;}
-    to {background-color: var(--gray);}
+    to {background-color: var(--second-layer);}
 }
 
 @-moz-keyframes hover-input {
     from {background-color: inherit;}
-    to {background-color: var(--gray);}
+    to {background-color: var(--second-layer);}
 }
 
 @-o-keyframes hover-input {
     from {background-color: inherit;}
-    to {background-color: var(--gray);}
+    to {background-color: var(--second-layer);}
 }
 
 /* Debug */

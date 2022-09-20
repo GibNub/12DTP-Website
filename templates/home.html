@@ -92,8 +92,8 @@
     #}
     {% for post in post %}
         {% set section.value = section.value + 1 %}
-        <li class="post hidden" id="{{ section.value }}">
-            <a href="{{ url_for('page', id=post[0]) }}">
+        <a href="{{ url_for('page', id=post[0]) }}">
+            <li class="post" id="{{ section.value }}">
                 {# id, title #}
                 <h1 class="post-element post-title">{{ post[2] }}</h1>
                 {# username, date #}
@@ -135,8 +135,8 @@
                         </form>
                     </div>
                 {% endif %}
-            </a>
-        </li>
+            </li>
+        </a>
     {% endfor %}
 </ul>
 <script>
