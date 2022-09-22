@@ -338,10 +338,10 @@ a.interact {
 .page-post .post-user {
     background-color: var(--second-layer);
     display: inline-block;
-    padding-bottom: 20px;
-    padding-top: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-bottom: 7px;
+    padding-top: 7px;
+    padding-left: 5px;
+    padding-right: 5px;
     border-bottom: 2px solid transparent;
     border-radius: 10px;
     margin-bottom: 10px;

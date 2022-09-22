@@ -118,15 +118,15 @@
                     <a class="interact" href="{{ url_for('reply_to', post_id=post[0], comment_id=comment[0]) }}">Reply to comment</a><br>
                     {% endif %}
                     {% if post[4] == session["user_id"] or session["admin"] == 1 %}
-                    <div class="interact">
-                        <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
-                            <input type="hidden" name="id" value="{{ post[0] }}">
-                            <input type="hidden" name="type" value="p">
-                            <input type="submit" value="Delete Comment">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        </form>
-                    </div>
-                {% endif %}
+                        <div class="interact">
+                            <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                                <input type="hidden" name="id" value="{{ post[0] }}">
+                                <input type="hidden" name="type" value="p">
+                                <input type="submit" value="Delete Comment">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
                 <ul>
                 {# Check if the reply "comment_id" id is the same as the comment "id" #}
@@ -159,14 +159,14 @@
                                 {% endif %}
                             </form>
                             {% if post[4] == session["user_id"] or session["admin"] == 1 %}
-                            <div class="interact">
-                                <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
-                                    <input type="hidden" name="id" value="{{ post[0] }}">
-                                    <input type="hidden" name="type" value="p">
-                                    <input type="submit" value="Delete Reply">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                </form>
-                            </div>
+                                <div class="interact">
+                                    <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                                        <input type="hidden" name="id" value="{{ post[0] }}">
+                                        <input type="hidden" name="type" value="p">
+                                        <input type="submit" value="Delete Reply">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    </form>
+                                </div>
                             {% endif %}
                         </li>
                     {% endif %}

@@ -28,14 +28,14 @@
                         <p>Posted by {{ user_info[1] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}</p>
                         <p></p>
                         {% if id == session["user_id"] %}
-                        <div class="interact">
-                            <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
-                                <input type="hidden" name="id" value="{{ post[0] }}">
-                                <input type="hidden" name="type" value="p">
-                                <input type="submit" value="Delete Post">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            </form>
-                        </div>
+                            <div class="interact">
+                                <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
+                                    <input type="hidden" name="id" value="{{ post[0] }}">
+                                    <input type="hidden" name="type" value="p">
+                                    <input type="submit" value="Delete Post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                </form>
+                            </div>
                         {% endif %}
                     </li>
                 </a>
@@ -45,15 +45,15 @@
         <p>This user has not posted anything</p>
         {% endif %}
     </div>
-    <div class="interact">
-        {% if id == session["user_id"] %}
+    {% if id == session["user_id"] %}
+        <div class="interact">
             <form action="{{ url_for('delete') }}" method="POST"n enctype="application/x-www-form-urlencoded">
                 <input type="submit" value="Delete Account">
                 <input type="hidden" name="id" value="{{ user_id }}">
                 <input type="hidden" name="type" value="u">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             </form>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
