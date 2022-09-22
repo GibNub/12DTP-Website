@@ -6,15 +6,17 @@
     --second-layer: #3c3c3c;
     --hover: #8c8c8c;
     --accent: #ecce00ff;
+    --box-shadow: #000000;
 }
 
 [data-theme="light"] {
     --text-colour: #000000;
-    --background: #ffffff;
-    --first-layer: #f4f4f4;
+    --background: #f0f0f0;
+    --first-layer: #e4e4e4;
     --second-layer: #bcbcbc;
     --hover: #9f9f9f;
     --accent: #ecce00ff;
+    --box-shadow: #ffffff;
 }
 
 /* Remove built in style */
@@ -38,12 +40,12 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #101010;
+    background-color: var(--background);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #ecce00ff;
+    background-color: var(--accent);
     border-radius: 10px;
 }
 
@@ -76,7 +78,8 @@ h1 {
 }
 
 .flash .info {
-    text-shadow: 1px 1px 6px #000000;
+    color: white;
+    text-shadow: 1px 1px 6px var(--box-shadow);
     padding: 10px 20px 10px 20px;
     background-color: darkgreen;
     border-radius: 5px;
@@ -87,7 +90,8 @@ h1 {
 }
 
 .flash .error {
-    text-shadow: 1px 1px 6px #000000;
+    color: white;
+    text-shadow: 1px 1px 6px var(--box-shadow);
     padding: 10px 20px 10px 20px;
     background-color: darkred;
     border-radius: 5px;

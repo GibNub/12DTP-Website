@@ -3,15 +3,17 @@ The Roundtable Hold a forum for Elden Ring players, by an Elden Ring player
 A Website for a 12DTP project
 """
 import sqlite3
-from string import ascii_letters, digits
+from os import environ
 from datetime import datetime
+from string import ascii_letters, digits
+from dotenv import load_dotenv
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash, abort
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequestKeyError
 
-
-SECRET_KEY = "d780a9cw7379b1993158bb7251c5d83b23d97068abe90042ae502d8f256a301366fc78af50ab7cc5621e7"
+load_dotenv()
+SECRET_KEY = environ.get("APP_SECRET_KEY")
 USERNAME_WHITELIST = set(ascii_letters + digits + "_")
 CATEGORIES = {
     "1" : "General",
