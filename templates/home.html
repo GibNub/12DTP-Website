@@ -40,7 +40,7 @@
     <a class="hover-button home-element" href="{{ url_for('account', action='sign_in')}}">Log in to start creating posts</a>
     {% endif %}
     {# Sorting #}
-    <form action="{{ url_for('sort', type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
+    <form action="{{ url_for('sort', content_type='sort') }}" method="POST" enctype="application/x-www-form-urlencoded">
         <select class="home-element hover-button" name="type" required onchange="this.form.submit()">
             {#categories = {
             "1":"general",
@@ -56,10 +56,9 @@
             <option value="4">Humor</option>
             <option value="5">News</option>
         </select>
-        <!-- <input type="submit" value="Sort"> -->
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
-    <form action="{{ url_for('sort', type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
+    <form action="{{ url_for('sort', content_type='order') }}" method="POST" enctype="application/x-www-form-urlencoded">
         <select class="home-element hover-button" name="order" required onchange="this.form.submit()">
             {# order = {
             "1":"id",
@@ -92,7 +91,7 @@
     #}
     {% for post in post %}
         {% set section.value = section.value + 1 %}
-        <a href="{{ url_for('page', id=post[0]) }}">
+        <a href="{{ url_for('page', content_id=post[0]) }}">
             <li class="post" id="{{ section.value }}">
                 {# id, title #}
                 <h1 class="post-element post-title">{{ post[2] }}</h1>
@@ -105,7 +104,7 @@
                 {# likes and dislikes #}
                 <p class="post-element post-grade post-info">Likes : {{ post[7] }}</p>
                 <p class="post-element post-grade post-info">Dislikes : {{ post[6] }}</p>
-                <form class="post-element grade-content" action="{{ url_for('grade', id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
+                <form class="post-element grade-content" action="{{ url_for('grade', content_id=post[0]) }}" method="POST" enctype="application/x-www-form-urlencoded">
                     <input type="hidden" name="table" value="p">
                     <input type="hidden" name="section" value="{{ section.value }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
