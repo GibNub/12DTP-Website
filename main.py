@@ -245,26 +245,28 @@ def create_user(username, date, password_hash):
 # add / replace given grade to database
 def add_grade(user_id, content_type, type_id, user_grade, replace=None):
     """
-    Apply user grade to posts/comments"""
+    Apply user grade to posts/comments
+    """
     conn = get_db()
     cur = conn.cursor()
     # Add new grade
     if not replace:
         if content_type == "p":
             query = """INSERT INTO PostGrade (user_id, post_id, grade)
-                       VALUES (?, ?, ?)"""
+                       VALUES (?, ?, ?);"""
         elif content_type == "c":
             query = """INSERT INTO CommentGrade (user_id, comment_id, grade)
-                       VALUES (?, ?, ?)"""
+                       VALUES (?, ?, ?);"""
         parameter = (user_id, type_id, user_grade)
+
     # Replace existing grade
     elif replace:
         if content_type == "p":
             query = """UPDATE PostGrade SET grade = ?
-                       WHERE user_id = ? AND post_id = ?"""
+                       WHERE user_id = ? AND post_id = ?;"""
         elif content_type == "c":
             query = """UPDATE CommentGrade SET grade = ?
-                       WHERE user_id = ? AND comment_id = ?"""
+                       WHERE user_id = ? AND comment_id = ?;"""
         parameter = (user_grade, user_id, type_id)
     cur.execute(query, parameter)
     conn.commit()
@@ -278,13 +280,15 @@ def user_credit(user_id):
     """
     conn = get_db()
     cur = conn.cursor()
-    # Credits from posts
+
+    # Calcualte sum of post credits from user
     cur.execute("""SELECT Post.id AS post_id, SUM(PostGrade.grade) FROM Post
                 INNER JOIN PostGrade ON PostGrade.post_id = Post.id
                 WHERE Post.user_id = ?;""",
                 (user_id,))
     post_credit = cur.fetchone()[1]
-    # Credits from comments
+
+    # Calcualte sum of comment credits from user
     cur.execute("""SELECT Comment.id AS comment_id, SUM(CommentGrade.grade) FROM Comment
                 INNER JOIN CommentGrade ON CommentGrade.comment_id = Comment.id
                 WHERE Comment.user_id = ?;""",
@@ -296,9 +300,7 @@ def user_credit(user_id):
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
-
-# post tables gets passed to the jinja loop in "home.html".
-# This is to create HTML posts for each entry in the post table.
+# Homepage has all posts
 @app.route("/")
 def home():
     """
@@ -308,16 +310,16 @@ def home():
     user_id = session.get("user_id", None)
     condition = session.get("category", None)
     order_by = session.get("order", None)
-    # Check for sorting
+    # Check for sorting or filter
     if condition:
-        condition = f"WHERE Post.type = '{CATEGORIES[condition]}'"
+        condition_query = f"WHERE Post.type = '{CATEGORIES[condition]}'"
     else:
-        condition = ""
+        condition_query = ""
     if order_by:
-        order_by = (f"ORDER BY {SORT[order_by]} DESC")
+        order_by_query = (f"ORDER BY {SORT[order_by]} DESC")
     else:
-        order_by = "ORDER BY id DESC"
-    post = build_query("p", user_id, condition, order_by)
+        order_by_query = "ORDER BY id DESC"
+    post = build_query("p", user_id, condition_query, order_by_query)
     return render_template("home.html", post=post, title="Home")
 
 
@@ -338,12 +340,14 @@ def page(content_id):
                            post_id=content_id)[0]
     except IndexError:
         abort(404)
-    # Get comments and replies
+
+    # Get comments and replies of post
     comment = build_query("c", user_id, post_id=content_id)
     user_replies = build_query("c",
                                user_id,
                                post_id=content_id,
                                user_replies=True)
+
     return render_template("page.html",
                            post=post,
                            comment=comment,
@@ -561,16 +565,16 @@ def sign_up():
         if not all(blacklist_characters):
             flash("Usernames can only contain A-Z, 0-9, and '_'", "error")
             invalid = True
-        if username in existing_usernames:
+        elif username in existing_usernames:
             flash("That username already exists", "error")
             invalid = True
-        if len(username) > USERNAME_LIMIT:
+        elif len(username) > USERNAME_LIMIT:
             flash("Username must be less than 20 characters", "error")
             invalid = True
-        if len(username) < USERNAME_MIN:
+        elif len(username) < USERNAME_MIN:
             flash("Usernames must be greater than 3 characters", "error")
             invalid = True
-        if len(password) < PASSWORD_MIN:
+        elif len(password) < PASSWORD_MIN:
             flash("Password must be greater than 8 characters", "error")
             invalid = True
         if invalid:
@@ -671,4 +675,4 @@ def teardown_db(_):
 
 if __name__ == "__main__":
     CSRFProtect().init_app(app)
-    app.run(debug=False, host="0.0.0.0", port="8000")
+    app.run(debug=True, host="0.0.0.0", port="8000")

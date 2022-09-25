@@ -255,8 +255,8 @@ input, textarea {
 .post {
     width: 800px;
     min-width: 100px;
-    margin-top: 40px;
-    margin-bottom: 4px;
+    margin-top: 10px;
+    margin-bottom: 30px;
     background-color: var(--first-layer);
     border-radius: 20px;
     padding: 30px;
@@ -375,7 +375,6 @@ input[name=grade]:hover, .interact:hover {
     justify-content: center;
 }
 
-/* I need these it wont auto fit in div */
 .comment-form textarea, .comment-form input {
     font-family: inherit;
     width: 1000px;
@@ -625,7 +624,6 @@ input.hover-input {
 }
 
 /* Debug */
-
 /* * {
     background: #000 !important;
     color: red !important;

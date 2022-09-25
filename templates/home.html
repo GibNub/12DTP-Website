@@ -33,7 +33,7 @@
             <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         </form>
-    </div>
+    </div> <!-- Form post -->
     {# Shows or hide the form when the user clicks the button
         This button is only visible to logged in users #}
     {% else %}
@@ -72,7 +72,7 @@
         <!-- <input type="submit" value="Order"> -->
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
-</div>
+</div> <!-- Home container -->
 <ul class="post-container">
     {#
         Reference
