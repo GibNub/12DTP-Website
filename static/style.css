@@ -63,6 +63,7 @@ body {
     font-family: 'Libre Baskerville', serif;
     color: var(--text-colour);
     background-color: var(--background);
+    margin-bottom: 80px;
 }
 
 h1 {
@@ -523,6 +524,7 @@ footer li {
 }
 
 /* About */
+
 .about {
     margin: 0 auto;
     width: 50%;

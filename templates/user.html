@@ -26,7 +26,7 @@
                     <li>
                         <h3>{{ post[2] }}</h3>
                         <p>Posted by {{ user_info[1] }} ● {{ post[5][6:] }} / {{ post[5][4:6] }} / {{ post[5][:4] }}</p>
-                        {% if content_id == session["user_id"] %}
+                        {% if content_id == session["user_id"] or session["admin"] == 1 %}
                             <div class="interact">
                                 <form action="{{ url_for('delete')}}" method="POST" enctype="application/x-www-form-urlencoded">
                                     <input type="hidden" name="id" value="{{ post[0] }}">
@@ -44,7 +44,7 @@
         <p>This user has not posted anything</p>
         {% endif %}
     </div>
-    {% if content_id == session["user_id"] %}
+    {% if content_id == session["user_id"] or session["admin"] == 1 %}
         <div class="interact">
             <form action="{{ url_for('delete') }}" method="POST"n enctype="application/x-www-form-urlencoded">
                 <input type="submit" value="Delete Account">
