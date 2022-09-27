@@ -20,8 +20,7 @@ from werkzeug.exceptions import BadRequestKeyError
 
 # Constant variables
 load_dotenv()
-SECRET_KEY = environ.get("APP_SECRET_KEY",
-                         "4b7603f9b53b1ee7f548c5a4d40b5174249e6ccbfac6914f9c4b7512439bf16c")
+SECRET_KEY = environ.get("APP_SECRET_KEY", "development_key")
 USERNAME_WHITELIST = set(ascii_letters + digits + "_")
 CATEGORIES = {
     "1": "General",
