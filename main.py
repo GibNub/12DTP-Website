@@ -299,6 +299,7 @@ def user_credit(user_id):
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 
+
 # Homepage has all posts
 @app.route("/")
 def home():
@@ -523,7 +524,7 @@ def grade(content_id):
         elif table == "c":
             query = """SELECT grade FROM CommentGrade
                        WHERE user_id = ? AND comment_id = ?"""
-        existing_grade = call_database(query, (user_id, id))
+        existing_grade = call_database(query, (user_id, content_id))
 
         # Prevent user for giving the same grade to posts/comments.
         # Give grade otherwise
