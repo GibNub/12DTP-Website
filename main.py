@@ -9,9 +9,9 @@ import sqlite3
 from os import environ
 from datetime import datetime
 from string import ascii_letters, digits
-from dotenv import load_dotenv
 
 # Third party
+from dotenv import load_dotenv
 from flask import Flask, render_template, redirect, url_for, g, session, request, flash, abort
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash, check_password_hash
