@@ -517,7 +517,7 @@ input[name=grade]:hover, .interact:hover {
 
 /* Footer */
 footer {
-    position: relative;
+    position: fixed;
     width: 100%;
     bottom: 0;
     border-top: 2px solid var(--second-layer);
